@@ -37,7 +37,7 @@
  */
 
 if (!document.forms[0]?.S2) {
-  throw "一括変更のページでないため実行を中断";
+  throw new Error("一括変更のページでないため実行を中断");
 }
 
 const xpd = {
