@@ -1423,7 +1423,8 @@ function setPoke(form, buffer) {
         throw new InvalidValueOfTextbox((i + 1) + "匹目の技" + (j + 1) + "が不正です。", mv_box);
       }
       poke[i].mv[j] = mv;
-      poke[i].pp[j] = movelist[mv].pp * (5 + Number(poke[i].p_up[j])) / 5;
+      const base_pp = movelist[mv].pp;
+      poke[i].pp[j] = base_pp === 1 ? 1 : base_pp * (5 + Number(poke[i].p_up[j])) / 5;
     }
     poke[i].id = getId(i, form);
     for (let j = 0; j < 5; j++) {
