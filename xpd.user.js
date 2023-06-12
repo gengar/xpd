@@ -1163,7 +1163,7 @@ function Poke() {}
 /*PDの形式からポケモンオブジェクトを生成する*/
 Poke.fromPD = function(pd_str, force) {
   /* format check */
-  if(!force && !/^(?:\d{1,3}_){2}(?:[0-9a-f]_){4}(?:\d{1,2}_){5}(?:\d{1,3}_){4}(?:\d{1,2}_){4}(?:[0-3]_){4}\d{1,3}_0?_\d{1,3}$/i.exec(pd_str)) {
+  if(!force && !/^(?:\d{1,3}_){2}(?:[0-9a-f]_){4}(?:\d{1,2}_){5}(?:\d{1,3}_){4}(?:\d{1,2}_){4}(?:[0-3]_){4}\d{1,3}_0?_\d{1,3}$/i.test(pd_str)) {
     throw new ImplementationError("wrong pd format: " + pd_str);
   }
   const a = pd_str.split("_");
@@ -1183,7 +1183,7 @@ Poke.fromPD = function(pd_str, force) {
         poke.mv.every(function (i) { return movelist[i]; }) &&
         poke.p_up.every(function (i) { return i >= 0 && i <= 3; }) &&
         itemlist[poke.item])) {
-    throw new ImplementationError("wrong pd format: " + pd_str);
+    throw new ImplementationError("wrong pd value: " + pd_str);
   }
   return poke;
 };
