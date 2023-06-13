@@ -36,6 +36,8 @@
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+'use strict';
+
 if (!document.forms[0]?.S2) {
   throw new Error("一括変更のページでないため実行を中断");
 }
@@ -2415,24 +2417,22 @@ function setStatusBackgroundColor(ev) {
 }
 
 xpd.pref.highlightFormMode = true;
-{
-  let setStatusBGUnsafe = exportUnsafe(setStatusBackgroundColor);
-  function _highlightFormMode(on) {
-    const m = on ? "addEventListener" : "removeEventListener";
-    const refresh = on ? setStatusBackgroundColor : function(obj) { obj.style.backgroundColor = ""; };
-    function f(obj) {
-      getWrappedJSObject(obj)[m]("change", setStatusBGUnsafe, false);
-      refresh(obj);
+const setStatusBGUnsafe = exportUnsafe(setStatusBackgroundColor);
+function _highlightFormMode(on) {
+  const m = on ? "addEventListener" : "removeEventListener";
+  const refresh = on ? setStatusBGUnsafe : function(obj) { obj.style.backgroundColor = ""; };
+  function f(obj) {
+    getWrappedJSObject(obj)[m]("change", setStatusBGUnsafe);
+    refresh(obj);
+  }
+  for (let i = 0; i < 6; i++) {
+    f($f["KO" + i]);
+    for (let j = 0; j < 5; j++) {
+      f($f["EF" + i + "_" + j]);
     }
-    for (let i = 0; i < 6; i++) {
-      f($f["KO" + i]);
-      for (let j = 0; j < 5; j++) {
-        f($f["EF" + i + "_" + j]);
-      }
-    }
-    setHP();
-  };
-}
+  }
+  setHP();
+};
 const highlightFormMode = defineMode(_highlightFormMode, "HF", "テキストボックスを強調表示するモード");
 
 function wheelListener(ev) {
