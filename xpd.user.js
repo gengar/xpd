@@ -1475,6 +1475,21 @@ function setPD() {
 }
 
 // --- DOM ---
+function makeElement(tag, attr = undefined, ...args) {
+  const node = $d.createElement(tag);
+  if (attr) {
+    for (const i in attr) {
+      if (attr[i] != undefined) {
+        node[i] = attr[i];
+      }
+    }
+  }
+  for (const e of args) {
+    node.appendChild(e instanceof Node ? e : document.createTextNode(e));
+  }
+  return node;
+}
+
 function createInput(attr, style) {
   const input = getWrappedJSObject($d.createElement("input"));
   for (const i in attr) {
@@ -3939,8 +3954,16 @@ function checkLatestVersion() {
         const ma = pref.versionFormat.exec(response.responseText);
         if (ma && response.status == 200) {
           if (versionLessThan(xpd.version, ma[0])) {
-            messageText("xpd" + ma[0] + "がリリースされています。\n" +
-                        "現在お使いのバージョンは" + xpd.version + "です。");
+            message(
+              makeElement(
+                "div", null,
+                makeElement("p", null,
+                            `xpd ${ma[0]} がリリースされています。現在お使いのバージョンは ${xpd.version} です。`),
+                makeElement("p", null,
+                            "ダウンロードはこちら: ",
+                            makeElement("a", {"href": "http://o-s.sub.jp/xpd/",
+                                              "target": "_blank"},
+                                        'xpd wiki'))));
           }
           else {
             message("");
