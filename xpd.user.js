@@ -688,6 +688,13 @@ class PokeData extends Data {
   }
 }
 
+[[133, [[1, 34], [1, 40], [8, 29], [16, 46], [23, 99], [30, 45], [36, 117], [42, 37]]],
+ [167, [[1, 41], [1, 82], [6, 185], [11, 133], [17, 102], [23, 142], [30, 155], [37, 170], [45, 104], [53, 95]]],
+ [168, [[1, 41], [1, 82], [1, 185], [1, 133], [6, 185], [11, 133], [17, 102], [25, 142], [34, 155], [43, 170], [53, 104], [63, 95]]],
+ [245, [[1, 45], [1, 44], [11, 56], [21, 47], [31, 17], [41, 62], [51, 55], [61, 244], [71, 57]]]].forEach(pair => {
+   const [no, alist] = pair;
+   PokeData.fromID(no).gsLearnings = alist;
+ });
 
 class ItemData extends Data {
   constructor(name, id, effective) {
@@ -942,6 +949,53 @@ class ItemData extends Data {
     return ItemData.index[Data.normalizeName(name)];
   }
 }
+
+class DistPokemon {
+  constructor(poke, lv, moves, shiny, old) {
+    this.poke = poke;
+    this.lv = lv;
+    this.moves = moves;
+    this.shiny = shiny;
+    this.old = old;
+  }
+  static list = [
+    new DistPokemon(147, 15, [36, 87, 240, 246], false, false),
+
+    new DistPokemon(83, 5, [227, 15, 98, 164], false, false),
+    new DistPokemon(207, 5, [90, 41, 69, 18], false, false),
+
+    new DistPokemon(1, 5, [34, 46, 247], true, false),
+    new DistPokemon(4, 5, [11, 46, 243], true, false),
+    new DistPokemon(54, 5, [11, 40, 81], true, false),
+    new DistPokemon(152, 5, [34, 46, 81], true, false),
+    new DistPokemon(158, 5, [11, 44, 67], true, false),
+    new DistPokemon(163, 5, [34, 46, 102], true, false),
+    new DistPokemon(172, 5, [85, 205, 147], true, false),
+    new DistPokemon(172, 5, [85, 205, 81], true, false),
+    new DistPokemon(172, 5, [85, 205, 48], true, false),
+    new DistPokemon(173, 5, [2, 205, 228, 81], true, false),
+    new DistPokemon(173, 5, [2, 205, 228, 130], true, false),
+    new DistPokemon(174, 5, [48, 205, 112, 81], true, false),
+    new DistPokemon(194, 5, [56, 40, 188], true, false),
+    new DistPokemon(231, 5, [34, 46, 228], true, false),
+    new DistPokemon(236, 5, [34, 147], true, false),
+    new DistPokemon(238, 5, [2, 123, 119], true, false),
+    new DistPokemon(238, 5, [2, 123, 81], true, false),
+    new DistPokemon(240, 5, [53, 147], true, false),
+
+    new DistPokemon(22, 25, [46, 44, 32, 7], false, true),
+    new DistPokemon(25, 5, [85, 46, 58], false, true),
+    new DistPokemon(25, 5, [85, 46, 20], false, true),
+    new DistPokemon(78, 40, [53, 84, 24, 7], false, true),
+    new DistPokemon(129, 15, [151, 83], false, true),
+    new DistPokemon(54, 15, [11, 134], false, true)];
+}
+
+DistPokemon.poke = [];
+
+DistPokemon.list.forEach(dist => {
+  DistPokemon.poke[dist.poke] = true;
+});
 
 // --- Roma ---
 function roma(str) {
