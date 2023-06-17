@@ -73,8 +73,8 @@ xpd.pref = {};
 class PokeData {
   constructor(name, hp, spd, female) {
     this.name = name;
-    this.hp = hp;
-    this.spd = spd;
+    this.h = hp;
+    this.s = spd;
     this.female = female;
   }
 }
@@ -1177,7 +1177,7 @@ Poke.fromPD = function(pd_str, force) {
   poke.mv = [a[11], a[12], a[13], a[14]];
   poke.pp = [a[15], a[16], a[17], a[18]];
   poke.p_up = [a[19], a[20], a[21], a[22]];
-  poke.hp = a[23];
+  poke.h = a[23];
   poke.item = a[25];
   /* validation check */
   if (!(pokelist[poke.no] && poke.lv >= 1 && poke.lv <= 100 &&
@@ -1381,7 +1381,7 @@ function getPokeNum() {
 }
 
 function calcHP(no, lv, hp_id, hp_ef) {
-  return Math.floor(((pokelist[no].hp + hp_id) * 2 + hp_ef) * lv / 100) + lv + 10;
+  return Math.floor(((pokelist[no].h + hp_id) * 2 + hp_ef) * lv / 100) + lv + 10;
 }
 
 function calcHPId(id) {
@@ -1442,7 +1442,7 @@ function setPoke(form, buffer) {
       throw new InvalidValueOfTextbox((i + 1) + "匹目のアイテム名が不正です。", item_box);
     }
     poke[i].item = item;
-    poke[i].hp = calcHP(no, lv, calcHPId(poke[i].id), parseInt(poke[i].ef[0]));
+    poke[i].h = calcHP(no, lv, calcHPId(poke[i].id), parseInt(poke[i].ef[0]));
   }
 }
 
@@ -1462,7 +1462,7 @@ function getPD(party) {
                    join(party[i].mv),
                    join(party[i].pp),
                    join(party[i].p_up),
-                   party[i].hp,
+                   party[i].h,
                    0,
                    party[i].item]);
   }
@@ -3497,7 +3497,7 @@ function makeSpeedTableBases() {
   const speed2pokes = {}; /* spd -> array of pokedata */
 
   eachPokeInRule(function (poke) {
-    const spd = poke.spd;
+    const spd = poke.s;
     if (speed2pokes[spd]) {
       speed2pokes[spd].push(poke);
     }
@@ -3608,9 +3608,9 @@ function displaySpeedTable(e) {
   if (isNaN(ef) || ef < 0 || ef > 63) {
     throw new InvalidValueOfTextbox("努力値が不正です", ef_box);
   }
-  const speed = calcSpeed(lv, poke.spd, ko, ef);
-  const speedMax = calcSpeed(55, poke.spd, ko, ef);
-  const speedMin = calcSpeed(50, poke.spd, ko, ef);
+  const speed = calcSpeed(lv, poke.s, ko, ef);
+  const speedMax = calcSpeed(55, poke.s, ko, ef);
+  const speedMin = calcSpeed(50, poke.s, ko, ef);
   const rows = speedTable.rows;
   const partialFlag = previousCommand === xpd.commandFromFunction.get(displaySpeedTable) && displaySpeedTable.partial && displaySpeedTable.previousNumber == number;
   for (let i = 1; i < rows.length; i++) {
@@ -3634,7 +3634,7 @@ function displaySpeedTable(e) {
     speedTableSheet.insertRule(`.speed-table${speed}{${pref.sameSpeedCellStyle}}`, displaySpeedTable.csslen);
   }
   if (pref.sameSpeedRowStyle) {
-    speedTableSheet.insertRule(`.speed-table-row${poke.spd}{${pref.sameSpeedRowStyle}}`, displaySpeedTable.csslen);
+    speedTableSheet.insertRule(`.speed-table-row${poke.s}{${pref.sameSpeedRowStyle}}`, displaySpeedTable.csslen);
   }
 
   displaySpeedTable0(speed);
