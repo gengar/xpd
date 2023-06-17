@@ -2069,13 +2069,8 @@ function commandMissingHandler(evs) {
 }
 Keymap.prototype[Key.symbol.commandMissing] = commandMissingHandler;
 
-// const AsyncFunction = (async () => {}).constructor;
 xpd.command = new Map();
 xpd.commandFromFunction = new Map();
-
-// function functionNameToCommandName(name) {
-//   return name.replace(/([A-Z]+(?:(?=[A-Z][a-z])|$)|[A-Z][a-z]*)/g, "-$1").toLowerCase();
-// }
 
 function interactive(f, document, scope, options = {}) {
   const command = new Command(f, {document, scope, ...options});
