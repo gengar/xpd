@@ -70,749 +70,878 @@ xpd.browser = xpd.browsers.find(s => navigator.userAgent.indexOf(s) >= 0);
 xpd.pref = {};
 
 // --- Data ---
-class PokeData {
-  constructor(name, hp, spd, female) {
-    this.name = name;
-    this.h = hp;
-    this.s = spd;
-    this.female = female;
+class Data {
+  static normalizeName(str) {
+
+    return str?.replace(/−|－/g, "ー").replace(/10/g, "１０");
+  }
+  static makeIndex(ary, ref) {
+    const index = {};
+    ary.forEach(e => {
+      index[ref(e)] = e;
+    });
+    return index;
   }
 }
 
-const pokelist = new Array;
-pokelist[1] = new PokeData("フシギダネ", 45, 45, 2);
-pokelist[2] = new PokeData("フシギソウ", 60, 60, 2);
-pokelist[3] = new PokeData("フシギバナ", 80, 80, 2);
-pokelist[4] = new PokeData("ヒトカゲ", 39, 65, 2);
-pokelist[5] = new PokeData("リザード", 58, 80, 2);
-pokelist[6] = new PokeData("リザードン", 78, 100, 2);
-pokelist[7] = new PokeData("ゼニガメ", 44, 43, 2);
-pokelist[8] = new PokeData("カメール", 59, 58, 2);
-pokelist[9] = new PokeData("カメックス", 79, 78, 2);
-pokelist[10] = new PokeData("キャタピー", 45, 45, 8);
-pokelist[11] = new PokeData("トランセル", 50, 30, 8);
-pokelist[12] = new PokeData("バタフリー", 60, 70, 8);
-pokelist[13] = new PokeData("ビードル", 40, 50, 8);
-pokelist[14] = new PokeData("コクーン", 45, 35, 8);
-pokelist[15] = new PokeData("スピアー", 65, 75, 8);
-pokelist[16] = new PokeData("ポッポ", 40, 56, 8);
-pokelist[17] = new PokeData("ピジョン", 63, 71, 8);
-pokelist[18] = new PokeData("ピジョット", 83, 91, 8);
-pokelist[19] = new PokeData("コラッタ", 30, 72, 8);
-pokelist[20] = new PokeData("ラッタ", 55, 97, 8);
-pokelist[21] = new PokeData("オニスズメ", 40, 70, 8);
-pokelist[22] = new PokeData("オニドリル", 65, 100, 8);
-pokelist[23] = new PokeData("アーボ", 35, 55, 8);
-pokelist[24] = new PokeData("アーボック", 60, 80, 8);
-pokelist[25] = new PokeData("ピカチュウ", 35, 90, 8);
-pokelist[26] = new PokeData("ライチュウ", 60, 100, 8);
-pokelist[27] = new PokeData("サンド", 50, 40, 8);
-pokelist[28] = new PokeData("サンドパン", 75, 65, 8);
-pokelist[29] = new PokeData("ニドラン♀", 55, 41, 16);
-pokelist[30] = new PokeData("ニドリーナ", 70, 56, 16);
-pokelist[31] = new PokeData("ニドクイン", 90, 76, 16);
-pokelist[32] = new PokeData("ニドラン♂", 46, 50, 0);
-pokelist[33] = new PokeData("ニドリーノ", 61, 65, 0);
-pokelist[34] = new PokeData("ニドキング", 81, 85, 0);
-pokelist[35] = new PokeData("ピッピ", 70, 35, 12);
-pokelist[36] = new PokeData("ピクシー", 95, 60, 12);
-pokelist[37] = new PokeData("ロコン", 38, 65, 12);
-pokelist[38] = new PokeData("キュウコン", 73, 100, 12);
-pokelist[39] = new PokeData("プリン", 115, 20, 12);
-pokelist[40] = new PokeData("プクリン", 140, 45, 12);
-pokelist[41] = new PokeData("ズバット", 40, 55, 8);
-pokelist[42] = new PokeData("ゴルバット", 75, 90, 8);
-pokelist[43] = new PokeData("ナゾノクサ", 45, 30, 8);
-pokelist[44] = new PokeData("クサイハナ", 60, 40, 8);
-pokelist[45] = new PokeData("ラフレシア", 75, 50, 8);
-pokelist[46] = new PokeData("パラス", 35, 25, 8);
-pokelist[47] = new PokeData("パラセクト", 60, 30, 8);
-pokelist[48] = new PokeData("コンパン", 60, 45, 8);
-pokelist[49] = new PokeData("モルフォン", 70, 90, 8);
-pokelist[50] = new PokeData("ディグダ", 10, 95, 8);
-pokelist[51] = new PokeData("ダグトリオ", 35, 120, 8);
-pokelist[52] = new PokeData("ニャース", 40, 90, 8);
-pokelist[53] = new PokeData("ペルシアン", 65, 115, 8);
-pokelist[54] = new PokeData("コダック", 50, 55, 8);
-pokelist[55] = new PokeData("ゴルダック", 80, 85, 8);
-pokelist[56] = new PokeData("マンキー", 40, 70, 8);
-pokelist[57] = new PokeData("オコリザル", 65, 95, 8);
-pokelist[58] = new PokeData("ガーディ", 55, 60, 4);
-pokelist[59] = new PokeData("ウインディ", 90, 95, 4);
-pokelist[60] = new PokeData("ニョロモ", 40, 90, 8);
-pokelist[61] = new PokeData("ニョロゾ", 65, 90, 8);
-pokelist[62] = new PokeData("ニョロボン", 90, 70, 8);
-pokelist[63] = new PokeData("ケーシィ", 25, 90, 4);
-pokelist[64] = new PokeData("ユンゲラー", 40, 105, 4);
-pokelist[65] = new PokeData("フーディン", 55, 120, 4);
-pokelist[66] = new PokeData("ワンリキー", 70, 35, 4);
-pokelist[67] = new PokeData("ゴーリキー", 80, 45, 4);
-pokelist[68] = new PokeData("カイリキー", 90, 55, 4);
-pokelist[69] = new PokeData("マダツボミ", 50, 40, 8);
-pokelist[70] = new PokeData("ウツドン", 65, 55, 8);
-pokelist[71] = new PokeData("ウツボット", 80, 70, 8);
-pokelist[72] = new PokeData("メノクラゲ", 40, 70, 8);
-pokelist[73] = new PokeData("ドククラゲ", 80, 100, 8);
-pokelist[74] = new PokeData("イシツブテ", 40, 20, 8);
-pokelist[75] = new PokeData("ゴローン", 55, 35, 8);
-pokelist[76] = new PokeData("ゴローニャ", 80, 45, 8);
-pokelist[77] = new PokeData("ポニータ", 50, 90, 8);
-pokelist[78] = new PokeData("ギャロップ", 65, 105, 8);
-pokelist[79] = new PokeData("ヤドン", 90, 15, 8);
-pokelist[80] = new PokeData("ヤドラン", 95, 30, 8);
-pokelist[81] = new PokeData("コイル", 25, 45, -1);
-pokelist[82] = new PokeData("レアコイル", 50, 70, -1);
-pokelist[83] = new PokeData("カモネギ", 52, 60, 8);
-pokelist[84] = new PokeData("ドードー", 35, 75, 8);
-pokelist[85] = new PokeData("ドードリオ", 60, 100, 8);
-pokelist[86] = new PokeData("パウワウ", 65, 45, 8);
-pokelist[87] = new PokeData("ジュゴン", 90, 70, 8);
-pokelist[88] = new PokeData("ベトベター", 80, 25, 8);
-pokelist[89] = new PokeData("ベトベトン", 105, 50, 8);
-pokelist[90] = new PokeData("シェルダー", 30, 40, 8);
-pokelist[91] = new PokeData("パルシェン", 50, 70, 8);
-pokelist[92] = new PokeData("ゴース", 30, 80, 8);
-pokelist[93] = new PokeData("ゴースト", 45, 95, 8);
-pokelist[94] = new PokeData("ゲンガー", 60, 110, 8);
-pokelist[95] = new PokeData("イワーク", 35, 70, 8);
-pokelist[96] = new PokeData("スリープ", 60, 42, 8);
-pokelist[97] = new PokeData("スリーパー", 85, 67, 8);
-pokelist[98] = new PokeData("クラブ", 30, 50, 8);
-pokelist[99] = new PokeData("キングラー", 55, 75, 8);
-pokelist[100] = new PokeData("ビリリダマ", 40, 100, -1);
-pokelist[101] = new PokeData("マルマイン", 60, 140, -1);
-pokelist[102] = new PokeData("タマタマ", 60, 40, 8);
-pokelist[103] = new PokeData("ナッシー", 95, 55, 8);
-pokelist[104] = new PokeData("カラカラ", 50, 35, 8);
-pokelist[105] = new PokeData("ガラガラ", 60, 45, 8);
-pokelist[106] = new PokeData("サワムラー", 50, 87, 0);
-pokelist[107] = new PokeData("エビワラー", 50, 76, 0);
-pokelist[108] = new PokeData("ベロリンガ", 90, 30, 8);
-pokelist[109] = new PokeData("ドガース", 40, 35, 8);
-pokelist[110] = new PokeData("マタドガス", 65, 60, 8);
-pokelist[111] = new PokeData("サイホーン", 80, 25, 8);
-pokelist[112] = new PokeData("サイドン", 105, 40, 8);
-pokelist[113] = new PokeData("ラッキー", 250, 50, 16);
-pokelist[114] = new PokeData("モンジャラ", 65, 60, 8);
-pokelist[115] = new PokeData("ガルーラ", 105, 90, 16);
-pokelist[116] = new PokeData("タッツー", 30, 60, 8);
-pokelist[117] = new PokeData("シードラ", 55, 85, 8);
-pokelist[118] = new PokeData("トサキント", 45, 63, 8);
-pokelist[119] = new PokeData("アズマオウ", 80, 68, 8);
-pokelist[120] = new PokeData("ヒトデマン", 30, 85, -1);
-pokelist[121] = new PokeData("スターミー", 60, 115, -1);
-pokelist[122] = new PokeData("バリヤード", 40, 90, 8);
-pokelist[123] = new PokeData("ストライク", 70, 105, 8);
-pokelist[124] = new PokeData("ルージュラ", 65, 95, 16);
-pokelist[125] = new PokeData("エレブー", 65, 105, 4);
-pokelist[126] = new PokeData("ブーバー", 65, 93, 4);
-pokelist[127] = new PokeData("カイロス", 65, 85, 8);
-pokelist[128] = new PokeData("ケンタロス", 75, 110, 0);
-pokelist[129] = new PokeData("コイキング", 20, 80, 8);
-pokelist[130] = new PokeData("ギャラドス", 95, 81, 8);
-pokelist[131] = new PokeData("ラプラス", 130, 60, 8);
-pokelist[132] = new PokeData("メタモン", 48, 48, -1);
-pokelist[133] = new PokeData("イーブイ", 55, 55, 2);
-pokelist[134] = new PokeData("シャワーズ", 130, 65, 2);
-pokelist[135] = new PokeData("サンダース", 65, 130, 2);
-pokelist[136] = new PokeData("ブースター", 65, 65, 2);
-pokelist[137] = new PokeData("ポリゴン", 65, 40, -1);
-pokelist[138] = new PokeData("オムナイト", 35, 35, 2);
-pokelist[139] = new PokeData("オムスター", 70, 55, 2);
-pokelist[140] = new PokeData("カブト", 30, 55, 2);
-pokelist[141] = new PokeData("カブトプス", 60, 80, 2);
-pokelist[142] = new PokeData("プテラ", 80, 130, 2);
-pokelist[143] = new PokeData("カビゴン", 160, 30, 2);
-pokelist[144] = new PokeData("フリーザー", 90, 85, -1);
-pokelist[145] = new PokeData("サンダー", 90, 100, -1);
-pokelist[146] = new PokeData("ファイヤー", 90, 90, -1);
-pokelist[147] = new PokeData("ミニリュウ", 41, 50, 8);
-pokelist[148] = new PokeData("ハクリュー", 61, 70, 8);
-pokelist[149] = new PokeData("カイリュー", 91, 80, 8);
-pokelist[150] = new PokeData("ミュウツー", 106, 130, -1);
-pokelist[151] = new PokeData("ミュウ", 100, 100, -1);
-pokelist[152] = new PokeData("チコリータ", 45, 45, 2);
-pokelist[153] = new PokeData("ベイリーフ", 60, 60, 2);
-pokelist[154] = new PokeData("メガニウム", 80, 80, 2);
-pokelist[155] = new PokeData("ヒノアラシ", 39, 65, 2);
-pokelist[156] = new PokeData("マグマラシ", 58, 80, 2);
-pokelist[157] = new PokeData("バクフーン", 78, 100, 2);
-pokelist[158] = new PokeData("ワニノコ", 50, 43, 2);
-pokelist[159] = new PokeData("アリゲイツ", 65, 58, 2);
-pokelist[160] = new PokeData("オーダイル", 85, 78, 2);
-pokelist[161] = new PokeData("オタチ", 35, 20, 8);
-pokelist[162] = new PokeData("オオタチ", 85, 90, 8);
-pokelist[163] = new PokeData("ホーホー", 60, 50, 8);
-pokelist[164] = new PokeData("ヨルノズク", 100, 70, 8);
-pokelist[165] = new PokeData("レディバ", 40, 55, 8);
-pokelist[166] = new PokeData("レディアン", 55, 85, 8);
-pokelist[167] = new PokeData("イトマル", 40, 30, 8);
-pokelist[168] = new PokeData("アリアドス", 70, 40, 8);
-pokelist[169] = new PokeData("クロバット", 85, 130, 8);
-pokelist[170] = new PokeData("チョンチー", 75, 67, 8);
-pokelist[171] = new PokeData("ランターン", 125, 67, 8);
-pokelist[172] = new PokeData("ピチュー", 20, 60, 8);
-pokelist[173] = new PokeData("ピィ", 50, 15, 12);
-pokelist[174] = new PokeData("ププリン", 90, 15, 12);
-pokelist[175] = new PokeData("トゲピー", 35, 20, 2);
-pokelist[176] = new PokeData("トゲチック", 55, 40, 2);
-pokelist[177] = new PokeData("ネイティ", 40, 70, 8);
-pokelist[178] = new PokeData("ネイティオ", 65, 95, 8);
-pokelist[179] = new PokeData("メリープ", 55, 35, 8);
-pokelist[180] = new PokeData("モココ", 70, 45, 8);
-pokelist[181] = new PokeData("デンリュウ", 90, 55, 8);
-pokelist[182] = new PokeData("キレイハナ", 75, 50, 8);
-pokelist[183] = new PokeData("マリル", 70, 40, 8);
-pokelist[184] = new PokeData("マリルリ", 100, 50, 8);
-pokelist[185] = new PokeData("ウソッキー", 70, 30, 8);
-pokelist[186] = new PokeData("ニョロトノ", 90, 70, 8);
-pokelist[187] = new PokeData("ハネッコ", 35, 50, 8);
-pokelist[188] = new PokeData("ポポッコ", 55, 80, 8);
-pokelist[189] = new PokeData("ワタッコ", 75, 110, 8);
-pokelist[190] = new PokeData("エイパム", 55, 85, 8);
-pokelist[191] = new PokeData("ヒマナッツ", 30, 30, 8);
-pokelist[192] = new PokeData("キマワリ", 75, 30, 8);
-pokelist[193] = new PokeData("ヤンヤンマ", 65, 95, 8);
-pokelist[194] = new PokeData("ウパー", 55, 15, 8);
-pokelist[195] = new PokeData("ヌオー", 95, 35, 8);
-pokelist[196] = new PokeData("エーフィ", 65, 110, 2);
-pokelist[197] = new PokeData("ブラッキー", 95, 65, 2);
-pokelist[198] = new PokeData("ヤミカラス", 60, 91, 8);
-pokelist[199] = new PokeData("ヤドキング", 95, 30, 8);
-pokelist[200] = new PokeData("ムウマ", 60, 85, 8);
-pokelist[201] = new PokeData("アンノーン", 48, 48, -1);
-pokelist[202] = new PokeData("ソーナンス", 190, 33, 8);
-pokelist[203] = new PokeData("キリンリキ", 70, 85, 8);
-pokelist[204] = new PokeData("クヌギダマ", 50, 15, 8);
-pokelist[205] = new PokeData("フォレトス", 75, 40, 8);
-pokelist[206] = new PokeData("ノコッチ", 100, 45, 8);
-pokelist[207] = new PokeData("グライガー", 65, 85, 8);
-pokelist[208] = new PokeData("ハガネール", 75, 30, 8);
-pokelist[209] = new PokeData("ブルー", 60, 30, 12);
-pokelist[210] = new PokeData("グランブル", 90, 45, 12);
-pokelist[211] = new PokeData("ハリーセン", 65, 85, 8);
-pokelist[212] = new PokeData("ハッサム", 70, 65, 8);
-pokelist[213] = new PokeData("ツボツボ", 20, 5, 8);
-pokelist[214] = new PokeData("ヘラクロス", 80, 85, 8);
-pokelist[215] = new PokeData("ニューラ", 55, 115, 8);
-pokelist[216] = new PokeData("ヒメグマ", 60, 40, 8);
-pokelist[217] = new PokeData("リングマ", 90, 55, 8);
-pokelist[218] = new PokeData("マグマッグ", 40, 20, 8);
-pokelist[219] = new PokeData("マグカルゴ", 50, 30, 8);
-pokelist[220] = new PokeData("ウリムー", 50, 50, 8);
-pokelist[221] = new PokeData("イノムー", 100, 50, 8);
-pokelist[222] = new PokeData("サニーゴ", 55, 35, 12);
-pokelist[223] = new PokeData("テッポウオ", 35, 65, 8);
-pokelist[224] = new PokeData("オクタン", 75, 45, 8);
-pokelist[225] = new PokeData("デリバード", 45, 75, 8);
-pokelist[226] = new PokeData("マンタイン", 65, 70, 8);
-pokelist[227] = new PokeData("エアームド", 65, 70, 8);
-pokelist[228] = new PokeData("デルビル", 45, 65, 8);
-pokelist[229] = new PokeData("ヘルガー", 75, 95, 8);
-pokelist[230] = new PokeData("キングドラ", 75, 85, 8);
-pokelist[231] = new PokeData("ゴマゾウ", 90, 40, 8);
-pokelist[232] = new PokeData("ドンファン", 90, 50, 8);
-pokelist[233] = new PokeData("ポリゴン２", 85, 60, -1);
-pokelist[234] = new PokeData("オドシシ", 73, 85, 8);
-pokelist[235] = new PokeData("ドーブル", 55, 75, 8);
-pokelist[236] = new PokeData("バルキー", 35, 35, 0);
-pokelist[237] = new PokeData("カポエラー", 50, 70, 0);
-pokelist[238] = new PokeData("ムチュール", 45, 65, 16);
-pokelist[239] = new PokeData("エレキッド", 45, 95, 4);
-pokelist[240] = new PokeData("ブビィ", 45, 83, 4);
-pokelist[241] = new PokeData("ミルタンク", 95, 100, 16);
-pokelist[242] = new PokeData("ハピナス", 255, 55, 16);
-pokelist[243] = new PokeData("ライコウ", 90, 115, -1);
-pokelist[244] = new PokeData("エンテイ", 115, 100, -1);
-pokelist[245] = new PokeData("スイクン", 100, 85, -1);
-pokelist[246] = new PokeData("ヨーギラス", 50, 41, 8);
-pokelist[247] = new PokeData("サナギラス", 70, 51, 8);
-pokelist[248] = new PokeData("バンギラス", 100, 61, 8);
-pokelist[249] = new PokeData("ルギア", 106, 110, -1);
-pokelist[250] = new PokeData("ホウオウ", 106, 90, -1);
-pokelist[251] = new PokeData("セレビィ", 100, 100, -1);
-
-class MoveData {
-  constructor(name, pp) {
+class MoveData extends Data {
+  constructor(name, id, pp) {
+    super();
     this.name = name;
+    this.id = id;
     this.pp = pp;
   }
+  static raw = [
+    new MoveData("", 0, 0),
+    ,
+    new MoveData("はたく", 2, 35),
+    new MoveData("からてチョップ", 3, 25),
+    new MoveData("おうふくビンタ", 4, 20),
+    new MoveData("れんぞくパンチ", 5, 15),
+    new MoveData("メガトンパンチ", 6, 20),
+    new MoveData("ネコにこばん", 7, 20),
+    new MoveData("ほのおのパンチ", 8, 15),
+    new MoveData("れいとうパンチ", 9, 15),
+    new MoveData("かみなりパンチ", 10, 15),
+    new MoveData("ひっかく", 11, 35),
+    new MoveData("はさむ", 12, 30),
+    new MoveData("ハサミギロチン", 13, 5),
+    new MoveData("かまいたち", 14, 10),
+    new MoveData("つるぎのまい", 15, 30),
+    new MoveData("いあいぎり", 16, 30),
+    new MoveData("かぜおこし", 17, 35),
+    new MoveData("つばさでうつ", 18, 35),
+    new MoveData("ふきとばし", 19, 20),
+    new MoveData("そらをとぶ", 20, 15),
+    new MoveData("しめつける", 21, 20),
+    new MoveData("たたきつける", 22, 20),
+    new MoveData("つるのムチ", 23, 10),
+    new MoveData("ふみつけ", 24, 20),
+    new MoveData("にどげり", 25, 30),
+    new MoveData("メガトンキック", 26, 5),
+    new MoveData("とびげり", 27, 25),
+    new MoveData("まわしげり", 28, 15),
+    new MoveData("すなかけ", 29, 15),
+    new MoveData("ずつき", 30, 15),
+    new MoveData("つのでつく", 31, 25),
+    new MoveData("みだれづき", 32, 20),
+    new MoveData("つのドリル", 33, 5),
+    new MoveData("たいあたり", 34, 35),
+    new MoveData("のしかかり", 35, 15),
+    new MoveData("まきつく", 36, 20),
+    new MoveData("とっしん", 37, 20),
+    new MoveData("あばれる", 38, 20),
+    new MoveData("すてみタックル", 39, 15),
+    new MoveData("しっぽをふる", 40, 30),
+    new MoveData("どくばり", 41, 35),
+    new MoveData("ダブルニードル", 42, 20),
+    new MoveData("ミサイルばり", 43, 20),
+    new MoveData("にらみつける", 44, 30),
+    new MoveData("かみつく", 45, 25),
+    new MoveData("なきごえ", 46, 40),
+    new MoveData("ほえる", 47, 20),
+    new MoveData("うたう", 48, 15),
+    new MoveData("ちょうおんぱ", 49, 20),
+    new MoveData("ソニックブーム", 50, 20),
+    new MoveData("かなしばり", 51, 20),
+    new MoveData("ようかいえき", 52, 30),
+    new MoveData("ひのこ", 53, 25),
+    new MoveData("かえんほうしゃ", 54, 15),
+    new MoveData("しろいきり", 55, 30),
+    new MoveData("みずでっぽう", 56, 25),
+    new MoveData("ハイドロポンプ", 57, 5),
+    new MoveData("なみのり", 58, 15),
+    new MoveData("れいとうビーム", 59, 10),
+    new MoveData("ふぶき", 60, 5),
+    new MoveData("サイケこうせん", 61, 20),
+    new MoveData("バブルこうせん", 62, 20),
+    new MoveData("オーロラビーム", 63, 20),
+    new MoveData("はかいこうせん", 64, 5),
+    new MoveData("つつく", 65, 35),
+    new MoveData("ドリルくちばし", 66, 20),
+    new MoveData("じごくぐるま", 67, 25),
+    new MoveData("けたぐり", 68, 20),
+    new MoveData("カウンター", 69, 20),
+    new MoveData("ちきゅうなげ", 70, 20),
+    new MoveData("かいりき", 71, 15),
+    new MoveData("すいとる", 72, 20),
+    new MoveData("メガドレイン", 73, 10),
+    new MoveData("やどりぎのタネ", 74, 10),
+    new MoveData("せいちょう", 75, 40),
+    new MoveData("はっぱカッター", 76, 25),
+    new MoveData("ソーラービーム", 77, 10),
+    new MoveData("どくのこな", 78, 35),
+    new MoveData("しびれごな", 79, 30),
+    new MoveData("ねむりごな", 80, 15),
+    new MoveData("はなびらのまい", 81, 20),
+    new MoveData("いとをはく", 82, 40),
+    new MoveData("りゅうのいかり", 83, 10),
+    new MoveData("ほのおのうず", 84, 15),
+    new MoveData("でんきショック", 85, 30),
+    new MoveData("１０まんボルト", 86, 15),
+    new MoveData("でんじは", 87, 20),
+    new MoveData("かみなり", 88, 10),
+    new MoveData("いわおとし", 89, 15),
+    new MoveData("じしん", 90, 10),
+    new MoveData("じわれ", 91, 5),
+    new MoveData("あなをほる", 92, 10),
+    new MoveData("どくどく", 93, 10),
+    new MoveData("ねんりき", 94, 25),
+    new MoveData("サイコキネシス", 95, 10),
+    new MoveData("さいみんじゅつ", 96, 20),
+    new MoveData("ヨガのポーズ", 97, 40),
+    new MoveData("こうそくいどう", 98, 30),
+    new MoveData("でんこうせっか", 99, 30),
+    new MoveData("いかり", 100, 20),
+    new MoveData("テレポート", 101, 20),
+    new MoveData("ナイトヘッド", 102, 15),
+    new MoveData("ものまね", 103, 10),
+    new MoveData("いやなおと", 104, 40),
+    new MoveData("かげぶんしん", 105, 15),
+    new MoveData("じこさいせい", 106, 20),
+    new MoveData("かたくなる", 107, 30),
+    new MoveData("ちいさくなる", 108, 20),
+    new MoveData("えんまく", 109, 20),
+    new MoveData("あやしいひかり", 110, 16),
+    new MoveData("からにこもる", 111, 40),
+    new MoveData("まるくなる", 112, 40),
+    new MoveData("バリアー", 113, 30),
+    new MoveData("ひかりのかべ", 114, 30),
+    new MoveData("くろいきり", 115, 30),
+    new MoveData("リフレクター", 116, 20),
+    new MoveData("きあいだめ", 117, 30),
+    new MoveData("がまん", 118, 10),
+    new MoveData("ゆびをふる", 119, 10),
+    new MoveData("オウムがえし", 120, 20),
+    new MoveData("じばく", 121, 5),
+    new MoveData("タマゴばくだん", 122, 10),
+    new MoveData("したでなめる", 123, 30),
+    new MoveData("スモッグ", 124, 20),
+    new MoveData("ヘドロこうげき", 125, 20),
+    new MoveData("ホネこんぼう", 126, 20),
+    new MoveData("だいもんじ", 127, 5),
+    new MoveData("たきのぼり", 128, 15),
+    new MoveData("からではさむ", 129, 10),
+    new MoveData("スピードスター", 130, 20),
+    new MoveData("ロケットずつき", 131, 15),
+    new MoveData("とげキャノン", 132, 15),
+    new MoveData("からみつく", 133, 35),
+    new MoveData("ドわすれ", 134, 20),
+    new MoveData("スプーンまげ", 135, 15),
+    new MoveData("タマゴうみ", 136, 10),
+    new MoveData("とびひざげり", 137, 20),
+    new MoveData("へびにらみ", 138, 30),
+    new MoveData("ゆめくい", 139, 15),
+    new MoveData("どくガス", 140, 40),
+    new MoveData("たまなげ", 141, 20),
+    new MoveData("きゅうけつ", 142, 15),
+    new MoveData("あくまのキッス", 143, 10),
+    new MoveData("ゴッドバード", 144, 5),
+    new MoveData("へんしん", 145, 10),
+    new MoveData("あわ", 146, 30),
+    new MoveData("ピヨピヨパンチ", 147, 10),
+    new MoveData("キノコのほうし", 148, 15),
+    new MoveData("フラッシュ", 149, 20),
+    new MoveData("サイコウェーブ", 150, 15),
+    new MoveData("はねる", 151, 40),
+    new MoveData("とける", 152, 40),
+    new MoveData("クラブハンマー", 153, 10),
+    new MoveData("だいばくはつ", 154, 5),
+    new MoveData("みだれひっかき", 155, 15),
+    new MoveData("ホネブーメラン", 156, 10),
+    new MoveData("ねむる", 157, 10),
+    new MoveData("いわなだれ", 158, 10),
+    new MoveData("ひっさつまえば", 159, 15),
+    new MoveData("かくばる", 160, 30),
+    new MoveData("テクスチャー", 161, 30),
+    new MoveData("トライアタック", 162, 10),
+    new MoveData("いかりのまえば", 163, 10),
+    new MoveData("きりさく", 164, 20),
+    new MoveData("みがわり", 165, 10),
+    new MoveData("わるあがき", 166, -1),
+    new MoveData("スケッチ", 167, 1),
+    new MoveData("トリプルキック", 168, 10),
+    new MoveData("どろぼう", 169, 10),
+    new MoveData("クモのす", 170, 15),
+    new MoveData("こころのめ", 171, 5),
+    new MoveData("あくむ", 172, 15),
+    new MoveData("かえんぐるま", 173, 25),
+    new MoveData("いびき", 174, 15),
+    new MoveData("のろい", 175, 10),
+    new MoveData("じたばた", 176, 15),
+    new MoveData("テクスチャー２", 177, 30),
+    new MoveData("エアロブラスト", 178, 5),
+    new MoveData("わたほうし", 179, 40),
+    new MoveData("きしかいせい", 180, 15),
+    new MoveData("うらみ", 181, 10),
+    new MoveData("こなゆき", 182, 25),
+    new MoveData("まもる", 183, 10),
+    new MoveData("マッハパンチ", 184, 30),
+    new MoveData("こわいかお", 185, 10),
+    new MoveData("だましうち", 186, 20),
+    new MoveData("てんしのキッス", 187, 10),
+    new MoveData("はらだいこ", 188, 10),
+    new MoveData("ヘドロばくだん", 189, 10),
+    new MoveData("どろかけ", 190, 10),
+    new MoveData("オクタンほう", 191, 10),
+    new MoveData("まきびし", 192, 20),
+    new MoveData("でんじほう", 193, 5),
+    new MoveData("みやぶる", 194, 40),
+    new MoveData("みちづれ", 195, 5),
+    new MoveData("ほろびのうた", 196, 5),
+    new MoveData("こごえるかぜ", 197, 15),
+    new MoveData("みきり", 198, 5),
+    new MoveData("ボーンラッシュ", 199, 10),
+    new MoveData("ロックオン", 200, 5),
+    new MoveData("げきりん", 201, 15),
+    new MoveData("すなあらし", 202, 10),
+    new MoveData("ギガドレイン", 203, 5),
+    new MoveData("こらえる", 204, 10),
+    new MoveData("あまえる", 205, 20),
+    new MoveData("ころがる", 206, 10),
+    new MoveData("みねうち", 207, 40),
+    new MoveData("いばる", 208, 10),
+    new MoveData("ミルクのみ", 209, 10),
+    new MoveData("スパーク", 210, 20),
+    new MoveData("れんぞくぎり", 211, 20),
+    new MoveData("はがねのつばさ", 212, 25),
+    new MoveData("くろいまなざし", 213, 5),
+    new MoveData("メロメロ", 214, 15),
+    new MoveData("ねごと", 215, 10),
+    new MoveData("いやしのすず", 216, 5),
+    new MoveData("おんがえし", 217, 20),
+    new MoveData("プレゼント", 218, 15),
+    new MoveData("やつあたり", 219, 20),
+    new MoveData("しんぴのまもり", 220, 25),
+    new MoveData("いたみわけ", 221, 20),
+    new MoveData("せいなるほのお", 222, 5),
+    new MoveData("マグニチュード", 223, 30),
+    new MoveData("ばくれつパンチ", 224, 5),
+    new MoveData("メガホーン", 225, 10),
+    new MoveData("りゅうのいぶき", 226, 20),
+    new MoveData("バトンタッチ", 227, 40),
+    new MoveData("アンコール", 228, 5),
+    new MoveData("おいうち", 229, 20),
+    new MoveData("こうそくスピン", 230, 40),
+    new MoveData("あまいかおり", 231, 20),
+    new MoveData("アイアンテール", 232, 15),
+    new MoveData("メタルクロー", 233, 30),
+    new MoveData("あてみなげ", 234, 10),
+    new MoveData("あさのひざし", 235, 5),
+    new MoveData("こうごうせい", 236, 5),
+    new MoveData("つきのひかり", 237, 5),
+    new MoveData("めざめるパワー", 238, 15),
+    new MoveData("クロスチョップ", 239, 5),
+    new MoveData("たつまき", 240, 20),
+    new MoveData("あまごい", 241, 5),
+    new MoveData("にほんばれ", 242, 5),
+    new MoveData("かみくだく", 243, 15),
+    new MoveData("ミラーコート", 244, 20),
+    new MoveData("じこあんじ", 245, 10),
+    new MoveData("しんそく", 246, 5),
+    new MoveData("げんしのちから", 247, 5),
+    new MoveData("シャドーボール", 248, 15),
+    new MoveData("みらいよち", 249, 15),
+    new MoveData("いわくだき", 250, 15),
+    new MoveData("うずしお", 251, 15),
+    new MoveData("ふくろだたき", 252, 10)];
+
+  static fromID(id) {
+    return MoveData.raw[id];
+  }
+
+  static index = Data.makeIndex(MoveData.raw, d => d.name);
+
+  static fromName(name) {
+    return MoveData.index[Data.normalizeName(name)];
+  }
+
+  static isOld(id) {
+    return id < 167;
+  }
+  isOld() {
+    return MoveData.isOld(this.id);
+  }
+
+  static TMRaw = [166, 224, 30, 175, 206, 47, 93, 193, 250, 245, 238, 242, 231, 174, 60, 64, 197, 183, 241, 203, 204, 219, 77, 232, 226, 88, 90, 217, 92, 95, 248, 190, 105, 9, 208, 215, 189, 202, 127, 130, 112, 10, 139, 198, 157, 214, 169, 212, 8, 211, 172, 16, 20, 58, 71, 149, 251, 128, 54, 86, 59];
+  static TM = this.TMRaw.map(MoveData.fromID);
+  static oldTMRaw = [166, 6, 14, 15, 19, 26, 93, 33, 35, 37, 39, 62, 56, 59, 60, 64, 7, 67, 69, 70, 100, 73, 77, 83, 86, 88, 90, 91, 92, 95, 101, 103, 105, 116, 118, 119, 121, 122, 127, 130, 131, 136, 139, 144, 157, 87, 150, 154, 158, 162, 165, 16, 20, 58, 71, 149,,, 58];
+  static oldTM = this.oldTMRaw.map(MoveData.fromID);
+
+  static cantSketch = [120, 215, 145, 103, 119, 166];
+
+  toString() {
+    return `[${this.constructor.name} ${this.name}]`;
+  }
 }
 
-const movelist = new Array;
-movelist[0] = new MoveData("", 0);
-movelist[2] = new MoveData("はたく", 35);
-movelist[3] = new MoveData("からてチョップ", 25);
-movelist[4] = new MoveData("おうふくビンタ", 20);
-movelist[5] = new MoveData("れんぞくパンチ", 15);
-movelist[6] = new MoveData("メガトンパンチ", 20);
-movelist[7] = new MoveData("ネコにこばん", 20);
-movelist[8] = new MoveData("ほのおのパンチ", 15);
-movelist[9] = new MoveData("れいとうパンチ", 15);
-movelist[10] = new MoveData("かみなりパンチ", 15);
-movelist[11] = new MoveData("ひっかく", 35);
-movelist[12] = new MoveData("はさむ", 30);
-movelist[13] = new MoveData("ハサミギロチン", 5);
-movelist[14] = new MoveData("かまいたち", 10);
-movelist[15] = new MoveData("つるぎのまい", 30);
-movelist[16] = new MoveData("いあいぎり", 30);
-movelist[17] = new MoveData("かぜおこし", 35);
-movelist[18] = new MoveData("つばさでうつ", 35);
-movelist[19] = new MoveData("ふきとばし", 20);
-movelist[20] = new MoveData("そらをとぶ", 15);
-movelist[21] = new MoveData("しめつける", 20);
-movelist[22] = new MoveData("たたきつける", 20);
-movelist[23] = new MoveData("つるのムチ", 10);
-movelist[24] = new MoveData("ふみつけ", 20);
-movelist[25] = new MoveData("にどげり", 30);
-movelist[26] = new MoveData("メガトンキック", 5);
-movelist[27] = new MoveData("とびげり", 25);
-movelist[28] = new MoveData("まわしげり", 15);
-movelist[29] = new MoveData("すなかけ", 15);
-movelist[30] = new MoveData("ずつき", 15);
-movelist[31] = new MoveData("つのでつく", 25);
-movelist[32] = new MoveData("みだれづき", 20);
-movelist[33] = new MoveData("つのドリル", 5);
-movelist[34] = new MoveData("たいあたり", 35);
-movelist[35] = new MoveData("のしかかり", 15);
-movelist[36] = new MoveData("まきつく", 20);
-movelist[37] = new MoveData("とっしん", 20);
-movelist[38] = new MoveData("あばれる", 20);
-movelist[39] = new MoveData("すてみタックル", 15);
-movelist[40] = new MoveData("しっぽをふる", 30);
-movelist[41] = new MoveData("どくばり", 35);
-movelist[42] = new MoveData("ダブルニードル", 20);
-movelist[43] = new MoveData("ミサイルばり", 20);
-movelist[44] = new MoveData("にらみつける", 30);
-movelist[45] = new MoveData("かみつく", 25);
-movelist[46] = new MoveData("なきごえ", 40);
-movelist[47] = new MoveData("ほえる", 20);
-movelist[48] = new MoveData("うたう", 15);
-movelist[49] = new MoveData("ちょうおんぱ", 20);
-movelist[50] = new MoveData("ソニックブーム", 20);
-movelist[51] = new MoveData("かなしばり", 20);
-movelist[52] = new MoveData("ようかいえき", 30);
-movelist[53] = new MoveData("ひのこ", 25);
-movelist[54] = new MoveData("かえんほうしゃ", 15);
-movelist[55] = new MoveData("しろいきり", 30);
-movelist[56] = new MoveData("みずでっぽう", 25);
-movelist[57] = new MoveData("ハイドロポンプ", 5);
-movelist[58] = new MoveData("なみのり", 15);
-movelist[59] = new MoveData("れいとうビーム", 10);
-movelist[60] = new MoveData("ふぶき", 5);
-movelist[61] = new MoveData("サイケこうせん", 20);
-movelist[62] = new MoveData("バブルこうせん", 20);
-movelist[63] = new MoveData("オーロラビーム", 20);
-movelist[64] = new MoveData("はかいこうせん", 5);
-movelist[65] = new MoveData("つつく", 35);
-movelist[66] = new MoveData("ドリルくちばし", 20);
-movelist[67] = new MoveData("じごくぐるま", 25);
-movelist[68] = new MoveData("けたぐり", 20);
-movelist[69] = new MoveData("カウンター", 20);
-movelist[70] = new MoveData("ちきゅうなげ", 20);
-movelist[71] = new MoveData("かいりき", 15);
-movelist[72] = new MoveData("すいとる", 20);
-movelist[73] = new MoveData("メガドレイン", 10);
-movelist[74] = new MoveData("やどりぎのタネ", 10);
-movelist[75] = new MoveData("せいちょう", 40);
-movelist[76] = new MoveData("はっぱカッター", 25);
-movelist[77] = new MoveData("ソーラービーム", 10);
-movelist[78] = new MoveData("どくのこな", 35);
-movelist[79] = new MoveData("しびれごな", 30);
-movelist[80] = new MoveData("ねむりごな", 15);
-movelist[81] = new MoveData("はなびらのまい", 20);
-movelist[82] = new MoveData("いとをはく", 40);
-movelist[83] = new MoveData("りゅうのいかり", 10);
-movelist[84] = new MoveData("ほのおのうず", 15);
-movelist[85] = new MoveData("でんきショック", 30);
-movelist[86] = new MoveData("１０まんボルト", 15);
-movelist[87] = new MoveData("でんじは", 20);
-movelist[88] = new MoveData("かみなり", 10);
-movelist[89] = new MoveData("いわおとし", 15);
-movelist[90] = new MoveData("じしん", 10);
-movelist[91] = new MoveData("じわれ", 5);
-movelist[92] = new MoveData("あなをほる", 10);
-movelist[93] = new MoveData("どくどく", 10);
-movelist[94] = new MoveData("ねんりき", 25);
-movelist[95] = new MoveData("サイコキネシス", 10);
-movelist[96] = new MoveData("さいみんじゅつ", 20);
-movelist[97] = new MoveData("ヨガのポーズ", 40);
-movelist[98] = new MoveData("こうそくいどう", 30);
-movelist[99] = new MoveData("でんこうせっか", 30);
-movelist[100] = new MoveData("いかり", 20);
-movelist[101] = new MoveData("テレポート", 20);
-movelist[102] = new MoveData("ナイトヘッド", 15);
-movelist[103] = new MoveData("ものまね", 10);
-movelist[104] = new MoveData("いやなおと", 40);
-movelist[105] = new MoveData("かげぶんしん", 15);
-movelist[106] = new MoveData("じこさいせい", 20);
-movelist[107] = new MoveData("かたくなる", 30);
-movelist[108] = new MoveData("ちいさくなる", 20);
-movelist[109] = new MoveData("えんまく", 20);
-movelist[110] = new MoveData("あやしいひかり", 15);
-movelist[111] = new MoveData("からにこもる", 40);
-movelist[112] = new MoveData("まるくなる", 40);
-movelist[113] = new MoveData("バリアー", 30);
-movelist[114] = new MoveData("ひかりのかべ", 30);
-movelist[115] = new MoveData("くろいきり", 30);
-movelist[116] = new MoveData("リフレクター", 20);
-movelist[117] = new MoveData("きあいだめ", 30);
-movelist[118] = new MoveData("がまん", 10);
-movelist[119] = new MoveData("ゆびをふる", 10);
-movelist[120] = new MoveData("オウムがえし", 20);
-movelist[121] = new MoveData("じばく", 5);
-movelist[122] = new MoveData("タマゴばくだん", 10);
-movelist[123] = new MoveData("したでなめる", 30);
-movelist[124] = new MoveData("スモッグ", 20);
-movelist[125] = new MoveData("ヘドロこうげき", 20);
-movelist[126] = new MoveData("ホネこんぼう", 20);
-movelist[127] = new MoveData("だいもんじ", 5);
-movelist[128] = new MoveData("たきのぼり", 15);
-movelist[129] = new MoveData("からではさむ", 10);
-movelist[130] = new MoveData("スピードスター", 20);
-movelist[131] = new MoveData("ロケットずつき", 15);
-movelist[132] = new MoveData("とげキャノン", 15);
-movelist[133] = new MoveData("からみつく", 35);
-movelist[134] = new MoveData("ドわすれ", 20);
-movelist[135] = new MoveData("スプーンまげ", 15);
-movelist[136] = new MoveData("タマゴうみ", 10);
-movelist[137] = new MoveData("とびひざげり", 20);
-movelist[138] = new MoveData("へびにらみ", 30);
-movelist[139] = new MoveData("ゆめくい", 15);
-movelist[140] = new MoveData("どくガス", 40);
-movelist[141] = new MoveData("たまなげ", 20);
-movelist[142] = new MoveData("きゅうけつ", 15);
-movelist[143] = new MoveData("あくまのキッス", 10);
-movelist[144] = new MoveData("ゴッドバード", 5);
-movelist[145] = new MoveData("へんしん", 10);
-movelist[146] = new MoveData("あわ", 30);
-movelist[147] = new MoveData("ピヨピヨパンチ", 10);
-movelist[148] = new MoveData("キノコのほうし", 15);
-movelist[149] = new MoveData("フラッシュ", 20);
-movelist[150] = new MoveData("サイコウェーブ", 15);
-movelist[151] = new MoveData("はねる", 40);
-movelist[152] = new MoveData("とける", 40);
-movelist[153] = new MoveData("クラブハンマー", 10);
-movelist[154] = new MoveData("だいばくはつ", 5);
-movelist[155] = new MoveData("みだれひっかき", 15);
-movelist[156] = new MoveData("ホネブーメラン", 10);
-movelist[157] = new MoveData("ねむる", 10);
-movelist[158] = new MoveData("いわなだれ", 10);
-movelist[159] = new MoveData("ひっさつまえば", 15);
-movelist[160] = new MoveData("かくばる", 30);
-movelist[161] = new MoveData("テクスチャー", 30);
-movelist[162] = new MoveData("トライアタック", 10);
-movelist[163] = new MoveData("いかりのまえば", 10);
-movelist[164] = new MoveData("きりさく", 20);
-movelist[165] = new MoveData("みがわり", 10);
-movelist[166] = new MoveData("わるあがき", -1);
-movelist[167] = new MoveData("スケッチ", 1);
-movelist[168] = new MoveData("トリプルキック", 10);
-movelist[169] = new MoveData("どろぼう", 10);
-movelist[170] = new MoveData("クモのす", 15);
-movelist[171] = new MoveData("こころのめ", 5);
-movelist[172] = new MoveData("あくむ", 15);
-movelist[173] = new MoveData("かえんぐるま", 25);
-movelist[174] = new MoveData("いびき", 15);
-movelist[175] = new MoveData("のろい", 10);
-movelist[176] = new MoveData("じたばた", 15);
-movelist[177] = new MoveData("テクスチャー２", 30);
-movelist[178] = new MoveData("エアロブラスト", 5);
-movelist[179] = new MoveData("わたほうし", 40);
-movelist[180] = new MoveData("きしかいせい", 15);
-movelist[181] = new MoveData("うらみ", 10);
-movelist[182] = new MoveData("こなゆき", 25);
-movelist[183] = new MoveData("まもる", 10);
-movelist[184] = new MoveData("マッハパンチ", 30);
-movelist[185] = new MoveData("こわいかお", 10);
-movelist[186] = new MoveData("だましうち", 20);
-movelist[187] = new MoveData("てんしのキッス", 10);
-movelist[188] = new MoveData("はらだいこ", 10);
-movelist[189] = new MoveData("ヘドロばくだん", 10);
-movelist[190] = new MoveData("どろかけ", 10);
-movelist[191] = new MoveData("オクタンほう", 10);
-movelist[192] = new MoveData("まきびし", 20);
-movelist[193] = new MoveData("でんじほう", 5);
-movelist[194] = new MoveData("みやぶる", 40);
-movelist[195] = new MoveData("みちづれ", 5);
-movelist[196] = new MoveData("ほろびのうた", 5);
-movelist[197] = new MoveData("こごえるかぜ", 15);
-movelist[198] = new MoveData("みきり", 5);
-movelist[199] = new MoveData("ボーンラッシュ", 10);
-movelist[200] = new MoveData("ロックオン", 5);
-movelist[201] = new MoveData("げきりん", 15);
-movelist[202] = new MoveData("すなあらし", 10);
-movelist[203] = new MoveData("ギガドレイン", 5);
-movelist[204] = new MoveData("こらえる", 10);
-movelist[205] = new MoveData("あまえる", 20);
-movelist[206] = new MoveData("ころがる", 20);
-movelist[207] = new MoveData("みねうち", 40);
-movelist[208] = new MoveData("いばる", 10);
-movelist[209] = new MoveData("ミルクのみ", 10);
-movelist[210] = new MoveData("スパーク", 20);
-movelist[211] = new MoveData("れんぞくぎり", 20);
-movelist[212] = new MoveData("はがねのつばさ", 25);
-movelist[213] = new MoveData("くろいまなざし", 5);
-movelist[214] = new MoveData("メロメロ", 15);
-movelist[215] = new MoveData("ねごと", 10);
-movelist[216] = new MoveData("いやしのすず", 5);
-movelist[217] = new MoveData("おんがえし", 20);
-movelist[218] = new MoveData("プレゼント", 15);
-movelist[219] = new MoveData("やつあたり", 20);
-movelist[220] = new MoveData("しんぴのまもり", 25);
-movelist[221] = new MoveData("いたみわけ", 20);
-movelist[222] = new MoveData("せいなるほのお", 5);
-movelist[223] = new MoveData("マグニチュード", 30);
-movelist[224] = new MoveData("ばくれつパンチ", 5);
-movelist[225] = new MoveData("メガホーン", 10);
-movelist[226] = new MoveData("りゅうのいぶき", 20);
-movelist[227] = new MoveData("バトンタッチ", 40);
-movelist[228] = new MoveData("アンコール", 5);
-movelist[229] = new MoveData("おいうち", 20);
-movelist[230] = new MoveData("こうそくスピン", 40);
-movelist[231] = new MoveData("あまいかおり", 20);
-movelist[232] = new MoveData("アイアンテール", 15);
-movelist[233] = new MoveData("メタルクロー", 30);
-movelist[234] = new MoveData("あてみなげ", 10);
-movelist[235] = new MoveData("あさのひざし", 5);
-movelist[236] = new MoveData("こうごうせい", 5);
-movelist[237] = new MoveData("つきのひかり", 5);
-movelist[238] = new MoveData("めざめるパワー", 15);
-movelist[239] = new MoveData("クロスチョップ", 5);
-movelist[240] = new MoveData("たつまき", 20);
-movelist[241] = new MoveData("あまごい", 5);
-movelist[242] = new MoveData("にほんばれ", 5);
-movelist[243] = new MoveData("かみくだく", 15);
-movelist[244] = new MoveData("ミラーコート", 20);
-movelist[245] = new MoveData("じこあんじ", 10);
-movelist[246] = new MoveData("しんそく", 5);
-movelist[247] = new MoveData("げんしのちから", 5);
-movelist[248] = new MoveData("シャドーボール", 15);
-movelist[249] = new MoveData("みらいよち", 15);
-movelist[250] = new MoveData("いわくだき", 15);
-movelist[251] = new MoveData("うずしお", 15);
-movelist[252] = new MoveData("ふくろだたき", 10);
-
-class ItemData {
-  constructor(name, effective) {
+class PokeData extends Data {
+  constructor(name, id, h, a, b, c, d, s,
+              t1, t2, cap, exp, female, ev, rev,
+              crystal, pika, tm, oldtm, egg, eggg) {
+    super();
     this.name = name;
+    this.id = id;
+    this.h = h;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.s = s;
+    this.type1 = t1;
+    this.type2 = t2; // nullable
+    this.captured = cap;
+    this.exp = exp;
+    this.female = female; // nullable
+    this.evList = ev; // [(to, type, value?)]
+    this.evFrom = rev; // nullable
+    this.crystalLearnings = crystal;
+    this.pikaLearnings = pika;
+    this.TMs = tm;
+    this.oldTMs = oldtm;
+    this.eggMoves = egg;
+    this.eggGroup = eggg;
+
+    this.TMMoves = this.TMs.map(i => MoveData.TMRaw[i]);
+    this.oldTMMoves = this.oldTMs.map(i => MoveData.oldTMRaw[i]);
+  }
+  static type = ["ノーマル", "かくとう", "ひこう", "どく", "じめん", "いわ", "むし", "ゴースト", "はがね", "ほのお", "みず", "くさ", "でんき", "エスパー", "こおり", "ドラゴン", "あく"];
+  static eggGroup = ["怪獣", "水中1", "虫", "飛行", "陸上", "妖精", "植物", "人型", "水中3", "鉱物", "不定形", "水中2", "ドラゴン", "性別不明", "メタモン", "タマゴ未発見"];
+  static raw = [
+    new PokeData("フシギダネ", 1, 45, 49, 49, 65, 65, 45, 11, 3, 45, 64, 2, [[2, 1, 16]], null, [[1, 34], [4, 46], [7, 74], [10, 23], [15, 78], [15, 80], [20, 76], [25, 231], [32, 75], [39, 236], [46, 77]], [[1, 34], [1, 46], [7, 74], [13, 23], [20, 78], [27, 76], [34, 75], [41, 80], [48, 77]], [2, 3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 31, 32, 34, 35, 40, 44, 45, 49, 51, 55], [3, 6, 8, 9, 10, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [14, 81, 114, 131, 220], [0, 6]),
+    new PokeData("フシギソウ", 2, 60, 62, 63, 80, 80, 60, 11, 3, 45, 141, 2, [[3, 1, 32]], 1, [[1, 34], [1, 46], [1, 74], [4, 46], [7, 74], [10, 23], [15, 78], [15, 80], [22, 76], [29, 231], [38, 75], [47, 236], [56, 77]], [[1, 34], [1, 46], [1, 74], [7, 74], [13, 23], [22, 78], [30, 76], [38, 75], [46, 80], [54, 77]], [2, 3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 31, 32, 34, 35, 40, 44, 45, 49, 51, 55], [3, 6, 8, 9, 10, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [], [0, 6]),
+    new PokeData("フシギバナ", 3, 80, 82, 83, 100, 100, 80, 11, 3, 45, 208, 2, [], 2, [[1, 34], [1, 46], [1, 74], [1, 23], [4, 46], [7, 74], [10, 23], [15, 78], [15, 80], [22, 76], [29, 231], [41, 75], [53, 236], [65, 77]], [[1, 34], [1, 46], [1, 74], [1, 23], [7, 74], [13, 23], [22, 78], [30, 76], [43, 75], [55, 80], [65, 77]], [2, 3, 5, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 31, 32, 34, 35, 40, 44, 45, 49, 51, 55], [3, 6, 8, 9, 10, 15, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [], [0, 6]),
+    new PokeData("ヒトカゲ", 4, 39, 52, 43, 60, 50, 65, 9, null, 45, 65, 2, [[5, 1, 16]], null, [[1, 11], [1, 46], [7, 53], [13, 109], [19, 100], [25, 185], [31, 54], [37, 164], [43, 83], [49, 84]], [[1, 11], [1, 46], [9, 53], [15, 44], [22, 100], [30, 164], [38, 54], [46, 84]], [1, 2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 23, 24, 27, 28, 31, 32, 34, 35, 38, 39, 40, 44, 45, 48, 49, 51, 54, 58], [1, 3, 5, 6, 8, 9, 10, 17, 18, 19, 20, 23, 28, 31, 32, 33, 34, 38, 39, 40, 44, 50, 51, 54], [45, 158, 188, 201, 247, 252], [0, 12]),
+    new PokeData("リザード", 5, 58, 64, 58, 80, 65, 80, 9, null, 45, 142, 2, [[6, 1, 36]], 4, [[1, 11], [1, 46], [1, 53], [7, 53], [13, 109], [20, 100], [27, 185], [34, 54], [41, 164], [48, 83], [55, 84]], [[1, 11], [1, 46], [1, 53], [9, 53], [15, 44], [24, 100], [33, 164], [42, 54], [56, 84]], [1, 2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 23, 24, 27, 28, 31, 32, 34, 35, 38, 39, 40, 44, 45, 48, 49, 51, 54, 58], [1, 3, 5, 6, 8, 9, 10, 17, 18, 19, 20, 23, 28, 31, 32, 33, 34, 38, 39, 40, 44, 50, 51, 54], [], [0, 12]),
+    new PokeData("リザードン", 6, 78, 84, 78, 109, 85, 100, 9, 2, 45, 209, 2, [], 5, [[1, 11], [1, 46], [1, 53], [1, 109], [7, 53], [13, 109], [20, 100], [27, 185], [34, 54], [36, 18], [44, 164], [54, 83], [64, 84]], [[1, 11], [1, 46], [1, 53], [1, 44], [9, 53], [15, 44], [24, 100], [36, 164], [46, 54], [55, 84]], [1, 2, 3, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 23, 24, 26, 27, 28, 31, 32, 34, 35, 37, 38, 39, 40, 44, 45, 47, 48, 49, 51, 52, 54, 58], [1, 3, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 23, 26, 27, 28, 31, 32, 33, 34, 38, 39, 40, 44, 50, 51, 52, 54], [], [0, 12]),
+    new PokeData("ゼニガメ", 7, 44, 48, 65, 50, 64, 43, 10, null, 45, 66, 2, [[8, 1, 16]], null, [[1, 34], [4, 40], [7, 146], [10, 111], [13, 56], [18, 45], [23, 230], [28, 183], [33, 241], [40, 131], [47, 57]], [[1, 34], [1, 40], [8, 146], [15, 56], [22, 45], [28, 111], [35, 131], [42, 57]], [1, 2, 3, 4, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 33, 34, 35, 40, 44, 45, 53, 54, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 28, 31, 32, 33, 34, 40, 44, 50, 53, 54], [55, 94, 115, 176, 194, 244], [0, 1]),
+    new PokeData("カメール", 8, 59, 63, 80, 65, 80, 58, 10, null, 45, 143, 2, [[9, 1, 36]], 7, [[1, 34], [1, 40], [1, 146], [4, 40], [7, 146], [10, 111], [13, 56], [19, 45], [25, 230], [31, 183], [37, 241], [45, 131], [53, 57]], [[1, 34], [1, 40], [1, 146], [8, 146], [15, 56], [24, 45], [31, 111], [39, 131], [47, 57]], [1, 2, 3, 4, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 33, 34, 35, 40, 44, 45, 53, 54, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 28, 31, 32, 33, 34, 40, 44, 50, 53, 54], [], [0, 1]),
+    new PokeData("カメックス", 9, 79, 83, 100, 85, 105, 78, 10, null, 45, 210, 2, [], 8, [[1, 34], [1, 40], [1, 146], [1, 111], [4, 40], [7, 146], [10, 111], [13, 56], [19, 45], [25, 230], [31, 183], [42, 241], [55, 131], [68, 57]], [[1, 34], [1, 40], [1, 146], [1, 56], [8, 146], [15, 56], [24, 45], [31, 111], [42, 131], [52, 57]], [1, 2, 3, 4, 5, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 23, 26, 27, 28, 31, 32, 33, 34, 35, 40, 44, 45, 53, 54, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 26, 27, 28, 31, 32, 33, 34, 40, 44, 50, 53, 54], [], [0, 1]),
+    new PokeData("キャタピー", 10, 45, 30, 35, 20, 20, 45, 6, null, 255, 53, 8, [[11, 1, 7]], null, [[1, 34], [1, 82]], [[1, 34], [1, 82]], [], [], [], [2]),
+    new PokeData("トランセル", 11, 50, 20, 55, 25, 25, 30, 6, null, 120, 72, 8, [[12, 1, 10]], 10, [[1, 107], [7, 107]], [[1, 107], [7, 107]], [], [], [], [2]),
+    new PokeData("バタフリー", 12, 60, 45, 50, 80, 80, 70, 6, 2, 45, 160, 8, [], 11, [[1, 94], [10, 94], [13, 78], [14, 79], [15, 80], [18, 49], [23, 19], [28, 17], [34, 61], [40, 220]], [[1, 94], [10, 94], [13, 78], [14, 79], [15, 80], [18, 49], [23, 19], [28, 17], [34, 61]], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 39, 44, 45, 50, 55], [2, 4, 6, 9, 10, 15, 20, 21, 22, 29, 30, 31, 32, 33, 34, 39, 44, 46, 50, 55], [], [2]),
+    new PokeData("ビードル", 13, 40, 35, 30, 20, 20, 50, 6, 3, 255, 52, 8, [[14, 1, 7]], null, [[1, 41], [1, 82]], [[1, 41], [1, 82]], [], [], [], [2]),
+    new PokeData("コクーン", 14, 45, 25, 50, 25, 25, 35, 6, 3, 120, 71, 8, [[15, 1, 10]], 13, [[1, 107], [7, 107]], [[1, 107]], [], [], [], [2]),
+    new PokeData("スピアー", 15, 65, 80, 40, 45, 80, 75, 6, 3, 45, 159, 8, [], 14, [[1, 32], [10, 32], [15, 117], [20, 42], [25, 100], [30, 229], [35, 43], [40, 98]], [[1, 32], [12, 32], [16, 117], [20, 42], [25, 100], [30, 43], [35, 98]], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 27, 32, 34, 35, 36, 39, 44, 45, 49, 51], [3, 6, 9, 10, 15, 20, 21, 31, 32, 33, 34, 39, 40, 44, 50, 51], [], [2]),
+    new PokeData("ポッポ", 16, 40, 45, 40, 35, 35, 56, 0, 2, 255, 55, 8, [[17, 1, 18]], null, [[1, 34], [5, 29], [9, 17], [15, 99], [21, 19], [29, 18], [37, 98], [47, 120]], [[1, 17], [5, 29], [12, 99], [19, 19], [28, 18], [36, 98], [44, 120]], [3, 6, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 47, 52], [2, 4, 6, 9, 10, 20, 31, 32, 33, 34, 39, 43, 44, 50, 52], [186, 194, 229], [3]),
+    new PokeData("ピジョン", 17, 63, 60, 55, 50, 50, 71, 0, 2, 120, 113, 8, [[18, 1, 36]], 16, [[1, 34], [1, 29], [1, 17], [5, 29], [9, 17], [15, 99], [23, 19], [33, 18], [43, 98], [55, 120]], [[1, 17], [1, 29], [5, 29], [12, 99], [21, 19], [31, 18], [40, 98], [49, 120]], [3, 6, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 47, 52], [2, 4, 6, 9, 10, 20, 31, 32, 33, 34, 39, 43, 44, 50, 52], [], [3]),
+    new PokeData("ピジョット", 18, 83, 80, 75, 70, 70, 91, 0, 2, 45, 172, 8, [], 17, [[1, 34], [1, 29], [1, 17], [1, 99], [5, 29], [9, 17], [15, 99], [23, 19], [33, 18], [46, 98], [61, 120]], [[1, 17], [1, 29], [1, 99], [5, 29], [12, 99], [21, 19], [31, 18], [44, 98], [54, 120]], [3, 6, 10, 11, 13, 15, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 47, 52], [2, 4, 6, 9, 10, 15, 20, 31, 32, 33, 34, 39, 43, 44, 50, 52], [], [3]),
+    new PokeData("コラッタ", 19, 30, 56, 35, 25, 35, 72, 0, null, 255, 57, 8, [[20, 1, 20]], null, [[1, 34], [1, 40], [7, 99], [13, 159], [20, 117], [27, 229], [34, 163]], [[1, 34], [1, 40], [7, 99], [14, 159], [23, 117], [34, 163]], [2, 3, 6, 8, 10, 11, 13, 14, 16, 17, 20, 21, 23, 25, 27, 28, 30, 31, 32, 34, 35, 39, 40, 44, 45, 46], [6, 8, 9, 10, 11, 12, 14, 20, 24, 25, 28, 31, 32, 34, 39, 40, 44, 50], [45, 69, 104, 155, 173, 180], [4]),
+    new PokeData("ラッタ", 20, 55, 81, 60, 50, 70, 97, 0, null, 90, 116, 8, [], 19, [[1, 34], [1, 40], [1, 99], [7, 99], [13, 159], [20, 185], [30, 229], [40, 163]], [[1, 34], [1, 40], [1, 99], [7, 99], [14, 159], [27, 117], [41, 163]], [2, 3, 5, 6, 8, 10, 11, 13, 14, 15, 16, 17, 20, 21, 23, 25, 27, 28, 30, 31, 32, 34, 35, 39, 40, 44, 45, 46, 51, 54, 59, 60], [6, 8, 9, 10, 11, 12, 13, 14, 15, 20, 24, 25, 28, 31, 32, 34, 39, 40, 44, 50], [], [4]),
+    new PokeData("オニスズメ", 21, 40, 60, 30, 31, 31, 70, 0, 2, 255, 58, 8, [[22, 1, 20]], null, [[1, 65], [1, 46], [7, 44], [13, 32], [25, 229], [31, 120], [37, 66], [43, 98]], [[1, 65], [1, 46], [9, 44], [15, 32], [22, 120], [29, 66], [36, 98]], [3, 6, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 47, 52], [2, 4, 6, 9, 10, 20, 31, 32, 34, 39, 43, 44, 50, 52], [99, 162, 185, 186, 207], [3]),
+    new PokeData("オニドリル", 22, 65, 90, 65, 61, 61, 100, 0, 2, 90, 162, 8, [], 21, [[1, 65], [1, 46], [1, 44], [1, 32], [7, 44], [13, 32], [26, 229], [32, 120], [40, 66], [47, 98]], [[1, 65], [1, 46], [1, 44], [9, 44], [15, 32], [25, 120], [34, 66], [43, 98]], [3, 6, 10, 11, 13, 15, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 47, 52], [2, 4, 6, 9, 10, 15, 20, 31, 32, 34, 39, 43, 44, 50, 52], [], [3]),
+    new PokeData("アーボ", 23, 35, 60, 44, 40, 54, 55, 3, null, 255, 62, 8, [[24, 1, 22]], null, [[1, 36], [1, 44], [9, 41], [15, 45], [23, 138], [29, 104], [37, 52], [43, 115]], [[1, 36], [1, 44], [10, 41], [17, 45], [24, 138], [31, 104], [38, 52]], [2, 3, 6, 10, 11, 13, 17, 19, 20, 21, 26, 27, 28, 32, 34, 35, 36, 44, 45, 46, 54], [6, 8, 9, 10, 20, 21, 26, 27, 28, 31, 32, 34, 40, 44, 48, 50, 54], [22, 181, 229, 243, 252], [4, 12]),
+    new PokeData("アーボック", 24, 60, 85, 69, 65, 79, 80, 3, null, 90, 147, 8, [], 23, [[1, 36], [1, 44], [1, 41], [1, 45], [9, 41], [15, 45], [25, 138], [33, 104], [43, 52], [51, 115]], [[1, 36], [1, 44], [1, 41], [10, 41], [17, 45], [27, 138], [36, 104], [47, 52]], [2, 3, 6, 10, 11, 13, 15, 17, 19, 20, 21, 26, 27, 28, 32, 34, 35, 36, 44, 45, 46, 54], [6, 8, 9, 10, 15, 20, 21, 26, 27, 28, 31, 32, 34, 40, 44, 48, 50, 54], [], [4, 12]),
+    new PokeData("ピカチュウ", 25, 35, 55, 30, 50, 40, 90, 12, null, 190, 82, 8, [[26, 2, 23]], 172, [[1, 85], [1, 46], [6, 40], [8, 87], [11, 99], [15, 105], [20, 22], [26, 86], [33, 98], [41, 88], [50, 114]], [[1, 85], [1, 46], [6, 40], [8, 87], [11, 99], [15, 105], [20, 22], [26, 86], [33, 98], [41, 88], [50, 114]], [1, 2, 3, 4, 6, 7, 10, 13, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 39, 40, 41, 43, 44, 45, 54, 55, 59], [1, 5, 6, 8, 9, 10, 16, 17, 19, 20, 24, 25, 31, 32, 33, 34, 39, 40, 44, 45, 50, 55, 58], [], [4, 5]),
+    new PokeData("ライチュウ", 26, 60, 90, 55, 90, 80, 100, 12, null, 75, 122, 8, [], 25, [[1, 85], [1, 40], [1, 99], [1, 86]], [[1, 85], [1, 46], [1, 87]], [1, 2, 3, 4, 6, 7, 10, 13, 15, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 39, 40, 41, 43, 44, 45, 46, 54, 55, 59], [1, 5, 6, 8, 9, 10, 15, 16, 17, 19, 20, 24, 25, 31, 32, 33, 34, 39, 40, 44, 45, 50, 55], [], [4, 5]),
+    new PokeData("サンド", 27, 50, 75, 85, 20, 30, 40, 4, null, 255, 93, 8, [[28, 1, 22]], null, [[1, 11], [6, 112], [11, 29], [17, 41], [23, 164], [30, 130], [37, 155], [45, 202]], [[1, 11], [10, 29], [17, 164], [24, 41], [31, 130], [38, 155]], [1, 2, 3, 4, 6, 8, 10, 11, 13, 17, 20, 21, 23, 26, 27, 28, 31, 32, 34, 35, 37, 39, 40, 43, 44, 45, 46, 49, 51, 54], [3, 6, 8, 9, 10, 17, 19, 20, 26, 27, 28, 31, 32, 34, 39, 40, 44, 48, 50, 51, 54], [69, 176, 220, 230, 233], [4]),
+    new PokeData("サンドパン", 28, 75, 100, 110, 45, 55, 65, 4, null, 90, 163, 8, [], 27, [[1, 11], [1, 112], [1, 29], [6, 112], [11, 29], [17, 41], [24, 164], [33, 130], [42, 155], [52, 202]], [[1, 11], [1, 29], [10, 29], [17, 164], [27, 41], [36, 130], [47, 155]], [1, 2, 3, 4, 6, 8, 10, 11, 13, 15, 17, 20, 21, 23, 26, 27, 28, 31, 32, 34, 35, 37, 39, 40, 43, 44, 45, 46, 49, 51, 54], [3, 6, 8, 9, 10, 15, 17, 19, 20, 26, 27, 28, 31, 32, 34, 39, 40, 44, 48, 50, 51, 54], [], [4]),
+    new PokeData("ニドラン♀", 29, 55, 47, 52, 40, 40, 41, 3, null, 235, 59, 16, [[30, 1, 16]], null, [[1, 46], [1, 34], [8, 11], [12, 25], [17, 41], [23, 40], [30, 45], [38, 155]], [[1, 46], [1, 34], [8, 11], [12, 25], [17, 41], [23, 40], [30, 45], [38, 155]], [2, 3, 6, 10, 11, 13, 14, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 40, 43, 44, 45, 46, 59], [6, 8, 9, 10, 14, 20, 24, 25, 31, 32, 33, 34, 40, 44, 50], [37, 49, 51, 69, 117, 205, 252], [0, 4]),
+    new PokeData("ニドリーナ", 30, 70, 62, 67, 55, 55, 56, 3, null, 120, 117, 16, [[31, 2, 8]], 29, [[1, 46], [1, 34], [8, 11], [12, 25], [19, 41], [27, 40], [36, 45], [46, 155]], [[1, 46], [1, 34], [1, 11], [8, 11], [12, 25], [19, 41], [27, 40], [36, 45], [46, 155]], [2, 3, 6, 8, 10, 11, 13, 14, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 40, 43, 44, 45, 46, 54, 59, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 20, 24, 25, 31, 32, 33, 34, 40, 44, 50], [], [15]),
+    new PokeData("ニドクイン", 31, 90, 82, 87, 75, 85, 76, 3, 4, 45, 194, 16, [], 30, [[1, 34], [1, 11], [1, 25], [1, 40], [23, 35]], [[1, 34], [1, 11], [1, 40], [1, 35], [8, 11], [12, 25], [23, 35]], [1, 2, 3, 5, 6, 8, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 26, 27, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 43, 44, 45, 46, 48, 49, 53, 54, 58, 59, 60], [1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 31, 32, 33, 34, 38, 40, 44, 48, 50, 53, 54], [], [15]),
+    new PokeData("ニドラン♂", 32, 46, 57, 40, 40, 40, 50, 3, null, 235, 60, 0, [[33, 1, 16]], null, [[1, 44], [1, 34], [8, 31], [12, 25], [17, 41], [23, 117], [30, 32], [38, 33]], [[1, 44], [1, 34], [8, 31], [12, 25], [17, 41], [23, 117], [30, 32], [38, 33]], [2, 3, 6, 10, 11, 13, 14, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 40, 43, 44, 45, 46, 59], [6, 7, 8, 9, 10, 14, 20, 24, 25, 31, 32, 33, 34, 40, 44, 50], [37, 49, 51, 69, 94, 134, 252], [0, 4]),
+    new PokeData("ニドリーノ", 33, 61, 72, 57, 55, 55, 65, 3, null, 120, 118, 0, [[34, 2, 8]], 32, [[1, 44], [1, 34], [8, 31], [12, 25], [19, 41], [27, 117], [36, 32], [46, 33]], [[1, 44], [1, 34], [1, 31], [8, 31], [12, 25], [19, 41], [27, 117], [36, 32], [46, 33]], [2, 3, 6, 8, 10, 11, 13, 14, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 40, 43, 44, 45, 46, 54, 59, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 20, 24, 25, 31, 32, 33, 34, 40, 44, 50], [], [0, 4]),
+    new PokeData("ニドキング", 34, 81, 92, 77, 85, 75, 85, 3, 4, 45, 195, 0, [], 33, [[1, 34], [1, 31], [1, 25], [1, 41], [23, 38]], [[1, 34], [1, 31], [1, 41], [1, 38], [8, 31], [12, 25], [23, 38]], [1, 2, 3, 5, 6, 8, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 26, 27, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 43, 44, 45, 46, 48, 49, 53, 54, 58, 59, 60], [1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 31, 32, 33, 34, 38, 40, 44, 48, 50, 53, 54], [], [0, 4]),
+    new PokeData("ピッピ", 35, 70, 45, 48, 60, 65, 35, 0, null, 150, 68, 12, [[36, 2, 8]], 173, [[1, 2], [1, 46], [4, 228], [8, 48], [13, 4], [19, 108], [26, 112], [34, 119], [43, 237], [53, 114]], [[1, 2], [1, 46], [13, 48], [18, 4], [24, 108], [31, 119], [39, 112], [48, 114]], [1, 2, 3, 4, 6, 7, 9, 10, 11, 13, 14, 17, 18, 20, 21, 22, 23, 25, 27, 29, 30, 31, 32, 33, 34, 35, 38, 40, 41, 42, 43, 44, 45, 48, 50, 54, 55, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 35, 38, 40, 44, 45, 46, 49, 50, 54, 55], [], [5]),
+    new PokeData("ピクシー", 36, 95, 70, 73, 85, 90, 60, 0, null, 25, 129, 12, [], 35, [[1, 48], [1, 4], [1, 119], [1, 237]], [[1, 48], [1, 4], [1, 108], [1, 119]], [1, 2, 3, 4, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 23, 25, 27, 29, 30, 31, 32, 33, 34, 35, 38, 40, 41, 42, 43, 44, 45, 48, 50, 54, 55, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 35, 38, 40, 44, 45, 46, 49, 50, 54, 55], [], [5]),
+    new PokeData("ロコン", 37, 38, 41, 40, 50, 65, 65, 9, null, 190, 63, 12, [[38, 2, 22]], null, [[1, 53], [1, 40], [7, 99], [13, 47], [19, 110], [25, 220], [31, 54], [37, 84]], [[1, 53], [1, 40], [16, 99], [21, 47], [28, 110], [35, 54], [42, 84]], [2, 3, 6, 10, 11, 13, 17, 20, 21, 23, 27, 28, 32, 34, 35, 38, 39, 44, 45, 58], [6, 8, 9, 10, 20, 28, 31, 32, 33, 34, 38, 39, 40, 44, 50], [51, 96, 176, 181, 186], [4]),
+    new PokeData("キュウコン", 38, 73, 76, 75, 81, 100, 100, 9, null, 75, 178, 12, [], 37, [[1, 53], [1, 99], [1, 110], [1, 220], [43, 84]], [[1, 53], [1, 40], [1, 99], [1, 47]], [2, 3, 5, 6, 10, 11, 13, 15, 17, 20, 21, 23, 27, 28, 32, 34, 35, 38, 39, 44, 45, 58], [6, 8, 9, 10, 15, 20, 28, 31, 32, 33, 34, 38, 39, 40, 44, 50], [], [4]),
+    new PokeData("プリン", 39, 115, 45, 20, 45, 25, 20, 0, null, 170, 76, 12, [[40, 2, 8]], 174, [[1, 48], [4, 112], [9, 2], [14, 51], [19, 206], [24, 4], [29, 157], [34, 35], [39, 39]], [[1, 48], [9, 2], [14, 51], [19, 112], [24, 4], [29, 157], [34, 35], [39, 39]], [1, 2, 3, 4, 6, 7, 9, 10, 11, 13, 14, 17, 18, 20, 21, 22, 25, 27, 29, 30, 31, 32, 33, 34, 35, 38, 40, 41, 42, 43, 44, 45, 48, 50, 54, 55, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 38, 40, 44, 45, 46, 49, 50, 54, 55], [], [5]),
+    new PokeData("プクリン", 40, 140, 70, 45, 75, 50, 45, 0, null, 50, 109, 12, [], 39, [[1, 48], [1, 51], [1, 112], [1, 4]], [[1, 48], [1, 51], [1, 112], [1, 4]], [1, 2, 3, 4, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 20, 21, 22, 25, 27, 29, 30, 31, 32, 33, 34, 35, 38, 40, 41, 42, 43, 44, 45, 48, 50, 54, 55, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 38, 40, 44, 45, 46, 49, 50, 54, 55], [], [5]),
+    new PokeData("ズバット", 41, 40, 45, 35, 30, 40, 55, 3, 2, 255, 54, 8, [[42, 1, 22]], null, [[1, 142], [6, 49], [12, 45], [19, 110], [27, 18], [36, 213], [46, 115]], [[1, 142], [10, 49], [15, 45], [21, 110], [28, 18], [36, 115]], [3, 6, 10, 11, 13, 17, 19, 20, 21, 27, 32, 34, 35, 39, 43, 44, 45, 46, 47], [2, 4, 6, 9, 10, 20, 21, 31, 32, 34, 39, 44, 50], [17, 19, 99, 186, 229], [3]),
+    new PokeData("ゴルバット", 42, 75, 80, 70, 65, 75, 90, 3, 2, 90, 171, 8, [[169, 4, 1]], 41, [[1, 104], [1, 142], [1, 49], [6, 49], [12, 45], [19, 110], [30, 18], [42, 213], [55, 115]], [[1, 142], [1, 104], [1, 45], [10, 49], [15, 45], [21, 110], [32, 18], [43, 115]], [3, 6, 10, 11, 13, 15, 17, 19, 20, 21, 27, 32, 34, 35, 39, 43, 44, 45, 46, 47], [2, 4, 6, 9, 10, 15, 20, 21, 31, 32, 34, 39, 44, 50], [], [3]),
+    new PokeData("ナゾノクサ", 43, 45, 50, 55, 75, 65, 30, 11, 3, 255, 78, 8, [[44, 1, 21]], null, [[1, 72], [7, 231], [14, 78], [16, 79], [18, 80], [23, 52], [32, 237], [39, 81]], [[1, 72], [15, 78], [17, 79], [19, 80], [24, 52], [33, 81], [46, 77]], [3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [3, 6, 9, 10, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [15, 76, 176, 236], [6]),
+    new PokeData("クサイハナ", 44, 60, 65, 70, 85, 75, 40, 11, 3, 120, 132, 8, [[45, 2, 34], [182, 2, 169]], 43, [[1, 72], [1, 231], [1, 78], [7, 231], [14, 78], [16, 79], [18, 80], [24, 52], [35, 237], [44, 81]], [[1, 72], [1, 78], [1, 79], [15, 78], [17, 79], [19, 80], [28, 52], [38, 81], [52, 77]], [3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [3, 6, 9, 10, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [], [6]),
+    new PokeData("ラフレシア", 45, 75, 80, 85, 100, 90, 50, 11, 3, 45, 184, 8, [], 44, [[1, 72], [1, 231], [1, 79], [1, 81]], [[1, 79], [1, 80], [1, 52], [1, 81], [15, 78], [17, 79], [19, 80]], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [3, 6, 8, 9, 10, 15, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [], [6]),
+    new PokeData("パラス", 46, 35, 70, 55, 45, 55, 25, 6, 11, 190, 70, 8, [[47, 1, 24]], null, [[1, 11], [7, 79], [13, 78], [19, 142], [25, 148], [31, 164], [37, 75], [43, 203]], [[1, 11], [13, 79], [20, 142], [27, 148], [34, 164], [41, 75]], [3, 6, 8, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 28, 32, 34, 35, 36, 44, 45, 46, 49, 51, 55], [3, 6, 8, 9, 10, 20, 21, 22, 28, 31, 32, 33, 34, 40, 44, 50, 51], [61, 69, 104, 114, 176, 207, 229], [2, 6]),
+    new PokeData("パラセクト", 47, 60, 95, 80, 60, 80, 30, 6, 11, 75, 128, 8, [], 46, [[1, 11], [1, 79], [1, 78], [7, 79], [13, 78], [19, 142], [28, 148], [37, 164], [46, 75], [55, 203]], [[1, 11], [1, 79], [1, 142], [13, 79], [20, 142], [30, 148], [39, 164], [48, 75]], [3, 6, 8, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 28, 32, 34, 35, 36, 44, 45, 46, 49, 51, 55], [3, 6, 8, 9, 10, 15, 20, 21, 22, 28, 31, 32, 33, 34, 40, 44, 50, 51], [], [2, 6]),
+    new PokeData("コンパン", 48, 60, 55, 50, 40, 55, 45, 6, 3, 190, 75, 8, [[49, 1, 31]], null, [[1, 34], [1, 51], [1, 194], [9, 49], [17, 94], [20, 78], [25, 142], [28, 79], [33, 61], [36, 80], [41, 95]], [[1, 34], [1, 51], [11, 49], [19, 94], [22, 78], [27, 142], [30, 79], [35, 61], [38, 80], [43, 95]], [3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 36, 39, 44, 45, 46], [6, 9, 10, 20, 21, 22, 29, 31, 32, 33, 34, 44, 46, 50, 55], [104, 227], [2]),
+    new PokeData("モルフォン", 49, 70, 65, 60, 90, 75, 90, 6, 3, 75, 138, 8, [], 48, [[1, 34], [1, 51], [1, 194], [1, 49], [9, 49], [17, 94], [20, 78], [25, 142], [28, 79], [31, 17], [36, 61], [42, 80], [52, 95]], [[1, 34], [1, 51], [1, 49], [1, 94], [22, 78], [27, 142], [30, 79], [38, 61], [43, 80], [50, 95]], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 36, 39, 44, 45, 46, 55], [2, 4, 6, 9, 10, 15, 20, 21, 22, 29, 30, 31, 32, 33, 34, 39, 44, 46, 50, 55], [], [2]),
+    new PokeData("ディグダ", 50, 10, 55, 25, 35, 45, 95, 4, null, 255, 81, 8, [[51, 1, 26]], null, [[1, 11], [5, 46], [9, 223], [17, 92], [25, 29], [33, 164], [41, 90], [49, 91]], [[1, 11], [15, 46], [19, 92], [24, 29], [31, 164], [40, 90]], [3, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 34, 35, 36, 44, 45, 46, 51], [6, 8, 9, 10, 20, 26, 27, 28, 31, 32, 34, 44, 48, 50, 51], [104, 186, 229, 247, 252], [4]),
+    new PokeData("ダグトリオ", 51, 35, 80, 50, 50, 70, 120, 4, null, 50, 153, 8, [], 50, [[1, 162], [1, 11], [1, 46], [1, 223], [5, 46], [9, 223], [17, 92], [25, 29], [37, 164], [49, 90], [61, 91]], [[1, 11], [1, 46], [1, 92], [15, 46], [19, 92], [24, 29], [35, 164], [47, 90]], [3, 6, 8, 10, 11, 13, 15, 17, 20, 21, 26, 27, 28, 31, 32, 34, 35, 36, 44, 45, 46, 51], [6, 8, 9, 10, 15, 20, 26, 27, 28, 31, 32, 34, 44, 48, 50, 51], [], [4]),
+    new PokeData("ニャース", 52, 40, 45, 35, 40, 40, 90, 0, null, 255, 69, 8, [[53, 1, 28]], null, [[1, 11], [1, 46], [11, 45], [20, 7], [28, 186], [35, 104], [41, 155], [46, 164]], [[1, 11], [1, 46], [12, 45], [17, 7], [24, 104], [33, 155], [44, 164]], [2, 3, 6, 7, 9, 10, 11, 13, 16, 17, 20, 21, 23, 25, 27, 30, 31, 32, 34, 35, 39, 40, 42, 43, 44, 45, 46, 50, 59], [6, 8, 9, 10, 11, 12, 16, 20, 24, 25, 31, 32, 34, 39, 40, 44, 50], [96, 134, 181, 205], [4]),
+    new PokeData("ペルシアン", 53, 65, 70, 60, 65, 65, 115, 0, null, 90, 148, 8, [], 52, [[1, 11], [1, 46], [1, 45], [11, 45], [20, 7], [29, 186], [38, 104], [46, 155], [53, 164]], [[1, 11], [1, 46], [1, 45], [1, 104], [12, 45], [17, 7], [24, 104], [37, 155], [51, 164]], [2, 3, 5, 6, 7, 9, 10, 11, 13, 15, 16, 17, 20, 21, 23, 25, 27, 30, 31, 32, 34, 35, 39, 40, 42, 43, 44, 45, 46, 50, 59], [6, 8, 9, 10, 11, 12, 15, 16, 20, 24, 25, 31, 32, 34, 39, 40, 44, 50], [], [4]),
+    new PokeData("コダック", 54, 50, 52, 48, 65, 50, 55, 10, null, 190, 80, 8, [[55, 1, 33]], null, [[1, 11], [5, 40], [10, 51], [16, 94], [23, 104], [31, 245], [40, 155], [50, 57]], [[1, 11], [28, 40], [31, 51], [36, 94], [43, 155], [52, 57]], [1, 2, 3, 6, 8, 9, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 33, 34, 35, 39, 44, 45, 53, 54, 55, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 28, 31, 32, 34, 39, 40, 44, 50, 53, 54], [59, 61, 95, 96, 114, 194, 239, 249], [1, 4]),
+    new PokeData("ゴルダック", 55, 80, 82, 78, 95, 80, 85, 10, null, 75, 174, 8, [], 54, [[1, 11], [1, 40], [1, 51], [1, 94], [5, 40], [10, 51], [16, 94], [23, 104], [31, 245], [44, 155], [58, 57]], [[1, 11], [1, 40], [1, 51], [28, 40], [31, 51], [39, 94], [48, 155], [59, 57]], [1, 2, 3, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 33, 34, 35, 39, 44, 45, 49, 53, 54, 55, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 28, 31, 32, 34, 39, 40, 44, 50, 53, 54], [], [1, 4]),
+    new PokeData("マンキー", 56, 40, 80, 35, 35, 45, 70, 1, null, 190, 74, 8, [[57, 1, 28]], null, [[1, 11], [1, 44], [9, 68], [15, 3], [21, 155], [27, 117], [33, 70], [39, 239], [45, 104], [51, 38]], [[1, 11], [1, 44], [9, 68], [15, 3], [21, 155], [27, 117], [33, 70], [39, 38], [45, 104]], [1, 2, 3, 6, 8, 9, 10, 11, 13, 17, 20, 21, 23, 25, 27, 28, 31, 32, 33, 34, 35, 39, 40, 41, 43, 44, 45, 46, 48, 54, 59], [1, 5, 6, 8, 9, 10, 16, 17, 18, 19, 20, 24, 25, 28, 31, 32, 34, 35, 39, 40, 44, 48, 50, 54], [69, 97, 158, 180, 194, 252], [4]),
+    new PokeData("オコリザル", 57, 65, 105, 60, 60, 70, 95, 1, null, 75, 149, 8, [], 56, [[1, 11], [1, 44], [1, 68], [1, 100], [9, 68], [15, 3], [21, 155], [27, 117], [28, 100], [36, 70], [45, 239], [54, 104], [63, 38]], [[1, 11], [1, 44], [1, 68], [1, 3], [9, 68], [15, 3], [21, 155], [27, 117], [28, 100], [37, 70], [46, 38], [45, 104]], [1, 2, 3, 6, 8, 9, 10, 11, 13, 15, 17, 20, 21, 23, 25, 27, 28, 31, 32, 33, 34, 35, 39, 40, 41, 43, 44, 45, 46, 48, 54, 59], [1, 5, 6, 8, 9, 10, 15, 16, 17, 18, 19, 20, 24, 25, 28, 31, 32, 34, 35, 39, 40, 44, 48, 50, 54], [], [4]),
+    new PokeData("ガーディ", 58, 55, 70, 45, 70, 50, 60, 9, null, 190, 91, 4, [[59, 2, 22]], null, [[1, 45], [1, 47], [9, 53], [18, 44], [26, 37], [34, 173], [42, 98], [50, 54]], [[1, 45], [1, 47], [18, 53], [23, 44], [30, 37], [39, 98], [50, 54]], [2, 3, 5, 6, 8, 10, 11, 13, 17, 20, 21, 23, 24, 27, 28, 32, 34, 35, 38, 39, 44, 45, 58], [6, 8, 9, 10, 20, 23, 28, 31, 32, 33, 34, 38, 39, 40, 44, 50], [35, 38, 84, 220, 243], [4]),
+    new PokeData("ウインディ", 59, 90, 110, 80, 100, 80, 95, 9, null, 75, 213, 4, [], 58, [[1, 47], [1, 44], [1, 37], [1, 173], [50, 246]], [[1, 47], [1, 53], [1, 44], [1, 37]], [2, 3, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 23, 24, 27, 28, 32, 34, 35, 38, 39, 44, 45, 58], [6, 8, 9, 10, 15, 20, 23, 28, 30, 31, 32, 33, 34, 38, 39, 40, 44, 50], [], [4]),
+    new PokeData("ニョロモ", 60, 40, 50, 40, 40, 40, 90, 10, null, 255, 77, 8, [[61, 1, 25]], null, [[1, 146], [7, 96], [13, 56], [19, 4], [25, 241], [31, 35], [37, 188], [43, 57]], [[1, 146], [16, 96], [19, 56], [25, 4], [31, 35], [38, 134], [45, 57]], [2, 3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 29, 32, 34, 35, 40, 44, 45, 46, 53, 56, 57, 60], [6, 8, 9, 10, 11, 12, 13, 14, 20, 29, 31, 32, 34, 40, 44, 46, 50, 53], [55, 62, 115, 151, 171], [1]),
+    new PokeData("ニョロゾ", 61, 65, 65, 65, 50, 50, 90, 10, null, 120, 131, 8, [[62, 2, 24], [186, 3, 82]], 60, [[1, 146], [1, 96], [1, 56], [7, 96], [13, 56], [19, 4], [27, 241], [35, 35], [43, 188], [51, 57]], [[1, 146], [1, 96], [1, 56], [16, 96], [19, 56], [26, 4], [33, 35], [41, 134], [49, 57]], [2, 3, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 26, 27, 29, 31, 32, 33, 34, 35, 40, 43, 44, 45, 46, 53, 54, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 26, 27, 29, 31, 32, 34, 35, 40, 44, 46, 50, 53, 54], [], [1]),
+    new PokeData("ニョロボン", 62, 90, 85, 95, 70, 90, 70, 10, 1, 45, 185, 8, [], 61, [[1, 56], [1, 96], [1, 4], [1, 67], [35, 67], [51, 171]], [[1, 96], [1, 56], [1, 4], [1, 35], [16, 96], [19, 56]], [1, 2, 3, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 26, 27, 29, 31, 32, 33, 34, 35, 40, 43, 44, 45, 46, 53, 54, 56, 57, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 26, 27, 29, 31, 32, 34, 35, 40, 44, 46, 50, 53, 54], [], [1]),
+    new PokeData("ケーシィ", 63, 25, 20, 15, 105, 55, 90, 13, null, 200, 73, 4, [[64, 1, 16]], null, [[1, 101]], [[1, 101]], [1, 2, 3, 6, 7, 9, 10, 11, 13, 17, 18, 20, 21, 27, 29, 30, 32, 33, 34, 35, 41, 42, 44, 45, 46, 48, 50, 55], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34, 35, 40, 44, 45, 46, 49, 50, 55], [113, 114, 228], [7]),
+    new PokeData("ユンゲラー", 64, 40, 35, 30, 120, 70, 105, 13, null, 100, 145, 4, [[65, 3, 255]], 63, [[1, 101], [1, 135], [1, 94], [16, 94], [18, 51], [21, 61], [26, 106], [31, 249], [38, 95], [45, 116]], [[1, 101], [1, 135], [16, 94], [20, 51], [27, 61], [31, 106], [38, 95], [42, 116]], [1, 2, 3, 6, 7, 9, 10, 11, 13, 17, 18, 20, 21, 27, 28, 29, 30, 32, 33, 34, 35, 41, 42, 44, 45, 46, 48, 50, 55], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 28, 29, 30, 31, 32, 33, 34, 35, 40, 44, 45, 46, 49, 50, 55], [], [7]),
+    new PokeData("フーディン", 65, 55, 50, 45, 135, 85, 120, 13, null, 50, 186, 4, [], 64, [[1, 101], [1, 135], [1, 94], [16, 94], [18, 51], [21, 61], [26, 106], [31, 249], [38, 95], [45, 116]], [[1, 101], [1, 135], [16, 94], [20, 51], [27, 61], [31, 106], [38, 95], [42, 116]], [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 20, 21, 27, 28, 29, 30, 32, 33, 34, 35, 41, 42, 44, 45, 46, 48, 50, 55], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 28, 29, 30, 31, 32, 33, 34, 35, 40, 44, 45, 46, 49, 50, 55], [], [7]),
+    new PokeData("ワンリキー", 66, 70, 80, 50, 35, 35, 35, 1, null, 180, 88, 4, [[67, 1, 28]], null, [[1, 68], [1, 44], [7, 117], [13, 3], [19, 70], [25, 194], [31, 234], [37, 239], [43, 185], [49, 67]], [[1, 3], [20, 68], [25, 44], [32, 117], [39, 70], [46, 67]], [1, 2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 33, 34, 35, 38, 41, 43, 44, 45, 46, 48, 54, 58], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 35, 38, 40, 44, 48, 50, 54], [28, 97, 114, 228], [7]),
+    new PokeData("ゴーリキー", 67, 80, 100, 70, 50, 60, 45, 1, null, 90, 146, 4, [[68, 3, 255]], 66, [[1, 68], [1, 44], [1, 117], [8, 117], [15, 3], [19, 70], [25, 194], [34, 234], [43, 239], [52, 185], [61, 67]], [[1, 3], [1, 68], [1, 44], [20, 68], [25, 44], [36, 117], [44, 70], [52, 67]], [1, 2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 33, 34, 35, 38, 41, 43, 44, 45, 46, 48, 54, 58], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 35, 38, 40, 44, 48, 50, 54], [], [7]),
+    new PokeData("カイリキー", 68, 90, 130, 80, 65, 85, 55, 1, null, 45, 193, 4, [], 67, [[1, 68], [1, 44], [1, 117], [8, 117], [15, 3], [19, 70], [25, 194], [34, 234], [43, 239], [52, 185], [61, 67]], [[1, 3], [1, 68], [1, 44], [20, 68], [25, 44], [36, 117], [44, 70], [52, 67]], [1, 2, 3, 6, 8, 10, 11, 13, 15, 17, 20, 21, 26, 27, 28, 31, 32, 33, 34, 35, 38, 41, 43, 44, 45, 46, 48, 54, 58], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 35, 38, 40, 44, 48, 50, 54], [], [7]),
+    new PokeData("マダツボミ", 69, 50, 75, 35, 70, 30, 40, 11, 3, 255, 84, 8, [[70, 1, 21]], null, [[1, 23], [6, 75], [11, 36], [15, 80], [17, 78], [19, 79], [23, 52], [30, 231], [37, 76], [45, 22]], [[1, 23], [1, 75], [13, 36], [15, 78], [18, 80], [21, 79], [26, 52], [33, 76], [42, 22]], [3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [3, 6, 9, 10, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [15, 116, 142, 228, 236], [6]),
+    new PokeData("ウツドン", 70, 65, 90, 50, 85, 45, 55, 11, 3, 120, 151, 8, [[71, 2, 34]], 69, [[1, 23], [1, 75], [1, 36], [6, 75], [11, 36], [15, 80], [17, 78], [19, 79], [24, 52], [33, 231], [42, 76], [54, 22]], [[1, 23], [1, 75], [1, 36], [13, 36], [15, 78], [18, 80], [23, 79], [29, 52], [38, 76], [49, 22]], [3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [3, 6, 9, 10, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [], [6]),
+    new PokeData("ウツボット", 71, 80, 105, 65, 100, 60, 70, 11, 3, 45, 191, 8, [], 70, [[1, 23], [1, 80], [1, 231], [1, 76]], [[1, 80], [1, 79], [1, 52], [1, 76], [13, 36], [15, 78], [18, 80]], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [3, 6, 8, 9, 10, 15, 20, 21, 22, 31, 32, 33, 34, 44, 50, 51], [], [6]),
+    new PokeData("メノクラゲ", 72, 40, 40, 35, 50, 100, 70, 10, 3, 190, 105, 8, [[73, 1, 30]], null, [[1, 41], [6, 49], [12, 133], [19, 52], [25, 62], [30, 36], [36, 113], [43, 104], [49, 57]], [[1, 52], [7, 49], [13, 36], [18, 41], [22, 56], [27, 133], [33, 113], [40, 104], [48, 57]], [3, 6, 10, 13, 14, 16, 17, 18, 19, 20, 21, 27, 32, 34, 35, 36, 44, 45, 51, 53, 56, 60], [3, 6, 9, 10, 11, 12, 13, 14, 20, 21, 31, 32, 33, 34, 40, 44, 50, 51, 53], [63, 115, 220, 230, 244], [8]),
+    new PokeData("ドククラゲ", 73, 80, 70, 65, 80, 120, 100, 10, 3, 60, 205, 8, [], 72, [[1, 41], [1, 49], [1, 133], [6, 49], [12, 133], [19, 52], [25, 62], [30, 36], [38, 113], [47, 104], [55, 57]], [[1, 52], [1, 49], [1, 36], [7, 49], [13, 36], [18, 41], [22, 56], [27, 133], [35, 113], [43, 104], [50, 57]], [3, 6, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 27, 32, 34, 35, 36, 44, 45, 51, 53, 56, 60], [3, 6, 9, 10, 11, 12, 13, 14, 15, 20, 21, 31, 32, 33, 34, 40, 44, 50, 51, 53], [], [8]),
+    new PokeData("イシツブテ", 74, 40, 80, 100, 30, 30, 20, 5, 4, 255, 86, 8, [[75, 1, 25]], null, [[1, 34], [6, 112], [11, 89], [16, 223], [21, 121], [26, 107], [31, 206], [36, 90], [41, 154]], [[1, 34], [11, 112], [16, 89], [21, 121], [26, 107], [31, 90], [36, 154]], [1, 2, 3, 4, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 34, 35, 37, 38, 40, 44, 45, 48, 54, 58], [1, 6, 8, 9, 10, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 35, 36, 38, 44, 47, 48, 50, 54], [6, 158], [9]),
+    new PokeData("ゴローン", 75, 55, 95, 115, 45, 45, 35, 5, 4, 120, 134, 8, [[76, 3, 255]], 74, [[1, 34], [1, 112], [1, 89], [6, 112], [11, 89], [16, 223], [21, 121], [27, 107], [34, 206], [41, 90], [48, 154]], [[1, 34], [1, 112], [11, 112], [16, 89], [21, 121], [29, 107], [36, 90], [43, 154]], [1, 2, 3, 4, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 34, 35, 37, 38, 40, 44, 45, 48, 54, 58], [1, 6, 8, 9, 10, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 35, 36, 38, 44, 47, 48, 50, 54], [], [9]),
+    new PokeData("ゴローニャ", 76, 80, 110, 130, 55, 65, 45, 5, 4, 45, 177, 8, [], 75, [[1, 34], [1, 112], [1, 89], [1, 223], [6, 112], [11, 89], [16, 223], [21, 121], [27, 107], [34, 206], [41, 90], [48, 154]], [[1, 34], [1, 112], [11, 112], [16, 89], [21, 121], [29, 107], [36, 90], [43, 154]], [1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 26, 27, 28, 31, 32, 34, 35, 37, 38, 40, 44, 45, 48, 49, 54, 58], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 35, 36, 38, 44, 47, 48, 50, 54], [], [9]),
+    new PokeData("ポニータ", 77, 50, 85, 55, 65, 65, 90, 9, null, 190, 152, 8, [[78, 1, 40]], null, [[1, 34], [4, 46], [8, 40], [13, 53], [19, 24], [26, 84], [34, 37], [43, 98], [53, 127]], [[1, 53], [30, 40], [32, 24], [35, 46], [39, 84], [43, 37], [48, 98]], [2, 3, 6, 10, 11, 13, 17, 20, 21, 23, 27, 32, 34, 35, 38, 39, 44, 45, 58], [6, 7, 8, 9, 10, 20, 31, 32, 33, 34, 38, 39, 40, 44, 50], [25, 38, 96, 99, 173, 205], [4]),
+    new PokeData("ギャロップ", 78, 65, 100, 70, 80, 80, 105, 9, null, 60, 192, 8, [], 77, [[1, 34], [1, 46], [1, 40], [1, 53], [4, 46], [8, 40], [13, 53], [19, 24], [26, 84], [34, 37], [40, 32], [47, 98], [61, 127]], [[1, 53], [1, 40], [1, 24], [1, 46], [30, 40], [32, 24], [35, 46], [39, 84], [47, 37], [55, 98]], [2, 3, 6, 10, 11, 13, 15, 17, 20, 21, 23, 27, 32, 34, 35, 38, 39, 44, 45, 58], [6, 7, 8, 9, 10, 15, 20, 31, 32, 33, 34, 38, 39, 40, 44, 50], [], [4]),
+    new PokeData("ヤドン", 79, 90, 65, 65, 40, 40, 15, 10, 13, 190, 99, 8, [[80, 1, 37], [199, 3, 82]], null, [[1, 175], [1, 34], [6, 46], [15, 56], [20, 94], [29, 51], [34, 30], [43, 134], [48, 95]], [[1, 94], [18, 51], [22, 30], [27, 46], [33, 56], [40, 134], [48, 95]], [2, 3, 6, 7, 9, 10, 11, 13, 14, 16, 17, 18, 20, 21, 23, 26, 27, 28, 29, 30, 31, 32, 34, 35, 38, 39, 42, 44, 45, 50, 53, 54, 55, 58, 60], [6, 8, 9, 10, 11, 12, 13, 14, 16, 20, 26, 27, 28, 29, 30, 31, 32, 33, 34, 38, 39, 40, 44, 45, 46, 49, 50, 53, 54, 55], [24, 188, 220, 249], [0, 1]),
+    new PokeData("ヤドラン", 80, 95, 75, 110, 100, 80, 30, 10, 13, 75, 164, 8, [], 79, [[1, 175], [1, 34], [1, 46], [1, 56], [6, 46], [15, 56], [20, 94], [29, 51], [34, 30], [37, 111], [46, 134], [54, 95]], [[1, 94], [1, 51], [1, 30], [18, 51], [22, 30], [27, 46], [33, 56], [37, 111], [44, 134], [55, 95]], [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 38, 39, 42, 44, 45, 49, 50, 53, 54, 55, 58, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26, 27, 28, 29, 30, 31, 32, 33, 34, 38, 39, 40, 44, 45, 46, 49, 50, 53, 54, 55], [], [0, 1]),
+    new PokeData("コイル", 81, 25, 35, 70, 95, 55, 45, 12, 8, 190, 89, null, [[82, 1, 30]], null, [[1, 34], [6, 85], [11, 49], [16, 50], [21, 87], [27, 200], [33, 130], [39, 104], [45, 193]], [[1, 34], [21, 50], [25, 85], [29, 49], [35, 87], [41, 130], [47, 104]], [3, 4, 6, 7, 10, 13, 17, 18, 20, 21, 25, 27, 32, 34, 35, 39, 44, 55, 59], [6, 9, 10, 20, 24, 25, 30, 31, 32, 33, 34, 39, 44, 45, 50, 55], [], [13]),
+    new PokeData("レアコイル", 82, 50, 60, 95, 120, 70, 70, 12, 8, 60, 161, null, [], 81, [[1, 34], [1, 85], [1, 49], [1, 50], [6, 85], [11, 49], [16, 50], [21, 87], [27, 200], [35, 162], [43, 104], [53, 193]], [[1, 34], [1, 50], [1, 85], [21, 50], [25, 85], [29, 49], [38, 87], [46, 130], [54, 104]], [3, 4, 6, 7, 10, 13, 15, 17, 18, 20, 21, 25, 27, 32, 34, 35, 39, 44, 55, 59], [6, 9, 10, 15, 20, 24, 25, 30, 31, 32, 33, 34, 39, 44, 45, 50, 55], [], [13]),
+    new PokeData("カモネギ", 83, 52, 65, 55, 58, 62, 60, 0, 2, 45, 94, 8, [], null, [[1, 65], [7, 29], [13, 44], [19, 32], [25, 15], [31, 98], [37, 164], [44, 207]], [[1, 65], [1, 29], [7, 44], [15, 32], [23, 15], [31, 98], [39, 164]], [2, 3, 6, 9, 10, 11, 13, 17, 20, 21, 23, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 47, 51, 52], [2, 3, 4, 6, 8, 9, 10, 20, 31, 32, 33, 34, 39, 40, 44, 50, 51, 52], [17, 99, 120, 176, 194], [3, 4]),
+    new PokeData("ドードー", 84, 35, 85, 45, 35, 35, 75, 0, 2, 190, 96, 8, [[85, 1, 31]], null, [[1, 65], [1, 46], [9, 229], [13, 32], [21, 162], [25, 100], [33, 66], [37, 98]], [[1, 65], [20, 46], [24, 32], [30, 66], [36, 100], [40, 162], [44, 98]], [3, 6, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 44, 45, 46, 47, 52], [4, 6, 8, 9, 10, 20, 31, 32, 33, 34, 40, 43, 44, 49, 50, 52], [49, 99, 115, 176, 186], [3]),
+    new PokeData("ドードリオ", 85, 60, 110, 70, 60, 60, 100, 0, 2, 45, 158, 8, [], 84, [[1, 65], [1, 46], [1, 229], [1, 32], [9, 229], [13, 32], [21, 162], [25, 100], [38, 66], [47, 98]], [[1, 65], [1, 46], [1, 32], [20, 46], [24, 32], [30, 66], [39, 100], [45, 162], [51, 98]], [3, 6, 10, 11, 13, 15, 17, 20, 21, 27, 31, 32, 34, 35, 39, 44, 45, 46, 47, 52], [4, 6, 8, 9, 10, 15, 20, 31, 32, 33, 34, 40, 43, 44, 49, 50, 52], [], [3]),
+    new PokeData("パウワウ", 86, 65, 45, 55, 45, 70, 45, 10, null, 190, 100, 8, [[87, 1, 34]], null, [[1, 30], [5, 46], [16, 63], [21, 157], [32, 37], [37, 59], [48, 220]], [[1, 30], [30, 46], [35, 63], [40, 157], [45, 37], [50, 59]], [2, 3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 32, 34, 35, 44, 45, 53, 56, 57, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 20, 31, 32, 34, 40, 44, 50, 53, 54], [22, 51, 65, 123, 196, 228], [1, 4]),
+    new PokeData("ジュゴン", 87, 90, 70, 80, 70, 95, 70, 10, 14, 75, 176, 8, [], 86, [[1, 30], [1, 46], [1, 63], [5, 46], [16, 63], [21, 157], [32, 37], [43, 59], [60, 220]], [[1, 30], [1, 46], [1, 63], [30, 46], [35, 63], [44, 157], [50, 37], [56, 59]], [2, 3, 6, 10, 13, 14, 15, 16, 17, 18, 20, 21, 27, 32, 34, 35, 44, 45, 53, 56, 57, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 31, 32, 34, 40, 44, 50, 53, 54], [], [1, 4]),
+    new PokeData("ベトベター", 88, 80, 80, 50, 40, 50, 25, 3, null, 190, 90, 8, [[89, 1, 38]], null, [[1, 140], [1, 2], [5, 107], [10, 51], [16, 125], [23, 108], [31, 104], [40, 152], [50, 189]], [[1, 2], [1, 51], [30, 140], [33, 108], [37, 125], [42, 107], [48, 104], [55, 152]], [1, 3, 6, 7, 10, 11, 13, 17, 19, 20, 21, 25, 27, 31, 32, 33, 34, 35, 36, 38, 41, 44, 45, 46, 48, 58, 59], [6, 8, 20, 21, 24, 25, 31, 32, 34, 36, 38, 44, 47, 50], [115, 123, 213], [10]),
+    new PokeData("ベトベトン", 89, 105, 105, 75, 65, 100, 50, 3, null, 75, 157, 8, [], 88, [[1, 140], [1, 2], [1, 107], [33, 107], [37, 51], [45, 125], [23, 108], [31, 104], [45, 152], [60, 189]], [[1, 2], [1, 51], [1, 140], [30, 140], [33, 108], [37, 125], [45, 107], [53, 104], [60, 152]], [1, 3, 6, 7, 10, 11, 13, 15, 17, 19, 20, 21, 25, 27, 31, 32, 33, 34, 35, 36, 38, 41, 44, 45, 46, 48, 58, 59], [6, 8, 15, 20, 21, 24, 25, 31, 32, 34, 36, 38, 44, 47, 50], [], [10]),
+    new PokeData("シェルダー", 90, 30, 65, 100, 45, 25, 40, 10, null, 190, 97, 8, [[91, 2, 24]], null, [[1, 34], [1, 111], [9, 49], [17, 63], [25, 183], [33, 44], [41, 129], [49, 59]], [[1, 34], [1, 111], [18, 49], [23, 129], [30, 63], [39, 44], [50, 59]], [3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 32, 34, 35, 39, 44, 45, 53, 56, 60], [6, 9, 10, 11, 12, 13, 14, 20, 30, 31, 32, 33, 34, 36, 39, 44, 47, 49, 50, 53], [37, 62, 104, 113, 230], [8]),
+    new PokeData("パルシェン", 91, 50, 95, 180, 85, 45, 70, 10, 14, 60, 203, 8, [], 90, [[1, 111], [1, 49], [1, 63], [1, 183], [33, 192], [41, 132]], [[1, 111], [1, 49], [1, 129], [1, 63], [50, 132]], [3, 6, 10, 13, 14, 15, 16, 17, 18, 20, 21, 27, 32, 34, 35, 39, 44, 45, 53, 56, 60], [6, 9, 10, 11, 12, 13, 14, 15, 20, 30, 31, 32, 33, 34, 36, 39, 44, 47, 49, 50, 53], [], [8]),
+    new PokeData("ゴース", 92, 30, 35, 30, 100, 35, 80, 7, 3, 190, 95, 8, [[93, 1, 25]], null, [[1, 96], [1, 123], [8, 181], [13, 213], [16, 175], [21, 102], [28, 110], [33, 139], [36, 195]], [[1, 123], [1, 110], [1, 102], [27, 96], [35, 139]], [3, 6, 7, 9, 10, 11, 13, 17, 18, 19, 20, 21, 25, 27, 29, 30, 32, 34, 35, 42, 44, 45, 46, 50, 59], [6, 20, 21, 24, 25, 29, 31, 32, 34, 36, 42, 44, 46, 47, 50], [115, 150, 196], [10]),
+    new PokeData("ゴースト", 93, 45, 50, 45, 115, 55, 95, 7, 3, 90, 126, 8, [[94, 3, 255]], 92, [[1, 96], [1, 123], [1, 181], [8, 181], [13, 213], [16, 175], [21, 102], [31, 110], [39, 139], [48, 195]], [[1, 123], [1, 110], [1, 102], [29, 96], [38, 139]], [3, 6, 7, 9, 10, 11, 13, 17, 18, 19, 20, 21, 25, 27, 29, 30, 32, 34, 35, 42, 44, 45, 46, 50, 59], [6, 20, 21, 24, 25, 29, 31, 32, 34, 36, 42, 44, 46, 47, 50], [], [10]),
+    new PokeData("ゲンガー", 94, 60, 65, 60, 130, 75, 110, 7, 3, 45, 190, 8, [], 93, [[1, 96], [1, 123], [1, 181], [8, 181], [13, 213], [16, 175], [21, 102], [31, 110], [39, 139], [48, 195]], [[1, 123], [1, 110], [1, 102], [29, 96], [38, 139]], [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 25, 27, 29, 30, 32, 33, 34, 35, 41, 42, 44, 45, 46, 48, 50, 54, 59], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 21, 24, 25, 29, 31, 32, 34, 35, 36, 40, 42, 44, 46, 47, 50, 54], [], [10]),
+    new PokeData("イワーク", 95, 35, 45, 160, 30, 45, 70, 5, 4, 45, 108, 8, [[208, 3, 143]], null, [[1, 34], [1, 104], [10, 21], [14, 89], [23, 107], [27, 100], [36, 202], [40, 22]], [[1, 34], [1, 104], [15, 21], [19, 89], [25, 100], [33, 22], [43, 107]], [2, 3, 5, 6, 8, 10, 11, 13, 17, 20, 21, 23, 26, 27, 28, 31, 32, 34, 35, 37, 44, 45, 54], [6, 8, 9, 10, 20, 26, 27, 28, 31, 32, 34, 36, 40, 44, 47, 48, 50, 54], [158, 176], [9]),
+    new PokeData("スリープ", 96, 60, 48, 45, 43, 90, 42, 13, null, 190, 102, 8, [[97, 1, 26]], null, [[1, 2], [1, 96], [10, 51], [18, 94], [25, 30], [31, 140], [36, 97], [40, 95], [43, 245], [45, 249]], [[1, 2], [1, 96], [12, 51], [17, 94], [24, 30], [29, 140], [32, 95], [37, 97]], [1, 2, 3, 6, 7, 9, 10, 11, 13, 17, 18, 20, 21, 27, 29, 30, 32, 33, 34, 35, 41, 42, 44, 45, 48, 50, 55], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34, 35, 40, 42, 44, 45, 46, 49, 50, 55], [113, 114], [7]),
+    new PokeData("スリーパー", 97, 85, 73, 70, 73, 115, 67, 13, null, 75, 165, 8, [], 96, [[1, 2], [1, 96], [1, 51], [1, 94], [10, 51], [18, 94], [25, 30], [33, 140], [40, 97], [49, 95], [55, 245], [60, 249]], [[1, 2], [1, 96], [1, 51], [1, 94], [12, 51], [17, 94], [24, 30], [33, 140], [37, 95], [43, 97]], [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 20, 21, 27, 29, 30, 32, 33, 34, 35, 41, 42, 44, 45, 48, 50, 55], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34, 35, 40, 42, 44, 45, 46, 49, 50, 55], [], [7]),
+    new PokeData("クラブ", 98, 30, 105, 90, 25, 25, 50, 10, null, 225, 115, 8, [[99, 1, 28]], null, [[1, 146], [5, 44], [12, 12], [16, 107], [23, 24], [27, 13], [34, 183], [41, 153]], [[1, 146], [1, 44], [20, 12], [25, 13], [30, 24], [35, 153], [40, 107]], [3, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 27, 31, 32, 34, 35, 44, 45, 46, 49, 51, 53, 54, 56, 60], [3, 6, 8, 9, 10, 11, 12, 13, 14, 20, 31, 32, 34, 44, 50, 51, 53, 54], [22, 92, 115, 134, 176], [8]),
+    new PokeData("キングラー", 99, 55, 130, 115, 50, 50, 75, 10, null, 60, 206, 8, [], 98, [[1, 146], [1, 44], [1, 12], [5, 44], [12, 12], [16, 107], [23, 24], [27, 13], [38, 183], [49, 153]], [[1, 146], [1, 44], [1, 12], [20, 12], [25, 13], [34, 24], [42, 153], [49, 107]], [3, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 27, 31, 32, 34, 35, 44, 45, 46, 49, 51, 53, 54, 56, 60], [3, 6, 8, 9, 10, 11, 12, 13, 14, 15, 20, 31, 32, 34, 44, 50, 51, 53, 54], [], [8]),
+    new PokeData("ビリリダマ", 100, 40, 30, 50, 55, 55, 100, 12, null, 190, 103, null, [[101, 1, 30]], null, [[1, 34], [9, 104], [17, 50], [23, 121], [29, 206], [33, 114], [37, 130], [39, 154], [41, 244]], [[1, 34], [1, 104], [17, 50], [22, 121], [29, 114], [36, 130], [43, 154]], [2, 3, 4, 6, 7, 10, 13, 17, 18, 20, 21, 25, 27, 32, 34, 35, 39, 44, 55, 59], [6, 9, 20, 24, 25, 30, 31, 32, 33, 34, 36, 39, 44, 45, 47, 50, 55], [], [13]),
+    new PokeData("マルマイン", 101, 60, 50, 70, 80, 80, 140, 12, null, 60, 150, null, [], 100, [[1, 34], [1, 104], [1, 50], [1, 121], [9, 104], [17, 50], [23, 121], [29, 206], [34, 114], [40, 130], [44, 154], [48, 244]], [[1, 34], [1, 104], [1, 50], [17, 50], [22, 121], [29, 114], [40, 130], [50, 154]], [2, 3, 4, 6, 7, 10, 13, 15, 17, 18, 20, 21, 25, 27, 32, 34, 35, 39, 44, 55, 59], [6, 9, 15, 20, 24, 25, 30, 31, 32, 33, 34, 36, 39, 40, 44, 45, 47, 50, 55], [], [13]),
+    new PokeData("タマタマ", 102, 60, 40, 80, 60, 45, 40, 11, 13, 90, 98, 8, [[103, 2, 34]], null, [[1, 141], [1, 96], [7, 116], [13, 74], [19, 94], [25, 79], [31, 78], [37, 80], [43, 77]], [[1, 141], [1, 96], [25, 116], [28, 74], [32, 79], [37, 78], [42, 77], [48, 80]], [3, 4, 6, 9, 10, 11, 13, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 36, 42, 44, 45, 46, 50, 54, 55], [6, 9, 10, 20, 29, 30, 31, 32, 33, 34, 36, 37, 44, 46, 47, 50], [73, 116, 236, 237, 247], [6]),
+    new PokeData("ナッシー", 103, 95, 95, 85, 125, 65, 55, 11, 13, 45, 212, 8, [], 102, [[1, 141], [1, 96], [1, 94], [19, 24], [31, 122]], [[1, 141], [1, 96], [28, 24]], [2, 3, 4, 6, 9, 10, 11, 13, 15, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 36, 42, 44, 45, 46, 50, 54, 55], [6, 9, 10, 15, 20, 21, 22, 29, 30, 31, 32, 33, 34, 36, 37, 44, 46, 47, 50, 54], [], [6]),
+    new PokeData("カラカラ", 104, 50, 50, 95, 40, 50, 35, 4, null, 190, 87, 8, [[105, 1, 28]], null, [[1, 46], [5, 40], [9, 126], [13, 30], [17, 44], [21, 117], [25, 156], [29, 100], [33, 207], [37, 38], [41, 199]], [[1, 46], [10, 126], [13, 40], [18, 30], [25, 44], [31, 117], [38, 38], [43, 156], [46, 100]], [1, 2, 3, 6, 8, 10, 11, 13, 14, 16, 17, 20, 21, 23, 26, 27, 28, 31, 32, 34, 35, 37, 38, 41, 43, 44, 45, 46, 48, 54, 58, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 38, 40, 44, 50, 54], [15, 104, 131, 158, 188, 196, 247], [0]),
+    new PokeData("ガラガラ", 105, 60, 80, 110, 50, 80, 45, 4, null, 75, 124, 8, [], 104, [[1, 46], [1, 40], [1, 126], [1, 30], [5, 40], [9, 126], [13, 30], [17, 44], [21, 117], [25, 156], [32, 100], [39, 207], [46, 38], [53, 199]], [[1, 126], [1, 40], [10, 126], [13, 40], [18, 30], [25, 44], [33, 117], [41, 38], [48, 156], [55, 100]], [1, 2, 3, 6, 8, 10, 11, 13, 14, 15, 16, 17, 20, 21, 23, 26, 27, 28, 31, 32, 34, 35, 37, 38, 41, 43, 44, 45, 46, 48, 54, 58, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 26, 27, 28, 31, 32, 34, 38, 40, 44, 50, 54], [], [0]),
+    new PokeData("サワムラー", 106, 50, 120, 53, 35, 110, 87, 1, null, 45, 139, 0, [], 236, [[1, 25], [6, 97], [11, 28], [16, 27], [21, 117], [26, 137], [31, 171], [36, 194], [41, 204], [46, 26], [51, 180]], [[1, 25], [1, 97], [33, 28], [38, 27], [43, 117], [48, 137], [53, 26]], [1, 2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 54], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 31, 32, 34, 35, 39, 40, 44, 50, 54], [], [7]),
+    new PokeData("エビワラー", 107, 50, 105, 79, 35, 110, 76, 1, null, 45, 140, 0, [], 236, [[1, 5], [7, 98], [13, 229], [26, 10], [26, 9], [26, 8], [32, 184], [38, 6], [44, 198], [50, 69]], [[1, 5], [1, 98], [33, 8], [38, 9], [43, 10], [48, 6], [53, 69]], [1, 2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 27, 31, 32, 33, 34, 35, 39, 41, 43, 44, 45, 46, 48, 54], [1, 5, 6, 8, 9, 10, 17, 18, 19, 20, 31, 32, 34, 35, 39, 40, 44, 50, 54], [], [7]),
+    new PokeData("ベロリンガ", 108, 90, 55, 75, 60, 75, 30, 0, null, 45, 127, 8, [], null, [[1, 123], [7, 49], [13, 112], [19, 24], [25, 36], [31, 51], [37, 22], [43, 104]], [[1, 36], [1, 49], [7, 24], [15, 51], [23, 112], [31, 22], [39, 104]], [1, 2, 3, 4, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 26, 27, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 42, 44, 45, 46, 48, 50, 51, 53, 54, 58, 59, 60], [1, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 24, 25, 26, 27, 31, 32, 34, 38, 40, 44, 50, 51, 53, 54], [35, 188, 223], [0]),
+    new PokeData("ドガース", 109, 40, 65, 95, 60, 45, 35, 3, null, 190, 114, 8, [[110, 1, 35]], null, [[1, 140], [1, 34], [9, 124], [17, 121], [21, 125], [25, 109], [33, 115], [41, 154], [45, 195]], [[1, 34], [1, 124], [32, 125], [37, 109], [40, 121], [45, 115], [48, 154]], [3, 4, 6, 7, 10, 11, 13, 17, 20, 21, 25, 27, 32, 34, 35, 36, 38, 44, 45, 46, 58, 59], [6, 20, 24, 25, 31, 32, 34, 36, 38, 44, 47, 50], [61, 104, 150, 195, 221], [10]),
+    new PokeData("マタドガス", 110, 65, 90, 120, 85, 70, 60, 3, null, 60, 173, 8, [], 109, [[1, 140], [1, 34], [1, 124], [1, 121], [9, 124], [17, 121], [21, 125], [25, 109], [33, 115], [44, 154], [51, 195]], [[1, 34], [1, 124], [1, 125], [32, 125], [39, 109], [43, 121], [49, 115], [53, 154]], [3, 4, 6, 7, 10, 11, 13, 15, 17, 20, 21, 25, 27, 32, 34, 35, 36, 38, 44, 45, 46, 58, 59], [6, 15, 20, 24, 25, 31, 32, 34, 36, 38, 44, 47, 50], [], [10]),
+    new PokeData("サイホーン", 111, 80, 85, 95, 30, 30, 25, 4, 5, 120, 135, 8, [[112, 1, 42]], null, [[1, 31], [1, 40], [13, 24], [19, 32], [31, 185], [37, 33], [49, 37], [55, 90]], [[1, 31], [30, 24], [35, 40], [40, 32], [45, 33], [50, 44], [55, 37]], [2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 16, 17, 20, 21, 23, 25, 26, 27, 28, 31, 32, 34, 35, 37, 38, 44, 45, 54, 58, 59, 60], [6, 7, 8, 9, 10, 20, 24, 25, 26, 27, 28, 31, 32, 34, 38, 40, 44, 48, 50, 54], [38, 69, 158, 180, 223, 229, 243], [0, 4]),
+    new PokeData("サイドン", 112, 105, 130, 120, 45, 45, 40, 4, 5, 60, 204, 8, [], 111, [[1, 31], [1, 40], [1, 24], [1, 32], [13, 24], [19, 32], [31, 185], [37, 33], [54, 37], [65, 90]], [[1, 31], [1, 24], [1, 40], [1, 32], [30, 24], [35, 40], [40, 32], [48, 33], [55, 44], [64, 37]], [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 20, 21, 23, 25, 26, 27, 28, 31, 32, 34, 35, 37, 38, 41, 44, 45, 48, 49, 53, 54, 58, 59, 60], [1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 28, 31, 32, 34, 38, 40, 44, 48, 50, 53, 54], [], [0, 4]),
+    new PokeData("ラッキー", 113, 250, 5, 5, 35, 105, 50, 0, null, 30, 255, 16, [[242, 4, 1]], null, [[1, 2], [5, 46], [9, 40], [13, 136], [17, 4], [23, 108], [29, 48], [35, 122], [41, 112], [49, 114], [57, 39]], [[1, 2], [1, 40], [12, 4], [24, 48], [30, 46], [38, 108], [44, 112], [48, 114], [54, 39]], [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 25, 27, 29, 30, 31, 32, 34, 35, 37, 38, 40, 42, 44, 45, 54, 55, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 44, 45, 46, 49, 50, 54, 55], [119, 216, 218], [5]),
+    new PokeData("モンジャラ", 114, 65, 55, 115, 100, 40, 60, 11, null, 45, 166, 8, [], null, [[1, 133], [4, 80], [10, 72], [13, 78], [19, 23], [25, 21], [31, 73], [34, 79], [40, 22], [46, 75]], [[1, 133], [24, 21], [27, 72], [29, 23], [32, 78], [36, 79], [39, 80], [45, 22], [48, 75]], [2, 3, 6, 9, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 46, 51, 55], [3, 6, 8, 9, 10, 15, 20, 21, 22, 31, 32, 34, 40, 44, 50, 51], [73, 94, 116, 134, 176], [6]),
+    new PokeData("ガルーラ", 115, 105, 95, 80, 40, 80, 90, 0, null, 45, 175, 16, [], null, [[1, 5], [7, 44], [13, 45], [19, 40], [25, 6], [31, 100], [37, 204], [43, 147], [49, 180]], [[1, 5], [1, 100], [26, 45], [31, 40], [36, 6], [41, 44], [46, 147]], [1, 2, 3, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 26, 27, 30, 31, 32, 33, 34, 35, 37, 38, 41, 44, 45, 48, 49, 53, 54, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 24, 25, 26, 27, 31, 32, 34, 38, 40, 44, 48, 50, 53, 54], [24, 51, 117, 194, 220], [0]),
+    new PokeData("タッツー", 116, 30, 40, 70, 70, 25, 60, 10, null, 225, 83, 8, [[117, 1, 32]], null, [[1, 146], [8, 109], [15, 44], [22, 56], [29, 240], [36, 98], [43, 57]], [[1, 146], [19, 109], [24, 44], [30, 56], [37, 98], [45, 57]], [2, 3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 24, 27, 32, 34, 35, 39, 44, 45, 53, 56, 57, 60], [6, 9, 10, 11, 12, 13, 14, 20, 31, 32, 34, 39, 40, 44, 50, 53], [51, 63, 83, 151, 176, 191], [1, 12]),
+    new PokeData("シードラ", 117, 55, 65, 95, 95, 45, 85, 10, null, 75, 155, 8, [[230, 3, 151]], 116, [[1, 146], [1, 109], [1, 44], [1, 56], [8, 109], [15, 44], [22, 56], [29, 240], [40, 98], [51, 57]], [[1, 146], [1, 109], [19, 109], [24, 44], [30, 56], [41, 98], [52, 57]], [2, 3, 6, 10, 13, 14, 15, 16, 17, 18, 20, 21, 24, 27, 32, 34, 35, 39, 44, 45, 53, 56, 57, 60], [6, 9, 10, 11, 12, 13, 14, 15, 20, 31, 32, 34, 39, 40, 44, 50, 53], [], [1, 12]),
+    new PokeData("トサキント", 118, 45, 67, 60, 35, 50, 63, 10, null, 225, 111, 8, [[119, 1, 33]], null, [[1, 65], [1, 40], [10, 49], [15, 31], [24, 176], [29, 32], [38, 128], [43, 33], [52, 98]], [[1, 65], [1, 40], [19, 49], [24, 31], [30, 32], [37, 128], [45, 33], [54, 98]], [3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 32, 34, 35, 39, 44, 45, 53, 57, 60], [6, 7, 9, 10, 11, 12, 13, 14, 20, 31, 32, 34, 39, 40, 44, 50, 53], [57, 61, 115], [11]),
+    new PokeData("アズマオウ", 119, 80, 92, 65, 65, 80, 68, 10, null, 60, 170, 8, [], 118, [[1, 65], [1, 40], [1, 40], [10, 49], [15, 31], [24, 176], [29, 32], [41, 128], [49, 33], [61, 98]], [[1, 65], [1, 40], [1, 49], [19, 49], [24, 31], [30, 32], [39, 128], [48, 33], [54, 98]], [3, 6, 10, 13, 14, 15, 16, 17, 18, 20, 21, 27, 32, 34, 35, 39, 44, 45, 53, 57, 60], [6, 7, 9, 10, 11, 12, 13, 14, 15, 20, 31, 32, 34, 39, 40, 44, 50, 53], [], [11]),
+    new PokeData("ヒトデマン", 120, 30, 45, 55, 70, 55, 85, 10, null, 225, 106, null, [[121, 2, 24]], null, [[1, 34], [1, 107], [7, 56], [13, 230], [19, 106], [25, 130], [31, 62], [37, 108], [43, 114], [50, 57]], [[1, 34], [17, 56], [22, 107], [27, 106], [32, 130], [37, 108], [42, 114], [47, 57]], [3, 6, 7, 9, 10, 13, 14, 16, 17, 18, 20, 21, 25, 27, 29, 32, 34, 35, 39, 44, 45, 53, 55, 56, 57, 59, 60], [6, 9, 10, 11, 12, 13, 14, 20, 24, 25, 29, 30, 31, 32, 33, 34, 39, 40, 44, 45, 46, 49, 50, 53, 55], [], [13]),
+    new PokeData("スターミー", 121, 60, 75, 85, 100, 85, 115, 10, 13, 60, 207, null, [], 120, [[1, 34], [1, 230], [1, 106], [1, 62], [37, 110]], [[1, 34], [1, 56], [1, 107]], [3, 6, 7, 9, 10, 13, 14, 15, 16, 17, 18, 20, 21, 25, 27, 29, 32, 34, 35, 39, 42, 44, 45, 50, 53, 55, 56, 57, 59, 60], [6, 9, 10, 11, 12, 13, 14, 15, 20, 24, 25, 29, 30, 31, 32, 33, 34, 39, 40, 44, 45, 46, 49, 50, 53, 55], [], [13]),
+    new PokeData("バリヤード", 122, 40, 45, 65, 100, 120, 90, 13, null, 45, 136, 8, [], null, [[1, 113], [6, 94], [11, 165], [16, 97], [21, 4], [26, 114], [26, 116], [31, 228], [36, 61], [41, 227], [46, 220]], [[1, 94], [1, 113], [15, 94], [23, 114], [31, 4], [39, 97], [47, 165]], [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 20, 21, 22, 25, 27, 29, 30, 31, 32, 33, 34, 35, 41, 42, 44, 45, 46, 48, 50, 55, 59], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 35, 40, 44, 45, 46, 50, 55], [96, 103, 249], [7]),
+    new PokeData("ストライク", 123, 70, 110, 80, 55, 80, 105, 6, 2, 45, 187, 8, [[212, 3, 143]], null, [[1, 99], [1, 44], [6, 117], [12, 229], [18, 207], [24, 98], [30, 18], [36, 164], [42, 15], [48, 105]], [[1, 99], [17, 44], [20, 117], [24, 105], [29, 164], [35, 15], [42, 98], [50, 18]], [2, 3, 6, 8, 10, 11, 13, 15, 17, 20, 21, 27, 32, 34, 35, 39, 43, 44, 45, 46, 47, 49, 51], [3, 6, 9, 10, 15, 20, 31, 32, 34, 39, 40, 44, 50, 51], [14, 69, 114, 180, 220, 227], [2]),
+    new PokeData("ルージュラ", 124, 65, 50, 35, 115, 95, 95, 14, 13, 45, 137, 16, [], 238, [[1, 2], [1, 123], [1, 143], [1, 182], [9, 143], [13, 182], [21, 4], [25, 9], [35, 213], [41, 35], [51, 196], [57, 60]], [[1, 2], [1, 143], [18, 123], [23, 4], [31, 9], [39, 35], [47, 38], [58, 60]], [1, 2, 3, 6, 9, 10, 12, 13, 14, 15, 16, 17, 18, 20, 21, 27, 29, 30, 31, 32, 33, 34, 35, 42, 44, 45, 46, 50, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34, 35, 40, 44, 46, 50], [], [7]),
+    new PokeData("エレブー", 125, 65, 83, 57, 95, 85, 105, 12, null, 45, 156, 4, [], 239, [[1, 99], [1, 44], [1, 10], [9, 10], [17, 114], [25, 130], [36, 104], [47, 86], [58, 88]], [[1, 99], [1, 44], [34, 85], [37, 104], [42, 10], [49, 114], [54, 88]], [1, 2, 3, 6, 7, 8, 10, 13, 15, 17, 18, 20, 21, 23, 25, 27, 29, 31, 32, 33, 34, 35, 39, 41, 43, 44, 45, 46, 48, 54, 55, 59], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 24, 25, 29, 30, 31, 32, 33, 34, 35, 39, 40, 44, 45, 46, 50, 54, 55], [], [7]),
+    new PokeData("ブーバー", 126, 65, 95, 57, 100, 85, 93, 9, null, 45, 167, 4, [], 240, [[1, 53], [1, 44], [1, 124], [1, 8], [7, 44], [13, 124], [19, 8], [25, 109], [33, 242], [41, 54], [49, 110], [57, 127]], [[1, 53], [36, 44], [39, 110], [43, 8], [48, 109], [52, 124], [55, 54]], [1, 2, 3, 6, 8, 10, 11, 13, 15, 17, 20, 21, 23, 27, 29, 31, 32, 34, 35, 38, 41, 43, 44, 45, 46, 48, 54, 58], [1, 5, 6, 8, 9, 10, 15, 17, 18, 19, 20, 29, 30, 31, 32, 34, 35, 38, 40, 44, 46, 50, 54], [], [7]),
+    new PokeData("カイロス", 127, 65, 125, 100, 55, 70, 85, 6, null, 45, 200, 8, [], null, [[1, 12], [7, 117], [13, 21], [19, 70], [25, 107], [31, 13], [37, 67], [43, 15]], [[1, 12], [21, 21], [25, 70], [30, 13], [36, 117], [43, 107], [49, 164], [54, 15]], [2, 3, 6, 8, 10, 11, 13, 15, 17, 20, 21, 27, 32, 34, 35, 44, 45, 46, 49, 51, 54], [3, 6, 8, 9, 10, 15, 17, 19, 20, 31, 32, 34, 44, 50, 51, 54], [32, 176], [2]),
+    new PokeData("ケンタロス", 128, 75, 100, 95, 40, 70, 110, 0, null, 45, 211, 0, [], null, [[1, 34], [4, 40], [8, 100], [13, 31], [19, 185], [26, 229], [34, 157], [43, 38], [53, 37]], [[1, 34], [21, 24], [28, 40], [35, 44], [44, 100], [51, 37]], [2, 3, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 20, 21, 23, 25, 26, 27, 32, 34, 35, 38, 44, 45, 53, 54, 58, 59, 60], [6, 7, 8, 9, 10, 13, 14, 15, 20, 24, 25, 26, 27, 31, 32, 34, 38, 40, 44, 50, 54], [], [4]),
+    new PokeData("コイキング", 129, 20, 10, 55, 15, 20, 80, 10, null, 255, 20, 8, [[130, 1, 20]], null, [[1, 151], [15, 34], [30, 176]], [[1, 151], [15, 34]], [], [], [], [11, 12]),
+    new PokeData("ギャラドス", 130, 95, 125, 79, 60, 100, 81, 10, 2, 45, 214, 8, [], 129, [[1, 38], [20, 45], [25, 83], [30, 44], [35, 240], [40, 57], [45, 241], [50, 64]], [[1, 34], [20, 45], [25, 83], [32, 44], [41, 57], [52, 64]], [2, 3, 5, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 24, 25, 27, 32, 34, 35, 37, 38, 44, 45, 53, 54, 56, 57, 58, 59, 60], [6, 8, 9, 10, 11, 12, 13, 14, 15, 20, 23, 24, 25, 31, 32, 33, 34, 38, 40, 44, 50, 53, 54], [], [11, 12]),
+    new PokeData("ラプラス", 131, 130, 85, 80, 85, 95, 60, 10, 14, 45, 219, 8, [], null, [[1, 56], [1, 46], [1, 48], [8, 55], [15, 35], [22, 110], [29, 196], [36, 59], [43, 241], [50, 220], [57, 57]], [[1, 56], [1, 46], [16, 48], [20, 55], [25, 35], [31, 110], [38, 59], [46, 57]], [2, 3, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 23, 24, 25, 27, 29, 32, 34, 35, 42, 44, 45, 50, 53, 54, 56, 59, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 22, 23, 24, 25, 29, 31, 32, 33, 34, 40, 44, 46, 50, 53, 54], [63, 194], [0, 1]),
+    new PokeData("メタモン", 132, 48, 48, 48, 48, 48, 48, 0, null, 35, 61, null, [], null, [[1, 145]], [[1, 145]], [], [], [], [14]),
+    new PokeData("イーブイ", 133, 55, 55, 50, 45, 65, 55, 0, null, 45, 92, 2, [[135, 2, 23], [134, 2, 24], [136, 2, 22], [196, 4, 2], [197, 4, 3]], null, [[1, 34], [1, 40], [8, 29], [16, 46], [23, 99], [30, 45], [36, 227], [42, 37]], [[1, 34], [1, 40], [8, 29], [16, 46], [23, 99], [30, 45], [36, 117], [42, 37]], [2, 3, 6, 10, 11, 13, 17, 18, 20, 21, 23, 27, 30, 31, 32, 34, 35, 39, 43, 44, 45], [6, 8, 9, 10, 20, 31, 32, 33, 34, 39, 40, 44, 50], [176, 205], [4]),
+    new PokeData("シャワーズ", 134, 130, 65, 60, 110, 95, 65, 10, null, 45, 196, 2, [], 133, [[1, 34], [1, 40], [8, 29], [16, 56], [23, 99], [30, 45], [36, 63], [42, 115], [47, 152], [52, 57]], [[1, 34], [1, 40], [1, 99], [1, 56], [8, 29], [16, 56], [23, 99], [30, 45], [36, 63], [42, 115], [42, 55], [47, 152], [52, 57]], [2, 3, 5, 6, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 27, 30, 31, 32, 34, 35, 39, 43, 44, 45, 53, 56, 57, 60], [6, 8, 9, 10, 11, 12, 13, 14, 15, 20, 31, 32, 33, 34, 39, 40, 44, 50, 53], [], [4]),
+    new PokeData("サンダース", 135, 65, 65, 60, 110, 95, 130, 12, null, 45, 197, 2, [], 133, [[1, 34], [1, 40], [8, 29], [16, 85], [23, 99], [30, 25], [36, 43], [42, 87], [47, 98], [52, 88]], [[1, 34], [1, 40], [1, 99], [1, 85], [8, 29], [16, 85], [23, 99], [30, 25], [36, 43], [42, 87], [47, 98], [52, 88]], [2, 3, 5, 6, 7, 10, 11, 13, 15, 17, 18, 20, 21, 23, 25, 27, 30, 31, 32, 34, 35, 39, 43, 44, 45, 55, 59], [6, 8, 9, 10, 15, 20, 24, 25, 31, 32, 33, 34, 39, 40, 44, 45, 50, 55], [], [4]),
+    new PokeData("ブースター", 136, 65, 130, 60, 95, 110, 65, 9, null, 45, 198, 2, [], 133, [[1, 34], [1, 40], [8, 29], [16, 53], [23, 99], [30, 45], [36, 84], [42, 124], [47, 44], [52, 54]], [[1, 34], [1, 40], [1, 99], [1, 53], [8, 29], [16, 53], [23, 99], [30, 45], [36, 84], [42, 124], [47, 44], [52, 54]], [2, 3, 5, 6, 7, 10, 11, 13, 15, 17, 18, 20, 21, 23, 27, 30, 31, 32, 34, 35, 38, 39, 43, 44, 45, 58], [6, 8, 9, 10, 15, 20, 31, 32, 33, 34, 38, 39, 40, 44, 50], [], [4]),
+    new PokeData("ポリゴン", 137, 65, 60, 70, 85, 75, 40, 0, null, 45, 130, null, [[233, 3, 172]], null, [[1, 177], [1, 34], [1, 161], [9, 98], [12, 61], [20, 106], [24, 160], [32, 200], [36, 162], [44, 193]], [[1, 34], [1, 160], [1, 161], [23, 61], [28, 106], [35, 98], [42, 162]], [3, 6, 7, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 27, 29, 32, 34, 35, 39, 42, 44, 46, 50, 55, 59, 60], [6, 9, 10, 13, 14, 15, 20, 24, 25, 29, 30, 31, 32, 33, 34, 39, 40, 44, 45, 46, 49, 50, 55], [], [13]),
+    new PokeData("オムナイト", 138, 35, 40, 100, 90, 55, 35, 5, 10, 45, 120, 2, [[139, 1, 40]], null, [[1, 133], [1, 111], [13, 45], [19, 56], [31, 44], [37, 183], [49, 247], [55, 57]], [[1, 56], [1, 111], [34, 31], [39, 44], [44, 132], [49, 57]], [2, 3, 4, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 27, 32, 34, 35, 37, 44, 45, 46, 53, 56, 60], [6, 8, 9, 10, 11, 12, 13, 14, 20, 31, 32, 33, 34, 44, 50, 53], [22, 49, 62, 63, 115], [1, 8]),
+    new PokeData("オムスター", 139, 70, 60, 125, 115, 70, 55, 5, 10, 45, 199, 2, [], 138, [[1, 133], [1, 111], [1, 45], [13, 45], [19, 56], [31, 44], [37, 183], [40, 132], [54, 247], [65, 57]], [[1, 56], [1, 111], [1, 31], [34, 31], [39, 44], [46, 132], [53, 57]], [2, 3, 4, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 27, 32, 34, 35, 37, 44, 45, 46, 53, 56, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20, 31, 32, 33, 34, 40, 44, 50, 53], [], [1, 8]),
+    new PokeData("カブト", 140, 30, 80, 90, 55, 45, 55, 5, 10, 45, 119, 2, [[141, 1, 40]], null, [[1, 11], [1, 107], [10, 72], [19, 44], [28, 29], [37, 204], [46, 73], [55, 247]], [[1, 11], [1, 107], [34, 72], [39, 164], [44, 44], [49, 57]], [3, 4, 6, 8, 10, 13, 14, 16, 17, 18, 19, 20, 21, 27, 32, 34, 35, 37, 44, 45, 46, 60], [6, 8, 9, 10, 11, 12, 13, 14, 20, 31, 32, 33, 34, 44, 50, 53], [62, 63, 92, 176, 230], [1, 8]),
+    new PokeData("カブトプス", 141, 60, 115, 105, 65, 70, 80, 5, 10, 45, 201, 2, [], 140, [[1, 11], [1, 107], [1, 72], [10, 72], [19, 44], [28, 29], [37, 204], [40, 164], [51, 73], [65, 247]], [[1, 11], [1, 107], [1, 72], [34, 72], [39, 164], [46, 44], [53, 57]], [2, 3, 4, 6, 8, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 27, 32, 34, 35, 37, 44, 45, 46, 49, 51, 53, 56, 60], [2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20, 31, 32, 33, 34, 40, 44, 50, 51, 53], [], [1, 8]),
+    new PokeData("プテラ", 142, 80, 105, 65, 60, 75, 130, 5, 2, 45, 202, 2, [], null, [[1, 18], [8, 98], [15, 45], [22, 49], [29, 247], [36, 185], [43, 37], [50, 64]], [[1, 18], [1, 98], [33, 49], [38, 45], [45, 37], [54, 64]], [2, 3, 5, 6, 8, 10, 13, 15, 17, 18, 20, 21, 23, 24, 26, 27, 32, 34, 35, 37, 38, 39, 43, 44, 45, 47, 52, 58], [2, 4, 6, 9, 10, 15, 20, 23, 31, 32, 33, 34, 38, 39, 43, 44, 50, 52], [19, 194, 229], [3]),
+    new PokeData("カビゴン", 143, 160, 110, 65, 65, 110, 30, 0, null, 25, 154, 2, [], null, [[1, 34], [8, 134], [15, 112], [22, 188], [29, 30], [36, 174], [36, 157], [43, 35], [50, 206], [57, 64]], [[1, 30], [1, 134], [1, 157], [35, 35], [41, 107], [48, 39], [56, 64]], [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38, 40, 41, 44, 45, 48, 53, 54, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24, 25, 26, 27, 29, 31, 32, 33, 34, 35, 36, 38, 40, 44, 46, 48, 50, 53, 54], [123], [0]),
+    new PokeData("フリーザー", 144, 90, 85, 100, 95, 125, 85, 14, 2, 3, 215, null, [], null, [[1, 17], [1, 182], [13, 55], [25, 98], [37, 171], [49, 59], [61, 116], [73, 60]], [[1, 65], [1, 59], [51, 60], [55, 98], [60, 55]], [3, 5, 6, 8, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 27, 31, 32, 34, 35, 37, 39, 43, 44, 47, 52, 60], [2, 4, 6, 9, 10, 11, 12, 13, 14, 15, 20, 31, 32, 33, 34, 39, 43, 44, 50, 52], [], [15]),
+    new PokeData("サンダー", 145, 90, 90, 85, 125, 90, 100, 12, 2, 3, 216, null, [], null, [[1, 65], [1, 85], [13, 87], [25, 98], [37, 198], [49, 66], [61, 114], [73, 88]], [[1, 85], [1, 66], [51, 88], [55, 98], [60, 114]], [3, 5, 6, 7, 8, 10, 11, 13, 15, 17, 18, 20, 21, 25, 27, 31, 32, 34, 35, 37, 39, 43, 44, 47, 52, 55, 59], [2, 4, 6, 9, 10, 15, 20, 24, 25, 31, 32, 33, 34, 39, 43, 44, 45, 50, 52, 55], [], [15]),
+    new PokeData("ファイヤー", 146, 90, 100, 90, 125, 85, 90, 9, 2, 3, 217, null, [], null, [[1, 18], [1, 53], [13, 84], [25, 98], [37, 204], [49, 54], [61, 220], [73, 144]], [[1, 65], [1, 84], [51, 44], [55, 98], [60, 144]], [3, 5, 6, 8, 10, 11, 13, 15, 17, 18, 20, 21, 27, 31, 32, 34, 35, 37, 38, 39, 43, 44, 47, 52, 58], [2, 4, 6, 9, 10, 15, 20, 31, 32, 33, 34, 38, 39, 43, 44, 50, 52], [], [15]),
+    new PokeData("ミニリュウ", 147, 41, 64, 45, 50, 50, 50, 15, null, 45, 67, 8, [[148, 1, 30]], null, [[1, 36], [1, 44], [8, 87], [15, 240], [22, 83], [29, 22], [36, 98], [43, 220], [50, 201], [57, 64]], [[1, 36], [1, 44], [10, 87], [20, 98], [30, 22], [40, 83], [50, 64]], [2, 3, 6, 7, 10, 13, 14, 16, 17, 18, 20, 21, 23, 24, 25, 27, 32, 34, 35, 38, 39, 43, 44, 45, 53, 57, 58, 59, 60], [6, 8, 9, 10, 11, 12, 13, 14, 20, 23, 24, 25, 31, 32, 33, 34, 38, 39, 40, 44, 45, 50, 53], [49, 55, 114, 115], [1, 12]),
+    new PokeData("ハクリュー", 148, 61, 84, 65, 70, 70, 70, 15, null, 45, 144, 8, [[149, 1, 55]], 147, [[1, 36], [1, 44], [1, 87], [1, 240], [8, 87], [15, 240], [22, 83], [29, 22], [38, 98], [47, 220], [56, 201], [65, 64]], [[1, 36], [1, 44], [1, 87], [10, 87], [20, 98], [35, 22], [45, 83], [55, 64]], [2, 3, 6, 7, 10, 13, 14, 16, 17, 18, 20, 21, 23, 24, 25, 27, 32, 34, 35, 38, 39, 43, 44, 45, 53, 57, 58, 59, 60], [6, 7, 8, 9, 10, 11, 12, 13, 14, 20, 23, 24, 25, 31, 32, 33, 34, 38, 39, 40, 44, 45, 50, 53], [], [1, 12]),
+    new PokeData("カイリュー", 149, 91, 134, 95, 100, 100, 80, 15, 2, 45, 218, 8, [], 148, [[1, 36], [1, 44], [1, 87], [1, 240], [8, 87], [15, 240], [22, 83], [29, 22], [38, 98], [47, 220], [55, 18], [61, 201], [75, 64]], [[1, 36], [1, 44], [1, 87], [1, 98], [10, 87], [20, 98], [35, 22], [45, 83], [60, 64]], [1, 2, 3, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 23, 24, 25, 27, 31, 32, 33, 34, 35, 37, 38, 39, 41, 43, 44, 45, 47, 48, 49, 52, 53, 54, 56, 57, 58, 59, 60], [2, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 23, 24, 25, 31, 32, 33, 34, 38, 39, 40, 44, 45, 50, 53, 54], [], [1, 12]),
+    new PokeData("ミュウツー", 150, 106, 110, 90, 154, 90, 130, 13, null, 3, 220, null, [], null, [[1, 94], [1, 51], [11, 113], [22, 130], [33, 245], [44, 249], [55, 55], [66, 95], [77, 134], [88, 106], [99, 220]], [[1, 94], [1, 51], [1, 130], [1, 95], [63, 113], [66, 95], [70, 106], [75, 55], [81, 134]], [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 25, 27, 29, 30, 31, 32, 33, 34, 35, 38, 39, 41, 42, 43, 44, 48, 50, 54, 55, 58, 59, 60], [1, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 44, 45, 46, 49, 50, 54, 55], [], [15]),
+    new PokeData("ミュウ", 151, 100, 100, 100, 100, 100, 100, 13, null, 45, 64, null, [], null, [[1, 2], [10, 145], [20, 6], [30, 119], [40, 95], [50, 247]], [[1, 2], [10, 145], [20, 6], [30, 119], [40, 95]], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55], [], [15]),
+    new PokeData("チコリータ", 152, 45, 49, 65, 49, 65, 45, 11, null, 45, 64, 2, [[153, 1, 16]], null, [[1, 34], [1, 46], [8, 76], [12, 116], [15, 78], [22, 236], [29, 35], [36, 114], [43, 220], [50, 77]], [], [2, 3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 23, 27, 31, 32, 34, 35, 43, 44, 45, 51, 55], [], [15, 23, 69, 74, 176, 247], [0, 6]),
+    new PokeData("ベイリーフ", 153, 60, 62, 80, 63, 80, 60, 11, null, 45, 141, 2, [[154, 1, 32]], 152, [[1, 34], [1, 46], [1, 76], [1, 116], [8, 76], [12, 116], [15, 78], [23, 236], [31, 35], [39, 114], [47, 220], [55, 77]], [], [2, 3, 6, 8, 10, 11, 12, 13, 17, 19, 20, 21, 22, 23, 27, 31, 32, 34, 35, 43, 44, 45, 49, 51, 54, 55], [], [], [0, 6]),
+    new PokeData("メガニウム", 154, 80, 82, 100, 83, 100, 80, 11, null, 45, 208, 2, [], 153, [[1, 34], [1, 46], [1, 76], [1, 116], [8, 76], [12, 116], [15, 78], [23, 236], [31, 35], [41, 114], [51, 220], [61, 77]], [], [2, 3, 6, 8, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 23, 26, 27, 31, 32, 34, 35, 43, 44, 45, 49, 51, 54, 55], [], [], [0, 6]),
+    new PokeData("ヒノアラシ", 155, 39, 52, 43, 60, 50, 65, 9, null, 45, 65, 2, [[156, 1, 14]], null, [[1, 34], [1, 44], [6, 109], [12, 53], [19, 99], [27, 173], [36, 130], [46, 54]], [], [2, 3, 4, 6, 10, 11, 13, 17, 20, 21, 23, 27, 28, 31, 32, 34, 35, 38, 39, 40, 43, 44, 45, 51, 58], [], [38, 67, 99, 155, 180, 194], [4]),
+    new PokeData("マグマラシ", 156, 58, 64, 58, 80, 65, 80, 9, null, 45, 142, 2, [[157, 1, 36]], 155, [[1, 34], [1, 44], [1, 109], [6, 109], [12, 53], [21, 99], [31, 173], [42, 130], [54, 54]], [], [2, 3, 4, 5, 6, 8, 10, 11, 13, 17, 20, 21, 23, 27, 28, 31, 32, 34, 35, 38, 39, 40, 43, 44, 45, 49, 51, 54, 58], [], [], [4]),
+    new PokeData("バクフーン", 157, 78, 84, 78, 109, 85, 100, 9, null, 45, 209, 2, [], 156, [[1, 34], [1, 44], [1, 109], [1, 53], [6, 109], [12, 53], [21, 99], [31, 173], [45, 130], [60, 54]], [], [1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 23, 26, 27, 28, 31, 32, 34, 35, 38, 39, 40, 41, 43, 44, 45, 48, 49, 51, 54, 58], [], [], [4]),
+    new PokeData("ワニノコ", 158, 50, 65, 64, 44, 48, 43, 10, null, 45, 66, 2, [[159, 1, 18]], null, [[1, 11], [1, 44], [7, 100], [13, 56], [20, 45], [27, 185], [35, 164], [43, 104], [52, 57]], [], [1, 2, 3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 33, 34, 35, 43, 44, 45, 51, 53, 56, 60], [], [14, 38, 57, 158, 243, 247], [0, 1]),
+    new PokeData("アリゲイツ", 159, 65, 80, 80, 59, 63, 58, 10, null, 45, 143, 2, [[160, 1, 30]], 158, [[1, 11], [1, 44], [1, 100], [7, 100], [13, 56], [21, 45], [28, 185], [37, 164], [45, 104], [55, 57]], [], [1, 2, 3, 5, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 33, 34, 35, 43, 44, 45, 49, 51, 53, 54, 56, 60], [], [], [0, 1]),
+    new PokeData("オーダイル", 160, 85, 105, 100, 79, 83, 78, 10, null, 45, 210, 2, [], 159, [[1, 11], [1, 44], [1, 100], [1, 56], [7, 100], [13, 56], [21, 45], [28, 185], [38, 164], [47, 104], [58, 57]], [], [1, 2, 3, 5, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 23, 26, 27, 28, 31, 32, 33, 34, 35, 43, 44, 45, 49, 51, 53, 54, 56, 60], [], [], [0, 1]),
+    new PokeData("オタチ", 161, 35, 46, 34, 35, 45, 20, 0, null, 255, 57, 8, [[162, 1, 15]], null, [[1, 34], [5, 112], [11, 99], [17, 155], [25, 22], [33, 157], [41, 134]], [], [1, 2, 3, 4, 6, 10, 11, 13, 17, 20, 21, 23, 27, 28, 30, 31, 32, 33, 34, 35, 39, 40, 41, 43, 44, 45, 46, 48, 49, 51, 53], [], [39, 117, 164, 180, 229], [4]),
+    new PokeData("オオタチ", 162, 85, 76, 64, 45, 55, 90, 0, null, 90, 116, 8, [], 161, [[1, 11], [1, 112], [1, 99], [5, 112], [11, 99], [18, 155], [28, 22], [38, 157], [48, 134]], [], [1, 2, 3, 4, 6, 10, 11, 13, 15, 17, 20, 21, 23, 27, 28, 30, 31, 32, 33, 34, 35, 39, 40, 41, 43, 44, 45, 46, 48, 49, 51, 53, 54], [], [], [4]),
+    new PokeData("ホーホー", 163, 60, 30, 30, 36, 56, 50, 0, 2, 255, 58, 8, [[164, 1, 20]], null, [[1, 34], [1, 46], [6, 194], [11, 65], [16, 96], [22, 116], [28, 37], [34, 94], [48, 139]], [], [3, 6, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 42, 43, 44, 45, 46, 47, 50, 52, 55], [], [18, 19, 49, 120, 144, 186], [3]),
+    new PokeData("ヨルノズク", 164, 100, 50, 50, 76, 96, 70, 0, 2, 90, 162, 8, [], 163, [[1, 34], [1, 46], [1, 194], [1, 65], [6, 194], [11, 65], [16, 96], [25, 116], [33, 37], [41, 94], [57, 139]], [], [3, 6, 10, 11, 13, 15, 17, 20, 21, 27, 31, 32, 34, 35, 39, 42, 43, 44, 45, 46, 47, 50, 52, 55], [], [], [3]),
+    new PokeData("レディバ", 165, 40, 20, 30, 40, 80, 55, 6, 2, 255, 54, 8, [[166, 1, 18]], null, [[1, 34], [8, 49], [15, 5], [22, 114], [22, 116], [22, 220], [29, 227], [36, 130], [43, 98], [50, 39]], [], [1, 2, 3, 4, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 28, 32, 33, 34, 35, 39, 41, 44, 45, 46, 55], [], [61, 114, 118], [2]),
+    new PokeData("レディアン", 166, 55, 35, 50, 55, 110, 85, 6, 2, 90, 134, 8, [], 165, [[1, 34], [1, 49], [8, 49], [15, 5], [24, 114], [24, 116], [24, 220], [33, 227], [42, 130], [51, 98], [60, 39]], [], [1, 2, 3, 4, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 28, 32, 33, 34, 35, 39, 41, 44, 45, 46, 55], [], [], [2]),
+    new PokeData("イトマル", 167, 40, 60, 40, 40, 40, 30, 6, 3, 255, 54, 8, [[168, 1, 22]], null, [[1, 41], [1, 82], [6, 185], [11, 133], [17, 102], [23, 142], [30, 155], [37, 170], [45, 98], [53, 95]], [], [3, 6, 10, 11, 13, 17, 19, 20, 21, 22, 27, 28, 29, 32, 34, 35, 36, 44, 45, 46, 55], [], [50, 51, 61, 227, 229], [2]),
+    new PokeData("アリアドス", 168, 70, 90, 70, 60, 60, 40, 6, 3, 90, 134, 8, [], 167, [[1, 41], [1, 82], [1, 185], [1, 133], [6, 185], [11, 133], [17, 102], [25, 142], [34, 155], [43, 170], [53, 98], [63, 95]], [], [3, 6, 10, 11, 13, 15, 17, 19, 20, 21, 22, 27, 28, 29, 32, 34, 35, 36, 44, 45, 46, 55], [], [], [2]),
+    new PokeData("クロバット", 169, 85, 90, 80, 70, 80, 130, 3, 2, 90, 204, 8, [], 42, [[1, 104], [1, 142], [1, 49], [6, 49], [12, 45], [19, 110], [30, 18], [42, 213], [55, 115]], [], [3, 6, 10, 11, 13, 15, 17, 19, 20, 21, 27, 32, 34, 35, 39, 43, 44, 45, 46, 47, 52], [], [], [3]),
+    new PokeData("チョンチー", 170, 75, 38, 38, 56, 56, 67, 10, 12, 190, 90, 8, [[171, 1, 27]], null, [[1, 146], [1, 87], [5, 49], [13, 176], [17, 56], [25, 210], [29, 110], [37, 37], [41, 57]], [], [3, 6, 7, 10, 13, 17, 18, 20, 21, 25, 27, 32, 34, 35, 44, 45, 53, 55, 56, 57, 59, 60], [], [49, 104, 176], [11]),
+    new PokeData("ランターン", 171, 125, 58, 58, 76, 76, 67, 10, 12, 75, 156, 8, [], 170, [[1, 146], [1, 87], [1, 49], [5, 49], [13, 176], [17, 56], [25, 210], [33, 110], [45, 37], [53, 57]], [], [3, 6, 7, 10, 13, 15, 17, 18, 20, 21, 25, 27, 32, 34, 35, 44, 45, 53, 55, 56, 57, 59, 60], [], [], [11]),
+    new PokeData("ピチュー", 172, 20, 40, 15, 35, 35, 60, 12, null, 190, 42, 8, [[25, 4, 1]], null, [[1, 85], [1, 205], [6, 40], [8, 87], [11, 187]], [], [2, 3, 4, 6, 7, 10, 13, 17, 18, 20, 21, 23, 25, 27, 31, 32, 34, 35, 39, 40, 43, 44, 45, 55, 59], [], [4, 118, 180, 218, 228], [15]),
+    new PokeData("ピィ", 173, 50, 25, 28, 45, 55, 15, 0, null, 150, 37, 12, [[35, 4, 1]], null, [[1, 2], [1, 205], [4, 228], [8, 48], [13, 187]], [], [2, 3, 4, 6, 7, 9, 10, 11, 13, 16, 17, 18, 20, 21, 22, 23, 27, 29, 30, 31, 32, 34, 35, 38, 40, 42, 43, 44, 45, 50, 55, 58], [], [103, 119, 134, 151, 188, 218], [15]),
+    new PokeData("ププリン", 174, 90, 30, 15, 40, 20, 15, 0, null, 170, 39, 12, [[39, 4, 1]], null, [[1, 48], [1, 205], [4, 112], [9, 2], [14, 187]], [], [2, 3, 4, 6, 7, 9, 10, 11, 13, 16, 17, 18, 20, 21, 22, 27, 29, 30, 31, 32, 34, 35, 38, 40, 42, 43, 44, 45, 50, 55, 58], [], [186, 196, 218], [15]),
+    new PokeData("トゲピー", 175, 35, 20, 65, 40, 65, 20, 0, null, 190, 74, 2, [[176, 4, 1]], null, [[1, 46], [1, 205], [7, 119], [18, 187], [25, 228], [31, 220], [38, 39]], [], [2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 17, 18, 20, 21, 22, 27, 29, 30, 31, 32, 34, 35, 38, 39, 40, 42, 43, 44, 45, 55, 58], [], [65, 120, 194, 218, 249], [15]),
+    new PokeData("トゲチック", 176, 55, 40, 85, 80, 105, 40, 0, 2, 75, 114, 2, [], 175, [[1, 46], [1, 205], [7, 119], [18, 187], [25, 228], [31, 220], [38, 39]], [], [2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 15, 17, 18, 20, 21, 22, 27, 29, 30, 31, 32, 34, 35, 38, 39, 40, 42, 43, 44, 45, 47, 52, 55, 58], [], [], [3, 5]),
+    new PokeData("ネイティ", 177, 40, 50, 45, 70, 45, 70, 13, 2, 190, 73, 8, [[178, 1, 25]], null, [[1, 65], [1, 44], [10, 102], [20, 101], [30, 249], [40, 110], [50, 95]], [], [3, 6, 9, 10, 11, 13, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 39, 42, 43, 44, 45, 46, 50, 55], [], [66, 99, 115, 186, 212], [3]),
+    new PokeData("ネイティオ", 178, 65, 75, 70, 95, 70, 95, 13, 2, 75, 171, 8, [], 177, [[1, 65], [1, 44], [1, 102], [10, 102], [20, 101], [35, 249], [50, 110], [65, 95]], [], [3, 6, 9, 10, 11, 13, 15, 17, 19, 20, 21, 22, 27, 29, 32, 34, 35, 39, 42, 43, 44, 45, 46, 50, 52, 55], [], [], [3]),
+    new PokeData("メリープ", 179, 55, 40, 40, 65, 45, 35, 12, null, 235, 59, 8, [[180, 1, 15]], null, [[1, 34], [1, 46], [9, 85], [16, 87], [23, 179], [30, 114], [37, 88]], [], [2, 3, 6, 7, 10, 13, 17, 18, 20, 21, 23, 25, 27, 32, 34, 35, 39, 40, 44, 45, 55, 59], [], [35, 37, 86, 104, 116, 220], [0, 4]),
+    new PokeData("モココ", 180, 70, 55, 55, 80, 60, 45, 12, null, 120, 117, 8, [[181, 1, 30]], 179, [[1, 34], [1, 46], [1, 85], [9, 85], [18, 87], [27, 179], [36, 114], [45, 88]], [], [1, 2, 3, 6, 7, 8, 10, 13, 17, 18, 20, 21, 23, 25, 27, 32, 34, 35, 39, 40, 41, 44, 45, 48, 54, 55, 59], [], [], [0, 4]),
+    new PokeData("デンリュウ", 181, 90, 75, 75, 115, 90, 55, 12, null, 45, 194, 8, [], 180, [[1, 34], [1, 46], [1, 85], [1, 87], [9, 85], [18, 87], [27, 179], [30, 10], [42, 114], [57, 88]], [], [1, 2, 3, 6, 7, 8, 10, 13, 15, 17, 18, 20, 21, 23, 25, 27, 32, 34, 35, 39, 40, 41, 44, 45, 48, 54, 55, 59], [], [], [0, 4]),
+    new PokeData("キレイハナ", 182, 75, 80, 85, 90, 100, 50, 11, null, 45, 184, 8, [], 44, [[1, 72], [1, 231], [1, 79], [1, 81], [55, 77]], [], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 44, 45, 51, 55], [], [], [6]),
+    new PokeData("マリル", 183, 70, 20, 50, 20, 50, 40, 10, null, 190, 58, 8, [[184, 1, 18]], null, [[1, 34], [3, 112], [6, 40], [10, 56], [15, 206], [21, 62], [28, 39], [36, 241]], [], [1, 2, 3, 4, 6, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 31, 32, 33, 34, 35, 39, 40, 44, 45, 53, 56, 57, 60], [], [49, 114, 134, 188, 194, 196, 218, 249], [1, 5]),
+    new PokeData("マリルリ", 184, 100, 50, 80, 50, 80, 50, 10, null, 75, 153, 8, [], 183, [[1, 34], [1, 112], [1, 40], [1, 56], [3, 112], [6, 40], [10, 56], [15, 206], [25, 62], [36, 39], [48, 241]], [], [1, 2, 3, 4, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 23, 27, 31, 32, 33, 34, 35, 39, 40, 44, 45, 53, 54, 56, 57, 60], [], [], [1, 5]),
+    new PokeData("ウソッキー", 185, 70, 100, 115, 30, 65, 30, 5, null, 65, 135, 8, [], null, [[1, 89], [1, 103], [10, 176], [19, 68], [28, 158], [37, 186], [46, 22]], [], [1, 2, 3, 4, 6, 8, 9, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 33, 34, 35, 37, 40, 41, 44, 45, 46, 48, 54], [], [121], [9]),
+    new PokeData("ニョロトノ", 186, 90, 75, 75, 90, 100, 70, 10, null, 45, 185, 8, [], 61, [[1, 56], [1, 96], [1, 4], [1, 196], [35, 196], [51, 208]], [], [1, 2, 3, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 26, 27, 29, 31, 32, 33, 34, 35, 40, 43, 44, 45, 46, 53, 54, 56, 57, 60], [], [], [1]),
+    new PokeData("ハネッコ", 187, 35, 35, 40, 35, 55, 50, 11, 2, 255, 74, 8, [[188, 1, 18]], null, [[1, 151], [5, 236], [5, 40], [10, 34], [13, 78], [15, 79], [17, 80], [20, 74], [25, 179], [30, 73]], [], [2, 3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 40, 44, 45, 55], [], [7, 39, 46, 94, 116, 134, 228], [5, 6]),
+    new PokeData("ポポッコ", 188, 55, 45, 50, 45, 65, 80, 11, 2, 120, 136, 8, [[189, 1, 27]], 187, [[1, 151], [1, 236], [1, 40], [1, 34], [5, 236], [5, 40], [10, 34], [13, 78], [15, 79], [17, 80], [22, 74], [29, 179], [36, 73]], [], [2, 3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 40, 44, 45, 55], [], [], [5, 6]),
+    new PokeData("ワタッコ", 189, 75, 55, 70, 55, 85, 110, 11, 2, 45, 176, 8, [], 188, [[1, 151], [1, 236], [1, 40], [1, 34], [5, 236], [5, 40], [10, 34], [13, 78], [15, 79], [17, 80], [22, 74], [33, 179], [44, 73]], [], [2, 3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 40, 44, 45, 55], [], [], [5, 6]),
+    new PokeData("エイパム", 190, 55, 70, 55, 40, 55, 85, 0, null, 45, 94, 8, [], null, [[1, 11], [1, 40], [6, 29], [12, 227], [19, 155], [27, 130], [36, 104], [46, 98]], [], [1, 2, 3, 6, 7, 8, 10, 11, 13, 17, 20, 21, 23, 25, 27, 30, 31, 32, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 48, 49, 50, 51, 54, 59], [], [4, 22, 69, 98, 104, 181, 229, 252], [4]),
+    new PokeData("ヒマナッツ", 191, 30, 30, 30, 30, 30, 30, 11, null, 235, 52, 8, [[192, 2, 169]], null, [[1, 72], [4, 75], [10, 73], [19, 242], [31, 236], [46, 203]], [], [3, 6, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [], [], [6]),
+    new PokeData("キマワリ", 192, 75, 75, 55, 105, 85, 30, 11, null, 120, 146, 8, [], 191, [[1, 72], [1, 2], [4, 75], [10, 76], [19, 242], [31, 81], [46, 77]], [], [3, 6, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 36, 44, 45, 51, 55], [], [], [6]),
+    new PokeData("ヤンヤンマ", 193, 65, 65, 45, 75, 45, 95, 6, 2, 75, 147, 8, [], null, [[1, 34], [1, 194], [7, 99], [13, 105], [19, 50], [25, 198], [31, 49], [37, 18], [43, 104]], [], [2, 3, 6, 10, 11, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 39, 43, 44, 45, 46, 55], [], [19, 142, 180], [2]),
+    new PokeData("ウパー", 194, 55, 45, 45, 25, 25, 15, 10, 4, 255, 52, 8, [[195, 1, 20]], null, [[1, 56], [1, 40], [11, 22], [21, 134], [31, 90], [41, 241], [51, 55], [51, 115]], [], [1, 2, 3, 4, 6, 8, 10, 13, 17, 18, 20, 21, 23, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 40, 44, 45, 53, 55, 56, 60], [], [35, 220, 247], [1, 4]),
+    new PokeData("ヌオー", 195, 95, 85, 85, 65, 65, 35, 10, 4, 90, 137, 8, [], 194, [[1, 56], [1, 40], [11, 22], [23, 134], [35, 90], [47, 241], [59, 55], [59, 115]], [], [1, 2, 3, 4, 6, 8, 10, 13, 15, 17, 18, 20, 21, 23, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 40, 44, 45, 53, 54, 55, 56, 60], [], [], [1, 4]),
+    new PokeData("エーフィ", 196, 65, 65, 60, 130, 95, 110, 13, null, 45, 197, 2, [], 133, [[1, 34], [1, 40], [8, 29], [16, 94], [23, 99], [30, 130], [36, 61], [42, 245], [47, 95], [52, 235]], [], [2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 20, 21, 23, 27, 29, 30, 31, 32, 34, 35, 39, 42, 43, 44, 45, 50, 51, 55], [], [], [4]),
+    new PokeData("ブラッキー", 197, 95, 65, 110, 60, 130, 65, 16, null, 45, 197, 2, [], 133, [[1, 34], [1, 40], [8, 29], [16, 229], [23, 99], [30, 110], [36, 186], [42, 213], [47, 104], [52, 237]], [], [2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 20, 21, 23, 27, 29, 30, 31, 32, 34, 35, 39, 42, 43, 44, 45, 50, 51, 55], [], [], [4]),
+    new PokeData("ヤミカラス", 198, 60, 85, 42, 85, 42, 91, 16, 2, 30, 107, 8, [], null, [[1, 65], [11, 229], [16, 115], [26, 102], [31, 186], [41, 213]], [], [3, 6, 9, 10, 11, 13, 16, 17, 20, 21, 27, 30, 31, 32, 34, 35, 39, 42, 43, 44, 45, 46, 47, 50, 52], [], [18, 19, 66, 99, 120, 144], [3]),
+    new PokeData("ヤドキング", 199, 95, 75, 80, 100, 110, 30, 10, 13, 70, 164, 8, [], 79, [[1, 175], [1, 34], [6, 46], [15, 56], [20, 94], [29, 51], [34, 30], [43, 208], [48, 95]], [], [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 38, 39, 42, 44, 45, 49, 50, 53, 54, 55, 56, 58, 60], [], [], [0, 1]),
+    new PokeData("ムウマ", 200, 60, 60, 60, 85, 85, 85, 7, null, 45, 147, 8, [], null, [[1, 46], [1, 150], [6, 181], [12, 110], [19, 213], [27, 61], [36, 221], [46, 196]], [], [2, 3, 6, 7, 9, 10, 11, 13, 17, 18, 20, 21, 25, 27, 29, 30, 32, 34, 35, 39, 40, 42, 44, 45, 46, 50, 55, 59], [], [104, 195], [10]),
+    new PokeData("アンノーン", 201, 48, 72, 48, 72, 48, 48, 13, null, 225, 61, null, [], null, [[1, 238]], [], [], [], [], [15]),
+    new PokeData("ソーナンス", 202, 190, 33, 58, 33, 58, 33, 13, null, 45, 177, 8, [], null, [[1, 69], [1, 244], [1, 220], [1, 195]], [], [], [], [], [10]),
+    new PokeData("キリンリキ", 203, 70, 80, 65, 90, 65, 85, 0, 13, 60, 149, 8, [], null, [[1, 34], [1, 46], [1, 94], [1, 24], [7, 94], [13, 24], [20, 98], [30, 227], [41, 61], [54, 243]], [], [2, 3, 6, 7, 8, 9, 10, 11, 13, 17, 20, 21, 23, 25, 26, 27, 29, 30, 31, 32, 34, 35, 39, 42, 44, 45, 46, 50, 54, 59], [], [37, 134, 194, 249, 252], [4]),
+    new PokeData("クヌギダマ", 204, 50, 65, 90, 35, 35, 15, 6, null, 190, 60, 8, [[205, 1, 31]], null, [[1, 34], [1, 183], [8, 121], [15, 37], [22, 230], [29, 118], [36, 154], [43, 192], [50, 39]], [], [2, 3, 4, 6, 8, 10, 11, 12, 13, 17, 19, 20, 21, 22, 27, 32, 34, 35, 40, 44, 45, 54], [], [43, 116, 130, 176], [2]),
+    new PokeData("フォレトス", 205, 75, 90, 140, 60, 60, 40, 6, 8, 75, 118, 8, [], 204, [[1, 34], [1, 183], [1, 121], [8, 121], [15, 37], [22, 230], [29, 118], [39, 154], [49, 192], [59, 39]], [], [2, 3, 4, 6, 8, 10, 11, 12, 13, 15, 17, 19, 20, 21, 22, 27, 32, 34, 35, 37, 40, 44, 45, 54], [], [], [2]),
+    new PokeData("ノコッチ", 206, 100, 70, 70, 65, 65, 45, 0, null, 190, 75, 8, [], null, [[1, 100], [5, 112], [13, 138], [18, 181], [26, 229], [30, 104], [38, 37]], [], [2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 17, 18, 20, 21, 22, 23, 25, 27, 28, 31, 32, 34, 35, 40, 42, 44, 45, 46, 50, 54, 58, 59], [], [45, 100, 118, 158, 247], [4]),
+    new PokeData("グライガー", 207, 65, 75, 105, 35, 65, 85, 4, 2, 60, 108, 8, [], null, [[1, 41], [6, 29], [13, 107], [20, 99], [28, 186], [36, 164], [44, 104], [52, 13]], [], [2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 23, 27, 32, 34, 35, 36, 37, 39, 43, 44, 45, 46, 49, 51, 54], [], [14, 18, 69, 233], [2]),
+    new PokeData("ハガネール", 208, 75, 85, 200, 55, 65, 30, 8, 4, 25, 196, 8, [], 95, [[1, 34], [1, 104], [10, 21], [14, 89], [23, 107], [27, 100], [36, 202], [40, 22], [49, 243]], [], [2, 3, 4, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 23, 24, 26, 27, 28, 31, 32, 34, 35, 37, 40, 44, 45, 51, 54], [], [], [9]),
+    new PokeData("ブルー", 209, 60, 80, 50, 40, 40, 30, 0, null, 190, 63, 12, [[210, 1, 23]], null, [[1, 34], [1, 185], [4, 40], [8, 205], [13, 45], [19, 123], [26, 47], [34, 100], [43, 37]], [], [1, 2, 3, 5, 6, 7, 8, 10, 11, 13, 17, 18, 20, 21, 25, 27, 30, 31, 32, 33, 34, 35, 36, 40, 41, 43, 44, 45, 46, 48, 54, 59], [], [44, 116, 119, 123, 186, 216, 218, 243], [4, 5]),
+    new PokeData("グランブル", 210, 90, 120, 75, 60, 60, 45, 0, null, 75, 178, 12, [], 209, [[1, 34], [1, 185], [4, 40], [8, 205], [13, 45], [19, 123], [28, 47], [38, 100], [51, 37]], [], [1, 2, 3, 5, 6, 7, 8, 10, 11, 13, 15, 17, 18, 20, 21, 25, 27, 30, 31, 32, 33, 34, 35, 36, 40, 41, 43, 44, 45, 46, 48, 54, 59], [], [], [4, 5]),
+    new PokeData("ハリーセン", 211, 65, 95, 75, 55, 55, 85, 10, 3, 45, 100, 8, [], null, [[1, 192], [1, 34], [1, 41], [10, 107], [10, 108], [19, 56], [28, 43], [37, 37], [46, 57]], [], [2, 3, 4, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 32, 34, 35, 36, 39, 40, 44, 45, 53, 56, 57, 60], [], [49, 62, 115, 176], [11]),
+    new PokeData("ハッサム", 212, 70, 130, 100, 55, 80, 65, 6, 8, 25, 200, 8, [], 123, [[1, 99], [1, 44], [6, 117], [12, 229], [18, 207], [24, 98], [30, 233], [36, 164], [42, 15], [48, 105]], [], [2, 3, 6, 8, 10, 11, 13, 15, 17, 20, 21, 27, 32, 34, 35, 37, 39, 43, 44, 45, 46, 47, 49, 51, 54], [], [], [2]),
+    new PokeData("ツボツボ", 213, 20, 10, 230, 10, 230, 5, 6, 5, 190, 80, 8, [], null, [[1, 133], [1, 111], [9, 36], [14, 228], [23, 220], [28, 118], [37, 157]], [], [2, 3, 4, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 34, 35, 36, 37, 40, 44, 45, 54, 55], [], [231], [2]),
+    new PokeData("ヘラクロス", 214, 80, 125, 75, 40, 95, 85, 6, 1, 45, 200, 8, [], null, [[1, 34], [1, 44], [6, 31], [12, 204], [19, 32], [27, 69], [35, 37], [44, 180], [54, 225]], [], [2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 32, 34, 35, 43, 44, 45, 46, 49, 51, 54], [], [107, 118, 176], [2]),
+    new PokeData("ニューラ", 215, 55, 95, 55, 35, 75, 115, 16, 14, 60, 132, 8, [], null, [[1, 11], [1, 44], [9, 99], [17, 104], [25, 186], [33, 155], [41, 98], [49, 164], [57, 252], [65, 233]], [], [1, 2, 3, 6, 8, 9, 10, 13, 14, 16, 17, 18, 20, 21, 23, 27, 28, 30, 31, 32, 33, 34, 35, 39, 40, 42, 43, 44, 45, 46, 49, 50, 51, 53, 54, 60], [], [45, 69, 116, 181, 194], [4]),
+    new PokeData("ヒメグマ", 216, 60, 80, 50, 50, 50, 40, 0, null, 120, 124, 8, [[217, 1, 30]], null, [[1, 11], [1, 44], [8, 123], [15, 155], [22, 186], [29, 157], [36, 164], [43, 174], [50, 38]], [], [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 17, 20, 21, 26, 27, 28, 31, 32, 33, 34, 35, 39, 40, 41, 44, 45, 46, 48, 49, 51, 54], [], [37, 69, 70, 117, 233, 243], [4]),
+    new PokeData("リングマ", 217, 90, 130, 75, 75, 75, 55, 0, null, 60, 189, 8, [], 216, [[1, 11], [1, 44], [1, 123], [1, 155], [8, 123], [15, 155], [22, 186], [29, 157], [39, 164], [49, 174], [59, 38]], [], [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 15, 17, 20, 21, 26, 27, 28, 31, 32, 33, 34, 35, 39, 40, 41, 44, 45, 46, 48, 49, 51, 54], [], [], [4]),
+    new PokeData("マグマッグ", 218, 40, 40, 40, 70, 40, 20, 9, null, 190, 78, 8, [[219, 1, 38]], null, [[1, 124], [8, 53], [15, 89], [22, 107], [29, 134], [36, 54], [43, 158], [50, 35]], [], [3, 4, 6, 8, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 38, 40, 44, 45, 58], [], [152], [10]),
+    new PokeData("マグカルゴ", 219, 50, 50, 120, 80, 80, 30, 9, 5, 75, 154, 8, [], 218, [[1, 124], [1, 53], [1, 89], [8, 53], [15, 89], [22, 107], [29, 134], [36, 54], [48, 158], [60, 35]], [], [3, 4, 6, 8, 10, 11, 13, 15, 17, 20, 21, 26, 27, 31, 32, 34, 35, 38, 40, 44, 45, 54, 58], [], [], [10]),
+    new PokeData("ウリムー", 220, 50, 50, 40, 30, 30, 50, 14, 4, 225, 78, 8, [[221, 1, 33]], null, [[1, 34], [10, 182], [19, 204], [28, 37], [37, 55], [46, 60], [55, 134]], [], [2, 3, 5, 6, 8, 10, 13, 14, 16, 17, 18, 20, 21, 26, 27, 31, 32, 34, 35, 40, 43, 44, 45, 54, 60], [], [35, 37, 45, 158, 247], [4]),
+    new PokeData("イノムー", 221, 100, 100, 80, 60, 60, 50, 14, 4, 75, 160, 8, [], 220, [[1, 31], [1, 182], [1, 204], [10, 182], [19, 204], [28, 37], [33, 32], [42, 55], [56, 60], [70, 134]], [], [2, 3, 5, 6, 8, 10, 13, 14, 15, 16, 17, 18, 20, 21, 26, 27, 31, 32, 34, 35, 40, 43, 44, 45, 54, 60], [], [], [4]),
+    new PokeData("サニーゴ", 222, 55, 55, 85, 65, 85, 35, 10, 5, 60, 113, 12, [], null, [[1, 34], [7, 107], [13, 146], [19, 106], [25, 62], [31, 132], [37, 244], [43, 247]], [], [2, 3, 4, 6, 8, 10, 11, 13, 17, 18, 20, 21, 26, 27, 29, 31, 32, 34, 35, 37, 40, 44, 45, 53, 54, 56, 60], [], [55, 104, 134, 158, 220], [1, 8]),
+    new PokeData("テッポウオ", 223, 35, 65, 35, 65, 35, 65, 10, null, 190, 78, 8, [[224, 1, 25]], null, [[1, 56], [11, 200], [22, 61], [22, 63], [22, 62], [33, 117], [44, 59], [55, 64]], [], [3, 6, 10, 13, 15, 17, 18, 20, 21, 27, 31, 32, 34, 35, 39, 40, 44, 45, 46, 53, 56, 58, 60], [], [49, 63, 104, 115, 191], [1, 11]),
+    new PokeData("オクタン", 224, 75, 105, 75, 105, 75, 45, 10, null, 75, 164, 8, [], 223, [[1, 56], [11, 133], [22, 61], [22, 63], [22, 62], [25, 191], [38, 117], [54, 59], [70, 64]], [], [3, 6, 10, 13, 15, 17, 18, 20, 21, 27, 31, 32, 34, 35, 39, 40, 44, 45, 46, 53, 56, 58, 60], [], [], [1, 11]),
+    new PokeData("デリバード", 225, 45, 55, 45, 65, 45, 75, 14, 2, 45, 183, 8, [], null, [[1, 218]], [], [2, 3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 52, 60], [], [63, 99, 151, 230, 249], [1, 4]),
+    new PokeData("マンタイン", 226, 65, 40, 70, 80, 140, 70, 10, 2, 25, 168, 8, [], null, [[1, 34], [1, 146], [10, 49], [18, 62], [25, 37], [32, 98], [40, 18], [49, 110]], [], [2, 3, 6, 10, 13, 14, 16, 17, 18, 20, 21, 27, 31, 32, 34, 35, 39, 44, 45, 53, 56, 57, 60], [], [22, 57, 115, 240], [1]),
+    new PokeData("エアームド", 227, 65, 80, 140, 40, 70, 70, 8, 2, 25, 168, 8, [], null, [[1, 44], [1, 65], [13, 29], [19, 130], [25, 98], [37, 32], [49, 212]], [], [3, 6, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 37, 39, 43, 44, 45, 46, 47, 51, 52], [], [19, 66, 144, 229], [3]),
+    new PokeData("デルビル", 228, 45, 60, 30, 80, 50, 65, 16, 9, 120, 114, 8, [[229, 1, 24]], null, [[1, 44], [1, 53], [7, 47], [13, 124], [20, 45], [27, 186], [35, 54], [43, 243]], [], [2, 3, 5, 6, 8, 10, 11, 13, 17, 20, 21, 22, 23, 27, 30, 31, 32, 34, 35, 36, 38, 39, 42, 43, 44, 45, 46, 50, 58], [], [69, 84, 100, 180, 181, 229, 252], [4]),
+    new PokeData("ヘルガー", 229, 75, 90, 50, 110, 80, 95, 16, 9, 45, 204, 8, [], 228, [[1, 44], [1, 53], [7, 47], [13, 124], [20, 45], [30, 186], [41, 54], [52, 243]], [], [2, 3, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 22, 23, 27, 30, 31, 32, 34, 35, 36, 38, 39, 42, 43, 44, 45, 46, 50, 54, 58], [], [], [4]),
+    new PokeData("キングドラ", 230, 75, 95, 95, 95, 95, 85, 10, 15, 45, 207, 8, [], 117, [[1, 146], [1, 109], [1, 44], [1, 56], [8, 109], [15, 44], [22, 56], [29, 240], [40, 98], [51, 57]], [], [2, 3, 6, 10, 13, 14, 15, 16, 17, 18, 20, 21, 24, 27, 32, 34, 35, 39, 44, 45, 53, 56, 57, 60], [], [], [1, 12]),
+    new PokeData("ゴマゾウ", 231, 90, 60, 60, 40, 40, 40, 4, null, 120, 124, 8, [[232, 1, 25]], null, [[1, 34], [1, 46], [9, 112], [17, 176], [25, 37], [33, 206], [41, 204], [49, 39]], [], [2, 3, 4, 5, 6, 8, 10, 11, 13, 17, 20, 21, 26, 27, 31, 32, 34, 35, 37, 40, 44, 45, 54], [], [35, 56, 117, 247], [4]),
+    new PokeData("ドンファン", 232, 90, 120, 120, 60, 60, 50, 4, null, 60, 189, 8, [], 231, [[1, 31], [1, 46], [9, 112], [17, 176], [25, 32], [33, 206], [41, 230], [49, 90]], [], [2, 3, 4, 5, 6, 8, 10, 11, 13, 15, 17, 20, 21, 26, 27, 31, 32, 34, 35, 37, 40, 44, 45, 54], [], [], [4]),
+    new PokeData("ポリゴン２", 233, 85, 80, 90, 105, 95, 60, 0, null, 45, 180, null, [], 137, [[1, 177], [1, 34], [1, 161], [9, 98], [12, 61], [20, 106], [24, 112], [32, 200], [36, 162], [44, 193]], [], [3, 6, 7, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 27, 29, 32, 34, 35, 39, 40, 42, 44, 46, 50, 55, 59, 60], [], [], [13]),
+    new PokeData("オドシシ", 234, 73, 95, 62, 85, 65, 85, 0, null, 45, 165, 8, [], null, [[1, 34], [8, 44], [15, 96], [23, 24], [31, 29], [40, 37], [49, 110]], [], [2, 3, 5, 6, 9, 10, 11, 13, 17, 18, 20, 21, 26, 27, 29, 31, 32, 34, 35, 39, 42, 43, 44, 45, 46, 50, 55], [], [45, 51, 114, 116, 181], [4]),
+    new PokeData("ドーブル", 235, 55, 20, 35, 20, 45, 75, 0, null, 45, 106, 8, [], null, [[1, 167], [11, 167], [21, 167], [31, 167], [41, 167], [51, 167], [61, 167], [71, 167], [81, 167], [91, 167]], [], [], [], [], [4]),
+    new PokeData("バルキー", 236, 35, 35, 35, 35, 35, 35, 1, null, 75, 91, 0, [[106, 5, 1], [107, 5, 2], [237, 5, 3]], null, [[1, 34]], [], [2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 27, 31, 32, 34, 35, 39, 43, 44, 45, 46, 54], [], [137, 171, 184, 230], [15]),
+    new PokeData("カポエラー", 237, 50, 95, 95, 35, 110, 70, 1, null, 45, 138, 0, [], 236, [[1, 28], [7, 117], [13, 229], [19, 99], [25, 230], [31, 69], [37, 98], [43, 198], [49, 168]], [], [2, 3, 6, 8, 10, 11, 13, 17, 20, 21, 27, 28, 31, 32, 34, 35, 39, 43, 44, 45, 46, 54], [], [], [7]),
+    new PokeData("ムチュール", 238, 45, 30, 15, 85, 65, 65, 14, 13, 45, 87, 16, [[124, 1, 30]], null, [[1, 2], [1, 123], [9, 187], [13, 182], [21, 94], [25, 48], [33, 213], [37, 95], [45, 196], [49, 60]], [], [1, 3, 6, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 27, 29, 30, 31, 32, 33, 34, 35, 42, 44, 45, 46, 50, 60], [], [97], [15]),
+    new PokeData("エレキッド", 239, 45, 63, 37, 65, 55, 95, 12, null, 45, 106, 4, [[125, 1, 30]], null, [[1, 99], [1, 44], [9, 10], [17, 114], [25, 130], [33, 104], [41, 86], [49, 88]], [], [1, 2, 3, 6, 7, 10, 13, 17, 18, 20, 21, 25, 27, 29, 31, 32, 33, 34, 35, 39, 41, 43, 44, 45, 46, 48, 55, 59], [], [3, 28, 97, 113, 239], [15]),
+    new PokeData("ブビィ", 240, 45, 75, 37, 70, 55, 83, 9, null, 45, 117, 4, [[126, 1, 30]], null, [[1, 53], [7, 44], [13, 124], [19, 8], [25, 109], [31, 242], [37, 54], [43, 110], [49, 127]], [], [1, 2, 3, 6, 10, 11, 13, 17, 20, 21, 23, 27, 29, 31, 32, 34, 35, 38, 41, 43, 44, 45, 46, 48, 58], [], [3, 6, 104, 113, 239], [15]),
+    new PokeData("ミルタンク", 241, 95, 80, 105, 40, 70, 100, 0, null, 45, 200, 16, [], null, [[1, 34], [4, 46], [8, 112], [13, 24], [19, 209], [26, 118], [34, 206], [43, 35], [53, 216]], [], [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 23, 25, 26, 27, 30, 31, 32, 33, 34, 35, 37, 40, 41, 44, 45, 48, 53, 54, 59, 60], [], [70, 180, 218], [4]),
+    new PokeData("ハピナス", 242, 255, 10, 10, 75, 135, 55, 0, null, 30, 255, 16, [], 113, [[1, 2], [4, 46], [7, 40], [10, 136], [13, 4], [18, 108], [23, 48], [28, 122], [33, 112], [40, 114], [47, 39]], [], [1, 2, 3, 4, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 25, 27, 29, 30, 31, 32, 34, 35, 37, 38, 40, 42, 44, 45, 54, 55, 58, 59, 60], [], [], [5]),
+    new PokeData("ライコウ", 243, 90, 85, 75, 115, 100, 115, 12, null, 3, 216, null, [], null, [[1, 45], [1, 44], [11, 85], [21, 47], [31, 99], [41, 210], [51, 116], [61, 243], [71, 88]], [], [2, 3, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 18, 20, 21, 23, 25, 27, 28, 31, 32, 34, 35, 37, 39, 43, 44, 51, 54, 55, 59], [], [], [15]),
+    new PokeData("エンテイ", 244, 115, 115, 85, 90, 75, 100, 9, null, 3, 217, null, [], null, [[1, 45], [1, 44], [11, 53], [21, 47], [31, 84], [41, 24], [51, 54], [61, 208], [71, 127]], [], [2, 3, 5, 6, 8, 9, 10, 11, 13, 15, 17, 18, 20, 21, 22, 23, 27, 28, 31, 32, 34, 35, 37, 38, 39, 43, 44, 51, 54, 55, 58], [], [], [15]),
+    new PokeData("スイクン", 245, 100, 75, 115, 90, 115, 85, 10, null, 3, 215, null, [], null, [[1, 45], [1, 44], [11, 62], [21, 241], [31, 17], [41, 63], [51, 55], [61, 244], [71, 57]], [], [2, 3, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 23, 27, 28, 31, 32, 34, 35, 37, 39, 43, 44, 51, 53, 56, 57, 60], [], [], [15]),
+    new PokeData("ヨーギラス", 246, 50, 64, 50, 45, 50, 41, 5, 4, 45, 67, 8, [[247, 1, 30]], null, [[1, 45], [1, 44], [8, 202], [15, 104], [22, 158], [29, 38], [36, 185], [43, 243], [50, 90], [57, 64]], [], [2, 3, 6, 10, 11, 13, 15, 17, 18, 20, 21, 26, 27, 28, 31, 32, 34, 35, 37, 43, 44, 45], [], [24, 117, 201, 229, 247], [0]),
+    new PokeData("サナギラス", 247, 70, 84, 70, 65, 70, 51, 5, 4, 45, 144, 8, [[248, 1, 55]], 246, [[1, 45], [1, 44], [1, 202], [1, 104], [8, 202], [15, 104], [22, 158], [29, 38], [38, 185], [47, 243], [56, 90], [65, 64]], [], [2, 3, 6, 10, 11, 13, 15, 17, 18, 20, 21, 26, 27, 28, 31, 32, 34, 35, 37, 43, 44, 45], [], [], [0]),
+    new PokeData("バンギラス", 248, 100, 134, 110, 95, 100, 61, 5, 16, 45, 218, 8, [], 247, [[1, 45], [1, 44], [1, 202], [1, 104], [8, 202], [15, 104], [22, 158], [29, 38], [38, 185], [47, 243], [61, 90], [75, 64]], [], [1, 2, 3, 5, 6, 8, 10, 11, 13, 15, 17, 18, 20, 21, 23, 24, 26, 27, 28, 31, 32, 34, 35, 37, 38, 43, 44, 45, 48, 49, 50, 51, 53, 54, 58, 59, 60], [], [], [0]),
+    new PokeData("ルギア", 249, 106, 90, 130, 90, 154, 110, 13, 2, 3, 220, null, [], null, [[1, 178], [11, 220], [22, 17], [33, 106], [44, 57], [55, 241], [66, 130], [77, 19], [88, 247], [99, 249]], [], [2, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 39, 42, 43, 44, 47, 50, 52, 53, 54, 56, 57, 59, 60], [], [], [15]),
+    new PokeData("ホウオウ", 250, 106, 130, 90, 110, 154, 90, 9, 2, 3, 220, null, [], null, [[1, 222], [11, 220], [22, 17], [33, 106], [44, 127], [55, 242], [66, 130], [77, 19], [88, 247], [99, 249]], [], [3, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 38, 39, 42, 43, 44, 47, 50, 52, 54, 55, 58, 59], [], [], [15]),
+    new PokeData("セレビィ", 251, 100, 100, 100, 100, 100, 100, 13, 11, 45, 64, null, [], null, [[1, 74], [1, 94], [1, 106], [1, 216], [10, 220], [20, 247], [30, 249], [40, 227], [50, 196]], [], [3, 6, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20, 21, 22, 27, 29, 30, 31, 32, 34, 35, 37, 39, 40, 42, 43, 44, 50, 55], [], [], [15])];
+
+  static fromID(id) {
+    return PokeData.raw[id - 1];
+  }
+  static index = Data.makeIndex(PokeData.raw, d => d.name);
+
+  static fromName(name) {
+    return PokeData.index[Data.normalizeName(name)];
+  }
+
+  static isOld(id) {
+    return id < 152;
+  }
+  isOld() {
+    return PokeData.isOld(this.id);
+  }
+
+  evFromPoke() {
+    return PokeData.fromID(this.evFrom);
+  }
+  origin() {
+    const from = this.evFrom;
+    return from ? PokeData.fromID(from).origin() : this;
+  }
+  toString() {
+    return `[${this.constructor.name} ${this.name}]`;
+  }
+}
+
+
+class ItemData extends Data {
+  constructor(name, id, effective) {
+    super();
+    this.name = name;
+    this.id = id;
     this.effective = effective;
   }
-}
+  static raw = [
+    new ItemData("", 0, false),
+    ,
+    new ItemData("マスターボール", 2, false),
+    new ItemData("ハイパーボール", 3, false),
+    new ItemData("ひかりのこな", 4, true),
+    new ItemData("スーパーボール", 5, false),
+    new ItemData("モンスターボール", 6, false),
+    new ItemData("カビチュウ", 7, false),
+    new ItemData("じてんしゃ", 8, false),
+    new ItemData("つきのいし", 9, false),
+    new ItemData("どくけし", 10, false),
+    new ItemData("やけどなおし", 11, false),
+    new ItemData("こおりなおし", 12, false),
+    new ItemData("ねむけざまし", 13, false),
+    new ItemData("まひなおし", 14, false),
+    new ItemData("かいふくのくすり", 15, false),
+    new ItemData("まんたんのくすり", 16, false),
+    new ItemData("すごいキズぐすり", 17, false),
+    new ItemData("いいキズぐすり", 18, false),
+    new ItemData("キズぐすり", 19, false),
+    new ItemData("あなぬけのヒモ", 20, false),
+    new ItemData("むしよけスプレー", 21, false),
+    new ItemData("ピーピーマックス", 22, false),
+    new ItemData("ほのおのいし", 23, false),
+    new ItemData("かみなりのいし", 24, false),
+    new ItemData("みずのいし", 25, false),
+    ,
+    new ItemData("マックスアップ", 27, false),
+    new ItemData("タウリン", 28, false),
+    new ItemData("ブロムヘキシン", 29, false),
+    new ItemData("インドメタシン", 30, false),
+    new ItemData("ラッキーパンチ", 31, true),
+    new ItemData("リゾチウム", 32, false),
+    new ItemData("ふしぎなアメ", 33, false),
+    new ItemData("ヨクアタール", 34, false),
+    new ItemData("リーフのいし", 35, false),
+    new ItemData("メタルパウダー", 36, true),
+    new ItemData("きんのたま", 37, false),
+    new ItemData("ピッピにんぎょう", 38, false),
+    new ItemData("なんでもなおし", 39, false),
+    new ItemData("げんきのかけら", 40, false),
+    new ItemData("げんきのかたまり", 41, false),
+    new ItemData("エフェクトガード", 42, false),
+    new ItemData("シルバースプレー", 43, false),
+    new ItemData("ゴールドスプレー", 44, false),
+    new ItemData("クリティカッター", 45, false),
+    ,
+    new ItemData("おいしいみず", 47, false),
+    new ItemData("サイコソーダ", 48, false),
+    new ItemData("ミックスオレ", 49, false),
+    new ItemData("プラスパワー", 50, false),
+    ,
+    new ItemData("ディフェンダー", 52, false),
+    new ItemData("スピーダー", 53, false),
+    new ItemData("スペシャルアップ", 54, false),
+    new ItemData("コインケース", 55, false),
+    new ItemData("ダウジングマシン", 56, false),
+    ,
+    new ItemData("がくしゅうそうち", 58, false),
+    new ItemData("ぼろのつりざお", 59, false),
+    new ItemData("いいつりざお", 60, false),
+    new ItemData("ぎんのはっぱ", 61, false),
+    new ItemData("すごいつりざお", 62, false),
+    new ItemData("ポイントアップ", 63, false),
+    new ItemData("ピーピーエイド", 64, false),
+    new ItemData("ピーピーリカバー", 65, false),
+    new ItemData("ピーピーエイダー", 66, false),
+    new ItemData("あかいウロコ", 67, false),
+    new ItemData("ひでんのくすり", 68, false),
+    new ItemData("ふねのチケット", 69, false),
+    new ItemData("ふしぎなタマゴ", 70, false),
+    ,
+    new ItemData("ぎんいろのはね", 72, false),
+    new ItemData("モーモーミルク", 73, false),
+    new ItemData("せんせいのツメ", 74, true),
+    new ItemData("どくけしのみ", 75, true),
+    new ItemData("きんのはっぱ", 76, false),
+    new ItemData("やわらかいすな", 77, true),
+    new ItemData("するどいくちばし", 78, true),
+    new ItemData("まひなおしのみ", 79, true),
+    new ItemData("やけたきのみ", 80, true),
+    new ItemData("こおったきのみ", 81, true),
+    new ItemData("どくバリ", 82, true),
+    new ItemData("おうじゃのしるし", 83, true),
+    new ItemData("にがいきのみ", 84, true),
+    new ItemData("はっかのみ", 85, true),
+    new ItemData("あかぼんぐり", 86, false),
+    new ItemData("ちいさなキノコ", 87, false),
+    new ItemData("おおきなキノコ", 88, false),
+    new ItemData("ぎんのこな", 89, true),
+    new ItemData("あおぼんぐり", 90, false),
+    ,
+    new ItemData("おまもりこばん", 92, false),
+    new ItemData("きぼんぐり", 93, false),
+    new ItemData("みどぼんぐり", 94, false),
+    new ItemData("きよめのおふだ", 95, false),
+    new ItemData("しんぴのしずく", 96, true),
+    new ItemData("まがったスプーン", 97, true),
+    new ItemData("しろぼんぐり", 98, false),
+    new ItemData("くろおび", 99, true),
+    new ItemData("くろぼんぐり", 100, false),
+    ,
+    new ItemData("ももぼんぐり", 102, false),
+    new ItemData("くろいめがね", 103, true),
+    new ItemData("おいしいシッポ", 104, false),
+    new ItemData("ピンクのリボン", 105, true),
+    new ItemData("ながねぎ", 106, true),
+    new ItemData("けむりだま", 107, false),
+    new ItemData("とけないこおり", 108, true),
+    new ItemData("じしゃく", 109, true),
+    new ItemData("きせきのみ", 110, true),
+    new ItemData("しんじゅ", 111, false),
+    new ItemData("おおきなしんじゅ", 112, false),
+    new ItemData("かわらずのいし", 113, false),
+    new ItemData("のろいのおふだ", 114, true),
+    new ItemData("いかりまんじゅう", 115, false),
+    ,
+    ,
+    new ItemData("きせきのタネ", 118, true),
+    new ItemData("ふといホネ", 119, true),
+    new ItemData("きあいのハチマキ", 120, true),
+    ,
+    new ItemData("ちからのこな", 122, false),
+    new ItemData("ちからねっこ", 123, false),
+    new ItemData("ばんのうごな", 124, false),
+    new ItemData("ふっかつそう", 125, false),
+    new ItemData("かたいいし", 126, true),
+    new ItemData("しあわせタマゴ", 127, false),
+    new ItemData("カードキー", 128, false),
+    new ItemData("きかいのぶひん", 129, false),
+    ,
+    new ItemData("おとしもの", 131, false),
+    new ItemData("ほしのすな", 132, false),
+    new ItemData("ほしのかけら", 133, false),
+    new ItemData("ちかのカギ", 134, false),
+    new ItemData("ていきけん", 135, false),
+    ,
+    ,
+    ,
+    new ItemData("もくたん", 139, true),
+    new ItemData("きのみジュース", 140, true),
+    new ItemData("ピントレンズ", 141, true),
+    ,
+    ,
+    new ItemData("メタルコート", 144, true),
+    new ItemData("りゅうのキバ", 145, false),
+    ,
+    new ItemData("たべのこし", 147, true),
+    ,
+    ,
+    ,
+    new ItemData("ふしぎなきのみ", 151, true),
+    new ItemData("りゅうのウロコ", 152, true),
+    new ItemData("はかいのいでんし", 153, true),
+    ,
+    ,
+    ,
+    new ItemData("せいなるはい", 157, false),
+    new ItemData("ヘビーボール", 158, false),
+    new ItemData("はながらメール", 159, false),
+    new ItemData("レベルボール", 160, false),
+    new ItemData("ルアーボール", 161, false),
+    new ItemData("スピードボール", 162, false),
+    ,
+    new ItemData("でんきだま", 164, true),
+    new ItemData("フレンドボール", 165, false),
+    new ItemData("ムーンボール", 166, false),
+    new ItemData("ラブラブボール", 167, false),
+    new ItemData("きのはこ", 168, false),
+    new ItemData("きりのはこ", 169, false),
+    new ItemData("たいようのいし", 170, false),
+    new ItemData("みずたまリボン", 171, true),
+    ,
+    new ItemData("アップグレード", 173, false),
+    new ItemData("きのみ", 174, true),
+    new ItemData("おうごんのみ", 175, true),
+    new ItemData("ゼニガメじょうろ", 176, false),
+    ,
+    new ItemData("パークボール", 178, false),
+    new ItemData("にじいろのはね", 179, false),
+    ,
+    new ItemData("かわらのかけら", 181, false),
+    new ItemData("なみのりメール", 182, false),
+    new ItemData("みずいろメール", 183, false),
+    new ItemData("にがおえメール", 184, false),
+    new ItemData("ラブリーメール", 185, false),
+    new ItemData("ブイブイメール", 186, false),
+    new ItemData("へんしんメール", 187, false),
+    new ItemData("あおぞらメール", 188, false),
+    new ItemData("おんぷメール", 189, false),
+    new ItemData("まぼろしメール", 190, false),
+    ,
+    new ItemData("わざましん01", 192, false),
+    new ItemData("わざましん02", 193, false),
+    new ItemData("わざましん03", 194, false),
+    new ItemData("わざましん04", 195, false),
+    ,
+    new ItemData("わざましん05", 197, false),
+    new ItemData("わざましん06", 198, false),
+    new ItemData("わざましん07", 199, false),
+    new ItemData("わざましん08", 200, false),
+    new ItemData("わざましん09", 201, false),
+    new ItemData("わざましん10", 202, false),
+    new ItemData("わざましん11", 203, false),
+    new ItemData("わざましん12", 204, false),
+    new ItemData("わざましん13", 205, false),
+    new ItemData("わざましん14", 206, false),
+    new ItemData("わざましん15", 207, false),
+    new ItemData("わざましん16", 208, false),
+    new ItemData("わざましん17", 209, false),
+    new ItemData("わざましん18", 210, false),
+    new ItemData("わざましん19", 211, false),
+    new ItemData("わざましん20", 212, false),
+    new ItemData("わざましん21", 213, false),
+    new ItemData("わざましん22", 214, false),
+    new ItemData("わざましん23", 215, false),
+    new ItemData("わざましん24", 216, false),
+    new ItemData("わざましん25", 217, false),
+    new ItemData("わざましん26", 218, false),
+    new ItemData("わざましん27", 219, false),
+    new ItemData("わざましん28", 220, false),
+    ,
+    new ItemData("わざましん29", 222, false),
+    new ItemData("わざましん30", 223, false),
+    new ItemData("わざましん31", 224, false),
+    new ItemData("わざましん48", 225, false),
+    new ItemData("わざましん49", 226, false),
+    new ItemData("わざましん50", 227, false),
+    new ItemData("ひでんましん01", 228, false),
+    new ItemData("ひでんましん02", 229, false),
+    new ItemData("ひでんましん03", 230, false),
+    new ItemData("ひでんましん04", 231, false),
+    new ItemData("ひでんましん05", 232, false),
+    new ItemData("ひでんましん06", 233, false),
+    new ItemData("ひでんましん07", 234, false)];
 
-const itemlist = new Array;
-itemlist[0] = new ItemData("", false);
-itemlist[2] = new ItemData("マスターボール", false);
-itemlist[3] = new ItemData("ハイパーボール", false);
-itemlist[4] = new ItemData("ひかりのこな", true);
-itemlist[5] = new ItemData("スーパーボール", false);
-itemlist[6] = new ItemData("モンスターボール", false);
-itemlist[7] = new ItemData("カビチュウ", false);
-itemlist[8] = new ItemData("じてんしゃ", false);
-itemlist[9] = new ItemData("つきのいし", false);
-itemlist[10] = new ItemData("どくけし", false);
-itemlist[11] = new ItemData("やけどなおし", false);
-itemlist[12] = new ItemData("こおりなおし", false);
-itemlist[13] = new ItemData("ねむけざまし", false);
-itemlist[14] = new ItemData("まひなおし", false);
-itemlist[15] = new ItemData("かいふくのくすり", false);
-itemlist[16] = new ItemData("まんたんのくすり", false);
-itemlist[17] = new ItemData("すごいキズぐすり", false);
-itemlist[18] = new ItemData("いいキズぐすり", false);
-itemlist[19] = new ItemData("キズぐすり", false);
-itemlist[20] = new ItemData("あなぬけのヒモ", false);
-itemlist[21] = new ItemData("むしよけスプレー", false);
-itemlist[22] = new ItemData("ピーピーマックス", false);
-itemlist[23] = new ItemData("ほのおのいし", false);
-itemlist[24] = new ItemData("かみなりのいし", false);
-itemlist[25] = new ItemData("みずのいし", false);
-itemlist[27] = new ItemData("マックスアップ", false);
-itemlist[28] = new ItemData("タウリン", false);
-itemlist[29] = new ItemData("ブロムヘキシン", false);
-itemlist[30] = new ItemData("インドメタシン", false);
-itemlist[31] = new ItemData("ラッキーパンチ", true);
-itemlist[32] = new ItemData("リゾチウム", false);
-itemlist[33] = new ItemData("ふしぎなアメ", false);
-itemlist[34] = new ItemData("ヨクアタール", false);
-itemlist[35] = new ItemData("リーフのいし", false);
-itemlist[36] = new ItemData("メタルパウダー", true);
-itemlist[37] = new ItemData("きんのたま", false);
-itemlist[38] = new ItemData("ピッピにんぎょう", false);
-itemlist[39] = new ItemData("なんでもなおし", false);
-itemlist[40] = new ItemData("げんきのかけら", false);
-itemlist[41] = new ItemData("げんきのかたまり", false);
-itemlist[42] = new ItemData("エフェクトガード", false);
-itemlist[43] = new ItemData("シルバースプレー", false);
-itemlist[44] = new ItemData("ゴールドスプレー", false);
-itemlist[45] = new ItemData("クリティカッター", false);
-itemlist[47] = new ItemData("おいしいみず", false);
-itemlist[48] = new ItemData("サイコソーダ", false);
-itemlist[49] = new ItemData("ミックスオレ", false);
-itemlist[50] = new ItemData("プラスパワー", false);
-itemlist[52] = new ItemData("ディフェンダー", false);
-itemlist[53] = new ItemData("スピーダー", false);
-itemlist[54] = new ItemData("スペシャルアップ", false);
-itemlist[55] = new ItemData("コインケース", false);
-itemlist[56] = new ItemData("ダウジングマシン", false);
-itemlist[58] = new ItemData("がくしゅうそうち", false);
-itemlist[59] = new ItemData("ぼろのつりざお", false);
-itemlist[60] = new ItemData("いいつりざお", false);
-itemlist[61] = new ItemData("ぎんのはっぱ", false);
-itemlist[62] = new ItemData("すごいつりざお", false);
-itemlist[63] = new ItemData("ポイントアップ", false);
-itemlist[64] = new ItemData("ピーピーエイド", false);
-itemlist[65] = new ItemData("ピーピーリカバー", false);
-itemlist[66] = new ItemData("ピーピーエイダー", false);
-itemlist[67] = new ItemData("あかいウロコ", false);
-itemlist[68] = new ItemData("ひでんのくすり", false);
-itemlist[69] = new ItemData("ふねのチケット", false);
-itemlist[70] = new ItemData("ふしぎなタマゴ", false);
-itemlist[72] = new ItemData("ぎんいろのはね", false);
-itemlist[73] = new ItemData("モーモーミルク", false);
-itemlist[74] = new ItemData("せんせいのツメ", true);
-itemlist[75] = new ItemData("どくけしのみ", true);
-itemlist[76] = new ItemData("きんのはっぱ", false);
-itemlist[77] = new ItemData("やわらかいすな", true);
-itemlist[78] = new ItemData("するどいくちばし", true);
-itemlist[79] = new ItemData("まひなおしのみ", true);
-itemlist[80] = new ItemData("やけたきのみ", true);
-itemlist[81] = new ItemData("こおったきのみ", true);
-itemlist[82] = new ItemData("どくバリ", true);
-itemlist[83] = new ItemData("おうじゃのしるし", true);
-itemlist[84] = new ItemData("にがいきのみ", true);
-itemlist[85] = new ItemData("はっかのみ", true);
-itemlist[86] = new ItemData("あかぼんぐり", false);
-itemlist[87] = new ItemData("ちいさなキノコ", false);
-itemlist[88] = new ItemData("おおきなキノコ", false);
-itemlist[89] = new ItemData("ぎんのこな", true);
-itemlist[90] = new ItemData("あおぼんぐり", false);
-itemlist[92] = new ItemData("おまもりこばん", false);
-itemlist[93] = new ItemData("きぼんぐり", false);
-itemlist[94] = new ItemData("みどぼんぐり", false);
-itemlist[95] = new ItemData("きよめのおふだ", false);
-itemlist[96] = new ItemData("しんぴのしずく", true);
-itemlist[97] = new ItemData("まがったスプーン", true);
-itemlist[98] = new ItemData("しろぼんぐり", false);
-itemlist[99] = new ItemData("くろおび", true);
-itemlist[100] = new ItemData("くろぼんぐり", false);
-itemlist[102] = new ItemData("ももぼんぐり", false);
-itemlist[103] = new ItemData("くろいめがね", true);
-itemlist[104] = new ItemData("おいしいシッポ", false);
-itemlist[105] = new ItemData("ピンクのリボン", true);
-itemlist[106] = new ItemData("ながねぎ", true);
-itemlist[107] = new ItemData("けむりだま", false);
-itemlist[108] = new ItemData("とけないこおり", true);
-itemlist[109] = new ItemData("じしゃく", true);
-itemlist[110] = new ItemData("きせきのみ", true);
-itemlist[111] = new ItemData("しんじゅ", false);
-itemlist[112] = new ItemData("おおきなしんじゅ", false);
-itemlist[113] = new ItemData("かわらずのいし", false);
-itemlist[114] = new ItemData("のろいのおふだ", true);
-itemlist[115] = new ItemData("いかりまんじゅう", false);
-itemlist[118] = new ItemData("きせきのタネ", true);
-itemlist[119] = new ItemData("ふといホネ", true);
-itemlist[120] = new ItemData("きあいのハチマキ", true);
-itemlist[122] = new ItemData("ちからのこな", false);
-itemlist[123] = new ItemData("ちからねっこ", false);
-itemlist[124] = new ItemData("ばんのうごな", false);
-itemlist[125] = new ItemData("ふっかつそう", false);
-itemlist[126] = new ItemData("かたいいし", true);
-itemlist[127] = new ItemData("しあわせタマゴ", false);
-itemlist[128] = new ItemData("カードキー", false);
-itemlist[129] = new ItemData("きかいのぶひん", false);
-itemlist[131] = new ItemData("おとしもの", false);
-itemlist[132] = new ItemData("ほしのすな", false);
-itemlist[133] = new ItemData("ほしのかけら", false);
-itemlist[134] = new ItemData("ちかのカギ", false);
-itemlist[135] = new ItemData("ていきけん", false);
-itemlist[139] = new ItemData("もくたん", true);
-itemlist[140] = new ItemData("きのみジュース", true);
-itemlist[141] = new ItemData("ピントレンズ", true);
-itemlist[144] = new ItemData("メタルコート", true);
-itemlist[145] = new ItemData("りゅうのキバ", false);
-itemlist[147] = new ItemData("たべのこし", true);
-itemlist[151] = new ItemData("ふしぎなきのみ", true);
-itemlist[152] = new ItemData("りゅうのウロコ", true);
-itemlist[153] = new ItemData("はかいのいでんし", true);
-itemlist[157] = new ItemData("せいなるはい", false);
-itemlist[158] = new ItemData("ヘビーボール", false);
-itemlist[159] = new ItemData("はながらメール", false);
-itemlist[160] = new ItemData("レベルボール", false);
-itemlist[161] = new ItemData("ルアーボール", false);
-itemlist[162] = new ItemData("スピードボール", false);
-itemlist[164] = new ItemData("でんきだま", true);
-itemlist[165] = new ItemData("フレンドボール", false);
-itemlist[166] = new ItemData("ムーンボール", false);
-itemlist[167] = new ItemData("ラブラブボール", false);
-itemlist[168] = new ItemData("きのはこ", false);
-itemlist[169] = new ItemData("きりのはこ", false);
-itemlist[170] = new ItemData("たいようのいし", false);
-itemlist[171] = new ItemData("みずたまリボン", true);
-itemlist[173] = new ItemData("アップグレード", false);
-itemlist[174] = new ItemData("きのみ", true);
-itemlist[175] = new ItemData("おうごんのみ", true);
-itemlist[176] = new ItemData("ゼニガメじょうろ", false);
-itemlist[178] = new ItemData("パークボール", false);
-itemlist[179] = new ItemData("にじいろのはね", false);
-itemlist[181] = new ItemData("かわらのかけら", false);
-itemlist[182] = new ItemData("なみのりメール", false);
-itemlist[183] = new ItemData("みずいろメール", false);
-itemlist[184] = new ItemData("にがおえメール", false);
-itemlist[185] = new ItemData("ラブリーメール", false);
-itemlist[186] = new ItemData("ブイブイメール", false);
-itemlist[187] = new ItemData("へんしんメール", false);
-itemlist[188] = new ItemData("あおぞらメール", false);
-itemlist[189] = new ItemData("おんぷメール", false);
-itemlist[190] = new ItemData("まぼろしメール", false);
-itemlist[192] = new ItemData("わざましん01", false);
-itemlist[193] = new ItemData("わざましん02", false);
-itemlist[194] = new ItemData("わざましん03", false);
-itemlist[195] = new ItemData("わざましん04", false);
-itemlist[197] = new ItemData("わざましん05", false);
-itemlist[198] = new ItemData("わざましん06", false);
-itemlist[199] = new ItemData("わざましん07", false);
-itemlist[200] = new ItemData("わざましん08", false);
-itemlist[201] = new ItemData("わざましん09", false);
-itemlist[202] = new ItemData("わざましん10", false);
-itemlist[203] = new ItemData("わざましん11", false);
-itemlist[204] = new ItemData("わざましん12", false);
-itemlist[205] = new ItemData("わざましん13", false);
-itemlist[206] = new ItemData("わざましん14", false);
-itemlist[207] = new ItemData("わざましん15", false);
-itemlist[208] = new ItemData("わざましん16", false);
-itemlist[209] = new ItemData("わざましん17", false);
-itemlist[210] = new ItemData("わざましん18", false);
-itemlist[211] = new ItemData("わざましん19", false);
-itemlist[212] = new ItemData("わざましん20", false);
-itemlist[213] = new ItemData("わざましん21", false);
-itemlist[214] = new ItemData("わざましん22", false);
-itemlist[215] = new ItemData("わざましん23", false);
-itemlist[216] = new ItemData("わざましん24", false);
-itemlist[217] = new ItemData("わざましん25", false);
-itemlist[218] = new ItemData("わざましん26", false);
-itemlist[219] = new ItemData("わざましん27", false);
-itemlist[220] = new ItemData("わざましん28", false);
-itemlist[222] = new ItemData("わざましん29", false);
-itemlist[223] = new ItemData("わざましん30", false);
-itemlist[224] = new ItemData("わざましん31", false);
-itemlist[225] = new ItemData("わざましん48", false);
-itemlist[226] = new ItemData("わざましん49", false);
-itemlist[227] = new ItemData("わざましん50", false);
-itemlist[228] = new ItemData("ひでんましん01", false);
-itemlist[229] = new ItemData("ひでんましん02", false);
-itemlist[230] = new ItemData("ひでんましん03", false);
-itemlist[231] = new ItemData("ひでんましん04", false);
-itemlist[232] = new ItemData("ひでんましん05", false);
-itemlist[233] = new ItemData("ひでんましん06", false);
-itemlist[234] = new ItemData("ひでんましん07", false);
+  static index = Data.makeIndex(ItemData.raw, item => item.name);
 
-const effectiveItems = [];
-(function() {
-  for (const i in itemlist) {
-    const s = itemlist[i];
-    s.effective && (effectiveItems[i] = s);
+  static fromID(id) {
+   return ItemData.raw[id];
   }
-})();
+  static fromName(name) {
+    return ItemData.index[Data.normalizeName(name)];
+  }
+}
 
 // --- Roma ---
 function roma(str) {
@@ -1180,11 +1309,11 @@ Poke.fromPD = function(pd_str, force) {
   poke.h = a[23];
   poke.item = a[25];
   /* validation check */
-  if (!(pokelist[poke.no] && poke.lv >= 1 && poke.lv <= 100 &&
+  if (!(PokeData.fromID(poke.no) && poke.lv >= 1 && poke.lv <= 100 &&
         poke.ef.every(function (i) { return i >= 0 && i <= 63; }) &&
-        poke.mv.every(function (i) { return movelist[i]; }) &&
+        poke.mv.every(function (i) { return MoveData.fromID(i); }) &&
         poke.p_up.every(function (i) { return i >= 0 && i <= 3; }) &&
-        itemlist[poke.item])) {
+        ItemData.fromID(poke.item))) {
     throw new ImplementationError("wrong pd value: " + pd_str);
   }
   return poke;
@@ -1221,16 +1350,16 @@ function partyReflectForm(poke) {
   const len = getPokeNum();
   const form = $f;
   for (let i = 0; i < len; i++) {
-    form["POKE" + i].value = pokelist[poke[i].no].name;
+    form["POKE" + i].value = PokeData.fromID(poke[i].no).name;
     form["LV" + i].value = poke[i].lv;
     form["KO" + i].value = poke[i].id.join("");
     for (let j = 0; j < 5; j++) {
       form["EF" + i + "_" + j].value = poke[i].ef[j];
     }
     for (let j = 0; j < 4; j++) {
-      form["WAZA" + i + "_" + j].value = movelist[poke[i].mv[j]].name;
+      form["WAZA" + i + "_" + j].value = MoveData.fromID(poke[i].mv[j]).name;
     }
-    form["ITEM" + i].value = itemlist[poke[i].item].name;
+    form["ITEM" + i].value = ItemData.fromID(poke[i].item).name;
   }
   formRefresh();
 }
@@ -1341,47 +1470,12 @@ function killBuffer0(buf) {
   }
 }
 
-/* "−" -> "ー" */
-function normalizeNobashi(str) {
-  return str.replace(/−|－/g, "ー").replace(/10/g, "１０");
-}
-
-function nameToIndex(name) {
-  name = normalizeNobashi(name);
-  for (let i = 0; i < pokelist.length; i++) {
-    if (pokelist[i] && name == pokelist[i].name) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-function moveToIndex(move) {
-  move = normalizeNobashi(move);
-  for (let i = 0; i < movelist.length; i++) {
-    if (movelist[i] && move == movelist[i].name) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-function itemToIndex(item) {
-  item = normalizeNobashi(item);
-  for (let i = 0; i < itemlist.length; i++) {
-    if (itemlist[i] && item == itemlist[i].name) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 function getPokeNum() {
   return $d.getElementsByTagName('table')[0].rows.length - 1;
 }
 
-function calcHP(no, lv, hp_id, hp_ef) {
-  return Math.floor(((pokelist[no].h + hp_id) * 2 + hp_ef) * lv / 100) + lv + 10;
+function calcHP(h, lv, hp_id, hp_ef) {
+  return Math.floor(((h + hp_id) * 2 + hp_ef) * lv / 100) + lv + 10;
 }
 
 function calcHPId(id) {
@@ -1413,19 +1507,20 @@ function setPoke(form, buffer) {
     }
     poke[i].lv = lv;
     const no_box = form["POKE" + i];
-    const no = nameToIndex(no_box.value);
-    if (!pokelist[no]) {
+    const name = no_box.value;
+    const spec = PokeData.fromName(name);
+    if (!spec) {
       throw new InvalidValueOfTextbox((i + 1) + "匹目の種族名が不正です。", no_box);
     }
-    poke[i].no = no;
+    poke[i].no = spec.id;
     for (let j = 0; j < 4; j++) {
       const mv_box = form["WAZA" + i + "_" + j];
-      const mv = moveToIndex(mv_box.value);
-      if (!movelist[mv]) {
+      const mv = MoveData.fromName(mv_box.value);
+      if (!mv) {
         throw new InvalidValueOfTextbox((i + 1) + "匹目の技" + (j + 1) + "が不正です。", mv_box);
       }
-      poke[i].mv[j] = mv;
-      poke[i].pp[j] = Math.floor(movelist[mv].pp * (5 + Number(poke[i].p_up[j])) / 5);
+      poke[i].mv[j] = mv.id;
+      poke[i].pp[j] = Math.floor(mv.pp * (5 + Number(poke[i].p_up[j])) / 5);
     }
     poke[i].id = getId(i, form);
     for (let j = 0; j < 5; j++) {
@@ -1437,12 +1532,12 @@ function setPoke(form, buffer) {
       poke[i].ef[j] = ef;
     }
     const item_box = form["ITEM" + i];
-    const item = itemToIndex(item_box.value);
-    if (itemlist[item] == undefined) {
+    const item = ItemData.fromName(item_box.value);
+    if (!item) {
       throw new InvalidValueOfTextbox((i + 1) + "匹目のアイテム名が不正です。", item_box);
     }
-    poke[i].item = item;
-    poke[i].h = calcHP(no, lv, calcHPId(poke[i].id), parseInt(poke[i].ef[0]));
+    poke[i].item = item.id;
+    poke[i].h = calcHP(spec.h, lv, calcHPId(poke[i].id), parseInt(poke[i].ef[0]));
   }
 }
 
@@ -2173,16 +2268,16 @@ var formKeymapObserver;
 // --- GUI Hooks ---
 function setHP() {
   for (let i = 0; i < 6; i++) {
-    const no = nameToIndex($f["POKE" + i].value);
+    const spec = PokeData.fromName($f["POKE" + i].value);
     let hp;
-    if (no >= 0) {
+    if (spec) {
       const lv = parseInt($f["LV" + i].value, 10);
       const ef = parseInt($f["EF" + i + "_" + 0].value, 10);
       if (isNaN(lv) || lv < 1 || lv > 100 || isNaN(ef)) {
         hp = "";
       }
       else {
-        hp = calcHP(no, lv, calcHPId(getId(i)), ef);
+        hp = calcHP(spec.h, lv, calcHPId(getId(i)), ef);
         if (currentBuffer().pref.highlightFormMode &&
             hp % 4 === 0 &&
             getMoves(i).some(s => s == "みがわり")) {
@@ -2202,8 +2297,8 @@ function setSex() {
   for (let i = 0; i < 6; i++) {
     let str;
     try {
-      const female = pokelist[nameToIndex(form["POKE" + i].value)].female;
-      if (female < 0) {
+      const female = PokeData.fromName(form["POKE" + i].value).female;
+      if (female == null) {
         str = "　";
       }
       else if (female > Number("0x" + form["KO" + i].value.slice(0, 1))) {
@@ -2225,7 +2320,6 @@ function getMove(i, j) {
 }
 
 function getMoves(i) {
-  const form = $f;
   const ary = new Array(4);
   for (let j = 0; j < ary.length; j++) {
     ary[j] = getMove(i, j);
@@ -2238,12 +2332,11 @@ xpd.pref.hiddenpowerNames = ["格","飛","毒","地","岩","虫","霊","鋼","�
 xpd.pref.hiddenpowerColors = ["#d0a0a0", "#d0ffd0", "#c080ff", "#f0a060", "#d0d0a0", "#80d080", "#b0a0e0", "#e0e0e0", "#ffa0a0", "#a0a0ff", "#a0ffa0", "#ffffa0", "#ffa0ff", "#c0c0ff", "#ffa060", "#909090"];
 function setHiddenpower() {
   const pref = currentBuffer().pref;
-  const form = $f;
   for (let i = 0; i < 6; i++) {
     let str = "　";
     let color = "e0e0e0";
     try {
-      if (getMoves(i).map(moveToIndex).some(function (i) { return i == 238; })) {
+      if (getMoves(i).map(MoveData.fromName).some(function (move) { return move.id === 238; })) {
         /* 個体値から計算 */
         const ary = getId(i);
         str = pref.hiddenpowerNames[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
@@ -2272,7 +2365,7 @@ function setStatus() {
     setHP();
   }
   catch (e) {
-    message(e);
+    handleInteractiveError(e);
   }
 }
 
@@ -2747,7 +2840,7 @@ function partiesToTable(parties) {
       parties.map(function (party, i) {
         return tr(td("No." + (i + 1)) +
                   party.map(function (poke) {
-                    return td(poke.lv + " " + pokelist[poke.no].name);
+                    return td(poke.lv + " " + PokeData.fromID(poke.no).name);
                   }).join(" "));
       }).join("") + "</table>";
 }
@@ -2945,7 +3038,7 @@ function makeCompleteRegExp(str) {
   let regbase;
   let regary;
   let ma;
-  str = normalizeNobashi(str);
+  str = Data.normalizeName(str);
 
   if (/[^n]n$/.test(str)) {
     regbase = str.slice(0, -1);
@@ -2989,21 +3082,22 @@ function completeFromDataArray(data, node) {
 }
 
 function completeFromPoke(node) {
-  return completeFromDataArray(pokelist, node);
+  return completeFromDataArray(PokeData.raw, node);
 }
 
 function completeFromMove(node) {
   // hack
   const ju_re = /^j(?:u(?:u(?:m(?:a(?:nn?(?:b(?:o(?:[rl](?:u(?:to?)?)?)?)?)?)?)?)?)?)?$/;
-  const ary = completeFromDataArray(movelist, node);
+  const ary = completeFromDataArray(MoveData.raw, node);
   if (ju_re.test(node.value)) {
     ary.push("１０まんボルト");
   }
   return ary;
 }
 
+const effectiveItems = ItemData.raw.filter(item => item.effective);
 function completeFromItem(node) {
-  return completeFromDataArray(currentBuffer().pref.smartCompletionMode ? effectiveItems : itemlist, node);
+  return completeFromDataArray(currentBuffer().pref.smartCompletionMode ? effectiveItems : ItemData.raw, node);
 }
 
 function makeMinibufferCompleteRegexp(str) {
@@ -3045,14 +3139,14 @@ function nodeKind(node) {
 function finishesCompeletion(node) {
   const kind = nodeKind(node);
   const source = {
-    POKE: nameToIndex,
-    WAZA: moveToIndex,
-    ITEM: itemToIndex,
+    POKE: PokeData.fromName,
+    WAZA: MoveData.fromName,
+    ITEM: ItemData.fromName,
     mini: function (command) {
-      return xpd.command.hasOwnProperty(command) ? -1 : 1;
+      return xpd.command.hasOwnProperty(command);
     }
   };
-  return source[kind](node.value) != -1;
+  return source[kind](node.value);
 }
 
 function defaultCompleter(node) {
@@ -3213,7 +3307,8 @@ const lineWidth = 13;
 xpd.pref.blockStartIndexes = [1, 2, 7];
 
 function findIndexN(ary, f) {
-  for (let i = 0; i < ary.length; i++) {
+  let i;
+  for (i = 0; i < ary.length; i++) {
     if (f(ary[i], i, ary)) {
       return i;
     }
@@ -3498,13 +3593,11 @@ function eachPokeInRule(f) {
   const rule = currentBuffer().pref.rule;
   if (rule) {
     for (let i = 0; i < ruleTable[rule].length; i++) {
-      f(pokelist[ruleTable[rule][i]]);
+      f(PokeData.fromID(ruleTable[rule][i]));
     }
   }
   else {
-    for (let i = 1; i < pokelist.length; i++) {
-      f(pokelist[i]);
-    }
+    PokeData.raw.forEach(p => f(p));
   }
 }
 
@@ -3608,7 +3701,7 @@ function displaySpeedTable(e) {
   const number = /\d/.exec(e.target.name)[0];
   const form = getWrappedJSObject(e.target.form);
   const box = form["POKE" + number];
-  const poke = pokelist[nameToIndex(box.value)];
+  const poke = PokeData.fromName(box.value);
   if (!poke) {
     throw new InvalidValueOfTextbox("種族名が不正です", box);
   }
