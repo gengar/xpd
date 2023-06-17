@@ -1517,15 +1517,16 @@ function createEchoArea() {
   return true;
 }
 
-function message(obj) {
+function message(...objs) {
   const echoArea = $d.getElementById("echo-area");
-  if (obj.appendChild) {
-    echoArea.innerHTML = "";
-    echoArea.appendChild(obj);
-  }
-  else {
-    echoArea.innerHTML = obj;
-  }
+  echoArea.innerHTML = "";
+  objs.forEach(obj => {
+    echoArea.appendChild(obj instanceof getWrappedJSObject(Node) ? obj : $d.createTextNode(obj));
+  });
+}
+
+function messageHTML(str) {
+  $d.getElementById("echo-area").innerHTML = str;
 }
 
 function messageText(str) {
@@ -1543,7 +1544,7 @@ function getMessage() {
 }
 
 function messageWithTextbox(str) {
-  message('<input id="message-textbox" type="text" size="64"/>');
+  messageHTML('<input id="message-textbox" type="text" size="64"/>');
   const box = $d.getElementById("message-textbox");
   box.value = str;
   box.select();
@@ -1945,7 +1946,7 @@ class Command extends KeymapEventListener {
       stopEvent(ev);
     }
     try {
-      message("");
+      message();
       return super.run(evs);
     }
     catch (er) {
@@ -2752,7 +2753,7 @@ function partiesToTable(parties) {
 }
 
 function listParties() {
-  message(partiesToTable(loadParties()));
+  messageHTML(partiesToTable(loadParties()));
 }
 interactive(listParties, "パーティ一覧を表示");
 
@@ -2875,7 +2876,7 @@ interactive(switchToBuffer, "バッファを切り替える");
 function listBuffers() {
   const obj = {};
   obj.map = function (f) { return bufferMap.map(function (buf, no) { return f(buf.party, no - 1); }); };
-  message(partiesToTable(obj));
+  messageHTML(partiesToTable(obj));
 }
 interactive(listBuffers, "バッファ一覧を表示");
 
@@ -3339,7 +3340,7 @@ function autoMessageCandidates(e) {
     }
   }
   else {
-    message("");
+    message();
   }
 }
 
@@ -3852,7 +3853,7 @@ interactive(removeSnapshot, "スナップショットを削除");
 async function listSnapshots() {
   const names = await GM.getValue(snapshotNamesKey);
   if (names) {
-    message(names.split("\n").join("<br />"));
+    messageHTML(names.split("\n").join("<br />"));
   }
   else {
     message("no snapshots");
@@ -3909,7 +3910,7 @@ interactive(unfocus, "フォーカスを外す");
 
 /*help*/
 function help(e) {
-  message(help.string);
+  messageHTML(help.string);
 }
 help.string = '<p><a href="http://o-s.sub.jp/xpd/" target="_blank">xpd wiki</a></p>';
 interactive(help);
@@ -3955,18 +3956,16 @@ function checkLatestVersion() {
         if (ma && response.status == 200) {
           if (versionLessThan(xpd.version, ma[0])) {
             message(
-              makeElement(
-                "div", null,
-                makeElement("p", null,
-                            `xpd ${ma[0]} がリリースされています。現在お使いのバージョンは ${xpd.version} です。`),
-                makeElement("p", null,
-                            "ダウンロードはこちら: ",
-                            makeElement("a", {"href": "http://o-s.sub.jp/xpd/",
-                                              "target": "_blank"},
-                                        'xpd wiki'))));
+              makeElement("p", null,
+                          `xpd ${ma[0]} がリリースされています。現在お使いのバージョンは ${xpd.version} です。`),
+              makeElement("p", null,
+                          "ダウンロードはこちら: ",
+                          makeElement("a", {"href": "http://o-s.sub.jp/xpd/",
+                                            "target": "_blank"},
+                                      'xpd wiki')));
           }
           else {
-            message("");
+            message();
           }
         }
         else {
