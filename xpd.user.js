@@ -43,7 +43,7 @@ if (!document.forms[0]?.S2) {
 }
 
 const xpd = {
-  version: "2.0.0-beta"
+  version: "2.0.0"
 };
 
 function exportUnsafe(f) {
