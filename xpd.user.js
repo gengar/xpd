@@ -2350,7 +2350,7 @@ class SearchState {
     return this.request.length === 0;
   }
   toString() {
-    const cur = `${this.pokemon.name} Lv ${this.level}, ${this.description}, learned: ${this.learned.map(pair => `${MoveData.fromID(pair[0]).name}/${pair[1]}` )} request: ${this.request.map(id => MoveData.fromID(id).name)}`;
+    const cur = `${this.pokemon.name} Lv ${this.level}, ${this.description}, learned: ${this.learned.map(([move, desc]) => `${MoveData.fromID(move).name}/${desc}` )} request: ${this.request.map(id => MoveData.fromID(id).name)}`;
     const traveling = this.timeTraveling ? " (traveling)" : "" ;
     const traveled = this.timeTraveled ? " (traveled)" : "" ;
     const pre = this.prev ? ` <- ${this.prev.toString()}` : "";
@@ -2363,7 +2363,7 @@ class SearchState {
 // 進化しないポケモンは 0 任意進化は 1
 function inspectEvolvement(poke) {
   if (poke.evFrom) {
-    const [to, evType, value] = poke.evFromPoke().evList.find(triple => triple[0] === poke.id);
+    const [to, evType, value] = poke.evFromPoke().evList.find(([id, , ]) => id === poke.id);
     return (evType === 1) ? value :
       (evType === 4 || evType === 5) ? 6 :
       1;
@@ -2414,8 +2414,8 @@ function useTMs(state) {
         [poke.pikaLearnings, [], poke.oldTMMoves, "わざマシン(ピ)"] :
         [poke.crystalLearnings, poke.gsLearnings ?? [], poke.TMMoves, "わざマシン(ク)"];
   const getMoves = alist => takeWhile(alist,
-                                      t => t[0] <= level
-                                     ).map(t => t[1]);
+                                      ([lv, ]) => lv <= level
+                                     ).map(([, move]) => move);
   const levelMoves = getMoves(learnings);
   const extraLevelMoves = getMoves(extraLearnings);
 
@@ -2524,9 +2524,9 @@ function searchLearning(initState) {
       }
       };
 
-      breed(poke.crystalLearnings.map(t => t[1]), "タマゴ");
+      breed(poke.crystalLearnings.map(([, move]) => move), "タマゴ");
       if (poke.gsLearnings) {
-        breed(poke.gsLearnings.map(t => t[1]), "タマゴ(金銀)");
+        breed(poke.gsLearnings.map(([, move]) => move), "タマゴ(金銀)");
       }
 
     }
