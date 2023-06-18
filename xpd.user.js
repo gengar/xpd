@@ -997,8 +997,134 @@ DistPokemon.list.forEach(dist => {
   DistPokemon.poke[dist.poke] = true;
 });
 
+class BattleRule {
+  constructor(name, entrablePokemons, levelMin, levelMax,
+              baseRule = undefined, options = undefined) {
+    this.name = name;
+    this.entrablePokemons = entrablePokemons;
+    this.levelMin = levelMin;
+    this.levelMax = levelMax;
+    this.baseRule = baseRule;
+
+    if (options) {
+      ["description",
+       "extraPopularPokemons"
+      ].forEach(opt => {
+        if (options[opt]) {
+          this[opt] = options[opt];
+        }
+      });
+    }
+    ["fullName",
+     "lighter"
+    ].forEach(opt => {
+      this[opt] = (options && options[opt]) ?? name;
+    });
+    ["forbiddenMoves",
+     "forbiddenItems"
+    ].forEach(opt => {
+      this[opt] = ((options && options[opt]) ?? []).concat(
+        this.baseRule ?
+          this.baseRule[opt] :
+          []
+      ).sort((i, j) => i - j);
+    });
+  }
+  static allPokemons = PokeData.raw.map(poke => poke.id);
+  static fromObject(obj) {
+    const baseRule = obj.baseRule && BattleRule.index.get(obj.baseRule);
+    const basePokemons = baseRule ?
+          baseRule.entrablePokemons :
+          BattleRule.allPokemons;
+    const baseEntrablePokemons = obj.entrablePokemons ?? basePokemons;
+    const entrablePokemons0 = (obj.additionalEntrablePokemons ?? []).concat(
+      baseEntrablePokemons);
+    const entrablePokemons = obj.forbiddenPokemons ?
+          entrablePokemons0.filter(
+            id => !obj.forbiddenPokemons.includes(id)) :
+          entrablePokemons0;
+
+    entrablePokemons.sort((i, j) => i - j);
+
+    return new BattleRule(obj.name,
+                          entrablePokemons,
+                          obj.levelMin ?? obj.level ?? baseRule.levelMin,
+                          obj.levelMax ?? obj.level ?? baseRule.levelMax,
+                          baseRule,
+                          obj);
+  }
+  static isFinalFormPokemon(id) {
+    return PokeData.fromID(id).evList.length === 0;
+  }
+  isFinalFormPokemon(id) {
+    return !PokeData.fromID(id).evList.map(([to, , ]) => to).some(id => this.entrablePokemons.includes(id));
+  }
+  getPopularPokemons() {
+    const finalForms = this.entrablePokemons.filter(id => this.isFinalFormPokemon(id));
+    return this.extraPopularPokemons ?
+      finalForms.concat(this.extraPopularPokemons).sort((i, j) => i - j) :
+      finalForms;
+  }
+
+  static list = [];
+  static index = new Map();
+}
+
+{
+  const data = [
+    {
+      "name": "2000!",
+      "fullName": "ニンテンドウカップ",
+      "aliases": ["ニンテンドウカップいちげきあり"],
+      "levelMin": 50,
+      "levelMax": 55,
+      "forbiddenPokemons": [150, 151, 249, 250, 251],
+      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148]
+    },
+    {
+      "baseRule": "2000!",
+      "name": "2000",
+      "fullName": "ニンテンドウカップ(一撃なし)",
+      "aliases": ["ニンテンドウカップ"],
+      "forbiddenPokemons": [150, 151, 249, 250, 251],
+      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148],
+      "forbiddenMoves": [13, 33, 91],
+    },
+    {
+      "baseRule": "2000",
+      "name": "minor",
+      "fullName": "マイナーカップ",
+      "aliases": ["マイナーカップ"],
+      "lighter": "マイナー",
+      "entrablePokemons": BattleRule.allPokemons.filter(id => !BattleRule.isFinalFormPokemon(id)),
+      "additionalEntrablePokemons": [12, 15, 18, 20, 22, 40, 47, 83, 108, 114, 119, 132, 162, 164, 166, 168, 176, 184, 185, 190, 192, 193, 198, 201, 202, 206, 219, 222, 225],
+      "forbiddenPokemons": [64, 67, 93, 113, 117, 123, 148],
+      "forbiddenMoves": [188],
+      "forbiddenItems": [119, 153, 164]
+    },
+    {
+      "baseRule": "minor",
+      "name": "middle",
+      "fullName": "ミドルカップ(version 0.3.1)",
+      "aliases": ["ミドルカップ"],
+      "lighter": "ミドル",
+      "additionalEntrablePokemons": [24, 26, 38, 45, 49, 53, 55, 67, 78, 82, 85, 87, 93, 97, 99, 101, 107, 110, 113, 117, 122, 127, 136, 141, 148, 178, 182, 186, 189, 195, 203, 208, 210, 211, 213, 215, 224, 226],
+      "extraPopularPokemons": [61, 95],
+      "forbiddenMoves": [238]
+    }
+  ];
+  for (const obj of data) {
+    const rule = BattleRule.fromObject(obj);
+    BattleRule.list.push(rule);
+    BattleRule.index.set(rule.name, rule);
+    obj.aliases?.forEach(alias => {
+      BattleRule.index.set(alias, rule);
+    });
+  }
+}
+
 // --- Roma ---
-function roma(str) {
+function roma(str, keepRaw) {
   const re = /(([b-df-hj-mp-tv-z])\2*(?=\2))|((?:[b-df-hj-np-tv-z]|[cw]h|[b-df-hj-npr-tvxz]y|[bdgkmpstz][hw]|ts|)[aiueo]|[-0-9])|(xts?u)|(nn?)/gi;
   function f(sub, gs1, _, s, gs2, sn) {
     if (gs1) {
@@ -1022,7 +1148,7 @@ function roma(str) {
       throw new Error("implementation error! " + sub);
     }
   }
-  return str.replace(re, f);
+  return str.replace(re, keepRaw ? (sub, ...args) => `(?:${sub}|${f(sub, ...args)})` : f);
 }
 
 roma.table = {
@@ -2258,6 +2384,11 @@ xpd.styleSheet = (() => {
 var isMinibuffer;
 
 function createMiniBuffer() {
+  const p = makeElement("span", {id: "mini-buffer-prompt"});
+  p.style.fontFamily = "monospace";
+  p.style.marginLeft = "1em";
+  $f.appendChild(p);
+
   const mini = createInput({id: "mini-buffer", name: "minibuffer", type: "text", size: 32});
   isMinibuffer = function(obj) { return getWrappedJSObject(obj) === mini; };
   mini.style.display = "none";
@@ -2270,7 +2401,12 @@ function createMiniBuffer() {
 //                          getIterator: () -> Iterator}
 var minibufferContinuation = null;
 var minibufferCompletion = null;
-function readMinibuffer(cont, completion, defaultValue = "") {
+function readMinibuffer(cont, completion,
+                        promptStr = undefined, defaultValue = "") {
+  if (promptStr) {
+    const p = $d.getElementById("mini-buffer-prompt");
+    p.textContent = promptStr;
+  }
   const mini = $d.getElementById("mini-buffer");
   mini.value = defaultValue;
   mini.style.display = "";
@@ -2280,6 +2416,9 @@ function readMinibuffer(cont, completion, defaultValue = "") {
 }
 
 function cleanupMinibuffer() {
+  const p = $d.getElementById("mini-buffer-prompt");
+  p.textContent = "";
+
   const mini = $d.getElementById("mini-buffer");
   mini.style.display = "none";
   minibufferContinuation = null;
@@ -2303,7 +2442,7 @@ function executeCommandCont(value) {
 var commandTarget = null;
 function executeCommand(e) {
   commandTarget = e.target;
-  readMinibuffer(executeCommandCont, "command");
+  readMinibuffer(executeCommandCont, "command", "コマンド:");
 }
 
 function blurIfHtmlElement(element) {
@@ -3375,7 +3514,7 @@ function makeCompleteRegAryWithSuffix(base, sufs, flag, len) {
   return regary;
 }
 
-function makeCompleteRegExp(str) {
+function makeCompleteRegExp(str, keepRaw) {
   let regbase;
   let regary;
   let ma;
@@ -3384,6 +3523,9 @@ function makeCompleteRegExp(str) {
   if (/[^n]n$/.test(str)) {
     regbase = str.slice(0, -1);
     regary = makeCompleteRegAryWithSuffix("n", roma.suffixes, true, 10);
+    if (keepRaw) {
+      regary.push("n");
+    }
   }
   else if (!/nn$/.test(str) && (ma = /[b-df-hj-np-tv-z]+$/.exec(str))) {
     if (/[^b-df-hj-np-tv-z][b-df-hj-np-tv-z]$/.test(str)) {
@@ -3406,9 +3548,9 @@ function makeCompleteRegExp(str) {
     }
   }
   else {
-    return new RegExp("^" + roma(regexpQuote(str)).toString());
+    return new RegExp("^" + roma(regexpQuote(str), keepRaw).toString());
   }
-  return new RegExp("^" + roma(regexpQuote(regbase)).toString() + "(?:" + regary.join("|") + ")");
+  return new RegExp("^" + roma(regexpQuote(regbase), keepRaw).toString() + "(?:" + regary.join("|") + ")");
 }
 
 function completeFromDataArray(data, node) {
@@ -3446,7 +3588,12 @@ function makeRegexp(str) {
 }
 
 function makeMinibufferCompleteRegexp(str) {
-  return RegExp("^" + regexpQuote(str));
+  if (minibufferCompletion === "command") {
+    return makeRegexp(str);
+  }
+  else {
+    return makeCompleteRegExp(str, true);
+  }
 }
 
 function completeFromCommand(node) {
@@ -4228,6 +4375,33 @@ function describeAllCommand(e) {
   describeCommand0(keys(currentBuffer().pref.describeFormats));
 }
 interactive(describeAllCommand, "コマンド一覧を表示");
+
+// Command:Rules
+
+const ruleCompletion = {exists: s => BattleRule.index.has(s),
+                        getIterator: () => BattleRule.index.keys()};
+function describeRule(ev) {
+  readMinibuffer(name => {
+    const rule = BattleRule.index.get(name);
+    console.log(rule);
+    messageHTML([
+      ["ルール名",
+       rule.fullName],
+      ["参加可能ポケモン",
+       rule.entrablePokemons.map(id => PokeData.fromID(id).name).join()],
+      ["人気のポケモン",
+       rule.getPopularPokemons().map(id => PokeData.fromID(id).name).join()],
+      ["禁止技",
+       rule.forbiddenMoves.map(id => MoveData.fromID(id).name).join()],
+      ["禁止アイテム",
+       rule.forbiddenItems.map(id => ItemData.fromID(id).name).join()],
+    ].filter(
+      ([k, v]) => v
+    ).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join(""));
+  }, ruleCompletion, "ルール:");
+}
+interactive(describeRule);
+
 
 // Command:Utilities:Snapshots
 
