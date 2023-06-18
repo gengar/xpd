@@ -660,6 +660,10 @@ class PokeData extends Data {
     new PokeData("ホウオウ", 250, 106, 130, 90, 110, 154, 90, 9, 2, 3, 220, null, [], null, [[1, 222], [11, 220], [22, 17], [33, 106], [44, 127], [55, 242], [66, 130], [77, 19], [88, 247], [99, 249]], [], [3, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 29, 30, 31, 32, 34, 35, 37, 38, 39, 42, 43, 44, 47, 50, 52, 54, 55, 58, 59], [], [], [15]),
     new PokeData("セレビィ", 251, 100, 100, 100, 100, 100, 100, 13, 11, 45, 64, null, [], null, [[1, 74], [1, 94], [1, 106], [1, 216], [10, 220], [20, 247], [30, 249], [40, 227], [50, 196]], [], [3, 6, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20, 21, 22, 27, 29, 30, 31, 32, 34, 35, 37, 39, 40, 42, 43, 44, 50, 55], [], [], [15])];
 
+  sum() {
+    return this.h + this.a + this.b + this.c + this.d + this.s;
+  }
+
   static fromID(id) {
     return PokeData.raw[id - 1];
   }
@@ -1008,7 +1012,9 @@ class BattleRule {
 
     if (options) {
       ["description",
-       "extraPopularPokemons"
+       "popularAll",
+       "extraPopularPokemons",
+       "extension"
       ].forEach(opt => {
         if (options[opt]) {
           this[opt] = options[opt];
@@ -1060,10 +1066,15 @@ class BattleRule {
     return !PokeData.fromID(id).evList.map(([to, , ]) => to).some(id => this.enterablePokemons.includes(id));
   }
   getPopularPokemons() {
-    const finalForms = this.enterablePokemons.filter(id => this.isFinalFormPokemon(id));
-    return this.extraPopularPokemons ?
-      finalForms.concat(this.extraPopularPokemons).sort((i, j) => i - j) :
-      finalForms;
+    if (this.popularAll) {
+      return this.enterablePokemons;
+    }
+    else {
+      const finalForms = this.enterablePokemons.filter(id => this.isFinalFormPokemon(id));
+      return this.extraPopularPokemons ?
+        finalForms.concat(this.extraPopularPokemons).sort((i, j) => i - j) :
+        finalForms;
+    }
   }
 
   static list = [];
@@ -1111,6 +1122,35 @@ class BattleRule {
       "additionalEntrablePokemons": [24, 26, 38, 45, 49, 53, 55, 67, 78, 82, 85, 87, 93, 97, 99, 101, 107, 110, 113, 117, 122, 127, 136, 141, 148, 178, 182, 186, 189, 195, 203, 208, 210, 211, 213, 215, 224, 226],
       "extraPopularPokemons": [61, 95],
       "forbiddenMoves": [238]
+    },
+    {
+      "baseRule": "2000",
+      "name": "2006",
+      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148],
+      "extension": {
+        "rank": {
+          "S": [143],
+          "A": [65, 68, 91, 94, 103, 105, 121, 115, 128, 145, 146, 197, 200, 205, 214, 227, 233, 242, 243, 245, 248],
+          "B": [3, 6, 9, 25, 26, 31, 34, 36, 57, 59, 62, 64, 71, 73, 76, 80, 82, 89, 93, 101, 110, 112, 113, 123, 124, 125, 126, 130, 131, 134, 135, 139, 142, 144, 149, 154, 157, 160, 169, 171, 181, 186, 189, 195, 196, 199, 208, 212, 213, 217, 221, 229, 230, 232, 235, 241, 244]
+        }
+      }
+    },
+    {
+      "baseRule": "2000",
+      "name": "gsfancy",
+      "fullName": "金銀ファンシー",
+      "aliases": ["きんぎんファンシー"],
+      "enterablePokemons": [1, 4, 7, 10, 13, 16, 19, 21, 23, 25, 27, 29, 32, 35, 37, 39, 41, 43, 46, 50, 52, 54, 58, 60, 63, 66, 69, 74, 81, 83, 90, 92, 98, 100, 102, 104, 109, 116, 118, 129, 132, 133, 138, 140, 147, 152, 155, 158, 161, 165, 167, 170, 172, 173, 174, 175, 177, 179, 183, 187, 190, 191, 194, 198, 200, 201, 204, 206, 209, 211, 216, 220, 222, 223, 225, 228, 238],
+      "forbiddenItems": [119, 164],
+    },
+    {
+      "baseRule": "2000",
+      "name": "1000",
+      "popularAll": true,
+      "forbiddenItems": [119, 164],
+      "extension": {
+        "cost": poke => poke.id === 235 ? 500 : poke.sum()
+      }
     }
   ];
   for (const obj of data) {
