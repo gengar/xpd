@@ -2265,43 +2265,45 @@ function createMiniBuffer() {
   xpd.styleSheet.insertRule("#mini-buffer{margin-left: 1em}", 0);
 }
 
+// minibufferCompletion :: "command"
+//                       | {exists: (string) -> boolean,
+//                          getIterator: () -> Iterator}
 var minibufferContinuation = null;
-function readMinibuffer(cont, defaultValue = "") {
+var minibufferCompletion = null;
+function readMinibuffer(cont, completion, defaultValue = "") {
   const mini = $d.getElementById("mini-buffer");
   mini.value = defaultValue;
   mini.style.display = "";
   mini.focus();
   minibufferContinuation = cont;
+  minibufferCompletion = completion;
+}
+
+function cleanupMinibuffer() {
+  const mini = $d.getElementById("mini-buffer");
+  mini.style.display = "none";
+  minibufferContinuation = null;
+  minibufferCompletion = null;
 }
 
 function callMinibufferContinuation(e) {
-  const mini = $d.getElementById("mini-buffer");
-  try {
-    minibufferContinuation(e);
-  }
-  finally {
-    mini.style.display = "none";
-  }
+  const cont = minibufferContinuation;
+  cleanupMinibuffer();
+  cont($d.getElementById("mini-buffer").value);
 }
 
-function executeCommandCont(e) {
-  const mini = $d.getElementById("mini-buffer");
-  if (commandExists(mini.value)) {
-    const event = {target: commandTarget};
-    commandTarget.focus();
-    callInteractively(mini.value, event);
-    blurIfHtmlElement(commandTarget);
-    commandTarget = null;
-  }
-  else {
-    complete({target: mini});
-  }
+function executeCommandCont(value) {
+  const event = {target: commandTarget};
+  commandTarget.focus();
+  callInteractively(value, event);
+  blurIfHtmlElement(commandTarget);
+  commandTarget = null;
 }
 
 var commandTarget = null;
 function executeCommand(e) {
   commandTarget = e.target;
-  readMinibuffer(executeCommandCont);
+  readMinibuffer(executeCommandCont, "command");
 }
 
 function blurIfHtmlElement(element) {
@@ -2313,18 +2315,22 @@ function blurIfHtmlElement(element) {
 function quitCommand(e) {
   if (commandTarget) {
     commandTarget.focus();
-    const mini = $d.getElementById("mini-buffer");
-    mini.style.display = "none";
     blurIfHtmlElement(commandTarget);
     commandTarget = null;
   }
+  cleanupMinibuffer();
   message("Quit");
 }
 
 function enterCommand(e) {
-  const mini = $d.getElementById("mini-buffer");
-  if (mini.id == e.target.id) {
-    callMinibufferContinuation(e);
+  const target = e.target;
+  if (isMinibuffer(target)) {
+    if (finishesCompeletion(target)) {
+      callMinibufferContinuation(e);
+    }
+    else {
+      complete({target});
+    }
   }
 }
 
@@ -3435,26 +3441,16 @@ function completeFromItem(node) {
   return completeFromDataArray(currentBuffer().pref.smartCompletionMode ? effectiveItems : ItemData.raw, node);
 }
 
+function makeRegexp(str) {
+  return RegExp("^" + regexpQuote(str));
+}
+
 function makeMinibufferCompleteRegexp(str) {
-  try {
-    return RegExp("^" + regexpQuote(str));
-  }
-  catch (e) {
-    let ma;
-    if (/^unterminated character class/.exec(e.message)) {
-      throw new InvalidInput("[Incomplete input]");
-    }
-    else if ((ma = /^invalid quantifier (.*)/.exec(e.message))) {
-      throw new InvalidInput("[Invalid quantifier " + ma[1] + "]");
-    }
-    else {
-      throw new InvalidInput("[Error]: " + e.message);
-    }
-  }
+  return RegExp("^" + regexpQuote(str));
 }
 
 function completeFromCommand(node) {
-  const re = makeMinibufferCompleteRegexp(node.value);
+  const re = makeRegexp(node.value);
   const ary = [];
   const insideFormFlag = isTheForm(commandTarget.form) && /\d/.test(commandTarget.name);
   for (const [name, command] of xpd.command) {
@@ -3467,6 +3463,23 @@ function completeFromCommand(node) {
   return ary;
 }
 
+function completeMinibuffer(node) {
+  if (minibufferCompletion === "command") {
+    return completeFromCommand(node);
+  }
+  else {
+    const {getIterator} = minibufferCompletion;
+    const result = [];
+    const re = makeMinibufferCompleteRegexp(node.value);
+    for (const e of getIterator()) {
+      if (re.test(e)) {
+        result.push(e);
+      }
+    }
+    return result;
+  }
+}
+
 function nodeKind(node) {
   return node.name.substring(0, 4);
 }
@@ -3477,22 +3490,30 @@ function finishesCompeletion(node) {
     POKE: PokeData.fromName,
     WAZA: MoveData.fromName,
     ITEM: ItemData.fromName,
-    mini: function (command) {
-      return xpd.command.hasOwnProperty(command);
+    mini: str => {
+      if (minibufferCompletion === "command") {
+        return xpd.command.has(str);
+      }
+      else if (minibufferCompletion){
+        const {exists} = minibufferCompletion;
+        return exists(str);
+      }
+      return true;
     }
   };
   return source[kind](node.value);
 }
 
 function defaultCompleter(node) {
-  return defaultCompleter.sourceTable[nodeKind(node)];
+  return isMinibuffer(node) ?
+    completeMinibuffer :
+    defaultCompleter.sourceTable[nodeKind(node)];
 }
 
 defaultCompleter.sourceTable = {
   POKE: completeFromPoke,
   WAZA: completeFromMove,
-  ITEM: completeFromItem,
-  mini: completeFromCommand
+  ITEM: completeFromItem
 };
 
 /* modestly: 真なら"かみなり"等のとき補完しない(C-n等で移動時の自動補完用)。 */
@@ -3506,12 +3527,6 @@ function completeGetCandidates(node, modestly, completer) {
     return null;
   }
 }
-
-/*
- * completeGetCandidates の引数に情報源を追加
- * 情報源
- * messenger
- */
 
 xpd.pref.completeListingMax = 100;
 function createCandidatesMessage(target, cand) {
