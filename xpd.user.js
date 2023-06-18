@@ -4284,7 +4284,7 @@ const generateId = (
 xpd.pref.partyBoxURL = "http://www.q9con.net/pokemon/PartyBox/convert.php";
 function openInPartyBox() {
   setPoke();
-  open(currentBuffer().pref.partyBoxURL + "?pd=1_x_" + getPD(), "partybox_" + generateId());
+  $w.open(currentBuffer().pref.partyBoxURL + "?pd=1_x_" + getPD(), "partybox_" + generateId());
 }
 interactive(openInPartyBox, "パーティをParty Boxで開く");
 
