@@ -2265,13 +2265,43 @@ function createMiniBuffer() {
   xpd.styleSheet.insertRule("#mini-buffer{margin-left: 1em}", 0);
 }
 
-var commandTarget = null;
-function displayMinibuffer(e) {
+var minibufferContinuation = null;
+function readMinibuffer(cont, defaultValue = "") {
   const mini = $d.getElementById("mini-buffer");
-  mini.value = "";
+  mini.value = defaultValue;
   mini.style.display = "";
   mini.focus();
+  minibufferContinuation = cont;
+}
+
+function callMinibufferContinuation(e) {
+  const mini = $d.getElementById("mini-buffer");
+  try {
+    minibufferContinuation(e);
+  }
+  finally {
+    mini.style.display = "none";
+  }
+}
+
+function executeCommandCont(e) {
+  const mini = $d.getElementById("mini-buffer");
+  if (commandExists(mini.value)) {
+    const event = {target: commandTarget};
+    commandTarget.focus();
+    callInteractively(mini.value, event);
+    blurIfHtmlElement(commandTarget);
+    commandTarget = null;
+  }
+  else {
+    complete({target: mini});
+  }
+}
+
+var commandTarget = null;
+function executeCommand(e) {
   commandTarget = e.target;
+  readMinibuffer(executeCommandCont);
 }
 
 function blurIfHtmlElement(element) {
@@ -2291,22 +2321,11 @@ function quitCommand(e) {
   message("Quit");
 }
 
-function executeCommand(e) {
+function enterCommand(e) {
   const mini = $d.getElementById("mini-buffer");
   if (mini.id == e.target.id) {
-    if (commandExists(mini.value)) {
-      const event = {target: commandTarget};
-      mini.style.display = "none";
-      commandTarget.focus();
-      callInteractively(mini.value, event);
-      blurIfHtmlElement(commandTarget);
-      commandTarget = null;
-    }
-    else {
-      complete({target: mini});
-    }
+    callMinibufferContinuation(e);
   }
-  return false;
 }
 
 const documentKeymap = new Keymap("document");
@@ -3729,7 +3748,7 @@ function completeForTabCommand2(e) {
 function beginningOfNextLine(e) {
   const target = e.target;
   if (isMinibuffer(target)) {
-    executeCommand(e);
+    enterCommand(e);
   }
   else {
     if (completeForTabCommand0(e)) {
@@ -4428,11 +4447,11 @@ function initializeKeymap() {
   setLevelMap.define("-", setLevelFromPrompt);
   setLevelAllMap.define("-", setLevelAllFromPrompt);
 
-  documentKeymap.define("A-x", displayMinibuffer);
+  documentKeymap.define("A-x", executeCommand);
   documentKeymap.define("C-g", quitCommand);
 
-  formKeymap.define("C-m", executeCommand);
-  formKeymap.define("Enter", executeCommand);
+  formKeymap.define("C-m", enterCommand);
+  formKeymap.define("Enter", enterCommand);
 
   formKeymap.define("C-s", displaySpeedTable);
   documentKeymap.define("C-s", globalDisplaySpeedTable);
