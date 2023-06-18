@@ -2314,6 +2314,273 @@ const formKeymap = new Keymap("form", documentKeymap);
 var documentKeymapObserver;
 var formKeymapObserver;
 
+// --- SearchMovesCompatibility ---
+function takeWhile(ary, f) {
+  const r = [];
+  for (const e of ary) {
+    if (f(e)) {
+      r.push(e);
+    }
+    else {
+      break;
+    }
+  }
+  return r;
+}
+
+class SearchState {
+  constructor(pokemon, level, description, request, learned = [], timeTraveling = false, timeTraveled = timeTraveling, prev = null) {
+    this.pokemon = pokemon; // PokeData
+    this.level = level;
+    this.description = description;
+    this.request = request; // [id]
+    this.learned = learned; // [(id, description)]
+    this.prev = prev;
+    this.timeTraveling = timeTraveling;
+    this.timeTraveled = timeTraveled;
+  }
+  derive(pokemon, level, description,
+         request = this.request, learned = [],
+         timeTraveling = this.timeTraveling,
+         timeTraveled = timeTraveling || this.timeTraveled) {
+    return new this.constructor(pokemon, level, description, request, learned,
+                                timeTraveling, timeTraveled, this);
+  }
+  satisfied() {
+    return this.request.length === 0;
+  }
+  toString() {
+    const cur = `${this.pokemon.name} Lv ${this.level}, ${this.description}, learned: ${this.learned.map(pair => `${MoveData.fromID(pair[0]).name}/${pair[1]}` )} request: ${this.request.map(id => MoveData.fromID(id).name)}`;
+    const traveling = this.timeTraveling ? " (traveling)" : "" ;
+    const traveled = this.timeTraveled ? " (traveled)" : "" ;
+    const pre = this.prev ? ` <- ${this.prev.toString()}` : "";
+
+    return `[SearchState ${cur}${traveling}${traveled}${pre}]`;
+  }
+}
+
+// 進化後のポケモンから進化前のポケモンの進化レベルを返す
+// 進化しないポケモンは 0 任意進化は 1
+function inspectEvolvement(poke) {
+  if (poke.evFrom) {
+    const [to, evType, value] = poke.evFromPoke().evList.find(triple => triple[0] === poke.id);
+    return (evType === 1) ? value :
+      (evType === 4 || evType === 5) ? 6 :
+      1;
+  }
+  else {
+    return 0;
+  }
+}
+
+// NB: ニドリーナニドクインは未発見
+function breedableEggGroups(poke) {
+  const eggDragon = 12;
+  const eggUndiscovered = 15;
+  const egs = poke.eggGroup;
+  if (egs[0] === eggUndiscovered) {
+    // ベビィポケモン
+    if (poke.evList.length > 0) {
+      return breedableEggGroups(PokeData.fromID(poke.evList[0][0]));
+    }
+    else {
+      return [];
+    }
+  }
+  return poke.eggGroup.filter(g => g <= eggDragon);
+}
+
+function maleExists(poke) {
+  const female = poke.female;
+  return female != null && (female < 16);
+}
+
+function learn(request, description, pred) {
+  const left = [], right = [];
+  request.forEach(e => {
+    if (pred(e)) {
+      right.push([e, description]);
+    }
+    else {
+      left.push(e);
+    }
+  });
+  return [left, right];
+}
+
+function useTMs(state) {
+  const {pokemon: poke, level, request, learned, timeTraveling} = state;
+  const [learnings, extraLearnings, tms, desc] = timeTraveling ?
+        [poke.pikaLearnings, [], poke.oldTMMoves, "わざマシン(ピ)"] :
+        [poke.crystalLearnings, poke.gsLearnings ?? [], poke.TMMoves, "わざマシン(ク)"];
+  const getMoves = alist => takeWhile(alist,
+                                      t => t[0] <= level
+                                     ).map(t => t[1]);
+  const levelMoves = getMoves(learnings);
+  const extraLevelMoves = getMoves(extraLearnings);
+
+  const [r1, l1] = learn(request, "スーパーわざマシン",
+                         move => levelMoves.includes(move));
+  const [r2, l2] = learn(r1, "スーパーわざマシン(金銀)",
+                         move => extraLevelMoves.includes(move));
+  const [r3, l3] = learn(r2, desc,
+                         move => tms.includes(move));
+  const [r4, l4] = poke.name === "ドーブル" ?
+        learn(r3, "スケッチ",
+              move => !MoveData.cantSketch.includes(move)) :
+        [r3, []];
+
+  return l1.length + l2.length + l3.length + l4.length > 0 ?
+    state.derive(poke, level, "わざマシン等", r4, l1.concat(l2, l3, l4)) :
+    state;
+}
+
+class SearchFound {
+  constructor(state) {
+    this.state = state;
+  }
+}
+
+function searchLearning(initState) {
+  const track = new Array(256);
+  const queue = [];
+
+  function advances(s, t) {
+    return s.level < t.level ||
+      s.timeTraveled < t.timeTraveled ||
+      s.timeTraveling < t.timeTraveling ||
+      t.request.some(move => !s.request.includes(move));
+  }
+  const push = s0 => {
+    const s = useTMs(s0);
+
+    if (s.satisfied()) {
+      throw new SearchFound(s);
+    }
+
+    const id = s.pokemon.id;
+    if (track[id]) {
+      if (track[id].every(s1 => advances(s, s1))) {
+        track[id].push(s);
+        queue.push(s);
+      }
+    }
+    else {
+      track[id] = [s];
+      queue.push(s);
+    }
+  };
+  push(initState);
+  for (let counter = 0; queue.length; counter++) {
+    if (counter > 10000) {
+      throw new UserError("探索数が上限に達しました");
+    }
+    const state = queue.shift();
+    const {pokemon: poke, level, request, learned, timeTraveling} = state;
+
+    if (DistPokemon.poke[poke.id]) {
+      for (const dist of DistPokemon.list) {
+        if (poke.id === dist.poke && level >= dist.lv && request.every(m => dist.moves.includes(m))) {
+          const [r, l] = learn(request, "配布初期技", _ => true);
+          return state.derive(poke, level, "配布ポケモンを受け取る", r, l);
+        }
+      }
+    }
+
+    const evolvement = inspectEvolvement(poke);
+
+    if (evolvement) {
+      const beforeEvolvement = poke.evFromPoke();
+      if (!(timeTraveling && !beforeEvolvement.isOld()) &&
+          evolvement <= level) {
+        const requiresLevelUp = evolvement > 1;
+
+        if (requiresLevelUp) {
+          // NB: このレベルアップで覚える技
+          push(state.derive(beforeEvolvement, level - 1, "レベルアップ進化"));
+        }
+        else {
+          push(state.derive(beforeEvolvement, level, "レベルまま進化"));
+        }
+
+      }
+    }
+    else if (!timeTraveling) {
+      const egs = breedableEggGroups(poke);
+      const ems = poke.eggMoves;
+
+      const breed = (lms, desc) => {
+        if (request.every(move => ems.includes(move) || lms.includes(move))) {
+        const pokes = PokeData.raw.filter(
+          poke => egs.some(
+            eggGroup => poke.eggGroup.includes(eggGroup)));
+        egs.forEach(eg => {
+          pokes.forEach(partner => {
+            if (maleExists(partner)) {
+              push(state.derive(partner, 100, desc));
+            }
+          });
+        });
+      }
+      };
+
+      breed(poke.crystalLearnings.map(t => t[1]), "タマゴ");
+      if (poke.gsLearnings) {
+        breed(poke.gsLearnings.map(t => t[1]), "タマゴ(金銀)");
+      }
+
+    }
+
+    if (timeTraveling) {
+      push(state.derive(poke, level, "第二世代へ送る", request, [], false));
+    }
+    else if (poke.isOld() &&
+             request.every(MoveData.isOld)) {
+      push(state.derive(poke, level, "第一世代へ送る", request, [], true));
+    }
+
+  }
+  return null;
+}
+
+function pokeCanLearnMovesCompatibly(poke, lv, moves) {
+  try {
+    return searchLearning(new SearchState(poke, lv, "init", moves));
+  }
+  catch (e) {
+    if (e instanceof SearchFound) {
+      return e.state;
+    }
+    else {
+      throw e;
+    }
+  }
+}
+
+function checkPoke(poke) {
+  const st = pokeCanLearnMovesCompatibly(PokeData.fromID(poke.no), parseInt(poke.lv), poke.mv.map(mv => parseInt(mv)));
+  return st;
+}
+
+function checkParty(ev) {
+  setPoke();
+  const poke = currentBuffer().party;
+  const stats = poke.map(checkPoke);
+  if (stats.every(s => s)) {
+    messageRawText("両立チェック OK");
+  }
+  else {
+    const buf = ["両立チェック NG"];
+    stats.forEach((state, i) => {
+      if (!state) {
+        buf.push(`${PokeData.fromID(poke[i].no).name}: 不可`);
+      }
+    });
+    messageRawText(buf.join("\n"));
+  }
+}
+interactive(checkParty, "パーティをチェック");
+
 // --- GUI Hooks ---
 function setHP() {
   for (let i = 0; i < 6; i++) {
