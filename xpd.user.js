@@ -998,10 +998,10 @@ DistPokemon.list.forEach(dist => {
 });
 
 class BattleRule {
-  constructor(name, entrablePokemons, levelMin, levelMax,
+  constructor(name, enterablePokemons, levelMin, levelMax,
               baseRule = undefined, options = undefined) {
     this.name = name;
-    this.entrablePokemons = entrablePokemons;
+    this.enterablePokemons = enterablePokemons;
     this.levelMin = levelMin;
     this.levelMax = levelMax;
     this.baseRule = baseRule;
@@ -1034,20 +1034,20 @@ class BattleRule {
   static fromObject(obj) {
     const baseRule = obj.baseRule && BattleRule.index.get(obj.baseRule);
     const basePokemons = baseRule ?
-          baseRule.entrablePokemons :
+          baseRule.enterablePokemons :
           BattleRule.allPokemons;
-    const baseEntrablePokemons = obj.entrablePokemons ?? basePokemons;
-    const entrablePokemons0 = (obj.additionalEntrablePokemons ?? []).concat(
+    const baseEntrablePokemons = obj.enterablePokemons ?? basePokemons;
+    const enterablePokemons0 = (obj.additionalEntrablePokemons ?? []).concat(
       baseEntrablePokemons);
-    const entrablePokemons = obj.forbiddenPokemons ?
-          entrablePokemons0.filter(
+    const enterablePokemons = obj.forbiddenPokemons ?
+          enterablePokemons0.filter(
             id => !obj.forbiddenPokemons.includes(id)) :
-          entrablePokemons0;
+          enterablePokemons0;
 
-    entrablePokemons.sort((i, j) => i - j);
+    enterablePokemons.sort((i, j) => i - j);
 
     return new BattleRule(obj.name,
-                          entrablePokemons,
+                          enterablePokemons,
                           obj.levelMin ?? obj.level ?? baseRule.levelMin,
                           obj.levelMax ?? obj.level ?? baseRule.levelMax,
                           baseRule,
@@ -1057,10 +1057,10 @@ class BattleRule {
     return PokeData.fromID(id).evList.length === 0;
   }
   isFinalFormPokemon(id) {
-    return !PokeData.fromID(id).evList.map(([to, , ]) => to).some(id => this.entrablePokemons.includes(id));
+    return !PokeData.fromID(id).evList.map(([to, , ]) => to).some(id => this.enterablePokemons.includes(id));
   }
   getPopularPokemons() {
-    const finalForms = this.entrablePokemons.filter(id => this.isFinalFormPokemon(id));
+    const finalForms = this.enterablePokemons.filter(id => this.isFinalFormPokemon(id));
     return this.extraPopularPokemons ?
       finalForms.concat(this.extraPopularPokemons).sort((i, j) => i - j) :
       finalForms;
@@ -1096,7 +1096,7 @@ class BattleRule {
       "fullName": "マイナーカップ",
       "aliases": ["マイナーカップ"],
       "lighter": "マイナー",
-      "entrablePokemons": BattleRule.allPokemons.filter(id => !BattleRule.isFinalFormPokemon(id)),
+      "enterablePokemons": BattleRule.allPokemons.filter(id => !BattleRule.isFinalFormPokemon(id)),
       "additionalEntrablePokemons": [12, 15, 18, 20, 22, 40, 47, 83, 108, 114, 119, 132, 162, 164, 166, 168, 176, 184, 185, 190, 192, 193, 198, 201, 202, 206, 219, 222, 225],
       "forbiddenPokemons": [64, 67, 93, 113, 117, 123, 148],
       "forbiddenMoves": [188],
@@ -4391,7 +4391,7 @@ function describeRule(ev) {
       ["ルール名",
        rule.fullName],
       ["参加可能ポケモン",
-       rule.entrablePokemons.map(id => PokeData.fromID(id).name).join()],
+       rule.enterablePokemons.map(id => PokeData.fromID(id).name).join()],
       ["人気のポケモン",
        rule.getPopularPokemons().map(id => PokeData.fromID(id).name).join()],
       ["禁止技",
