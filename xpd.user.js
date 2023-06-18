@@ -2385,7 +2385,7 @@ function setHiddenpower() {
     let str = "　";
     let color = "e0e0e0";
     try {
-      if (getMoves(i).map(MoveData.fromName).some(function (move) { return move.id === 238; })) {
+      if (getMoves(i).map(MoveData.fromName).some(function (move) { return move?.id === 238; })) {
         /* 個体値から計算 */
         const ary = getId(i);
         str = pref.hiddenpowerNames[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
