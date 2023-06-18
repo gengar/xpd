@@ -3556,7 +3556,7 @@ function makeCompleteRegAryWithSuffix(base, sufs, flag, len) {
   }
   return regary;
 }
-
+// /([b-df-hj-np-tv-z])\1*$/
 function makeCompleteRegExp(str, keepRaw) {
   let regbase;
   let regary;
@@ -3577,8 +3577,16 @@ function makeCompleteRegExp(str, keepRaw) {
         makeCompleteRegAryWithSuffix(ma + ma, roma.suffixes));
     }
     else {
-      regbase = RegExp.leftContext;
-      regary = makeCompleteRegAryWithSuffix(ma, roma.suffixes);
+      const leftContext = RegExp.leftContext;
+      if (/([b-df-hj-np-tv-z])\1$/.test(str)) {
+        regbase = leftContext;
+        regary = makeCompleteRegAryWithSuffix(ma, roma.suffixes);
+      }
+      else {
+        regbase = str.slice(0, -1);
+        regary = makeCompleteRegAryWithSuffix(ma, roma.suffixes).concat(
+          makeCompleteRegAryWithSuffix(ma + ma, roma.suffixes));
+      }
     }
     regary.push(str.substr(-1, 1)); /* 最後の文字そのもの */
 
