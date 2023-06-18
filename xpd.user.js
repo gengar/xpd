@@ -2469,6 +2469,9 @@ function enterCommand(e) {
     }
     else {
       complete({target});
+      if (finishesCompeletion(target)) {
+        callMinibufferContinuation(e);
+      }
     }
   }
 }
