@@ -4244,6 +4244,9 @@ function displaySpeedTable0(speed) {
 xpd.pref.sameSpeedCellStyle = "color: orangered; font-weight: bold";
 xpd.pref.sameSpeedRowStyle = "background-color: #ffe4e4";
 function displaySpeedTable(e) {
+  if (isMinibuffer(e.target)) {
+    return;
+  }
   const number = /\d/.exec(e.target.name)[0];
   const form = getWrappedJSObject(e.target.form);
   const box = form["POKE" + number];
