@@ -72,7 +72,6 @@ xpd.pref = {};
 // --- Data ---
 class Data {
   static normalizeName(str) {
-
     return str?.replace(/−|－/g, "ー").replace(/10/g, "１０");
   }
   static makeIndex(ary, ref) {
@@ -667,8 +666,8 @@ class PokeData extends Data {
   static fromID(id) {
     return PokeData.raw[id - 1];
   }
-  static index = Data.makeIndex(PokeData.raw, d => d.name);
 
+  static index = Data.makeIndex(PokeData.raw, d => d.name);
   static fromName(name) {
     return PokeData.index[Data.normalizeName(name)];
   }
