@@ -81,6 +81,9 @@ class Data {
     });
     return index;
   }
+  toString() {
+    return `[${this.constructor.name} ${this.name}]`;
+  }
 }
 
 class MoveData extends Data {
@@ -350,7 +353,6 @@ class MoveData extends Data {
   }
 
   static index = Data.makeIndex(MoveData.raw, d => d.name);
-
   static fromName(name) {
     return MoveData.index[Data.normalizeName(name)];
   }
@@ -368,10 +370,6 @@ class MoveData extends Data {
   static oldTM = this.oldTMRaw.map(MoveData.fromID);
 
   static cantSketch = [120, 215, 145, 103, 119, 166];
-
-  toString() {
-    return `[${this.constructor.name} ${this.name}]`;
-  }
 }
 
 class PokeData extends Data {
@@ -685,9 +683,6 @@ class PokeData extends Data {
   origin() {
     const from = this.evFrom;
     return from ? PokeData.fromID(from).origin() : this;
-  }
-  toString() {
-    return `[${this.constructor.name} ${this.name}]`;
   }
 }
 
