@@ -1016,8 +1016,9 @@ class BattleRule {
        "extraPopularPokemons",
        "extension"
       ].forEach(opt => {
-        if (options[opt]) {
-          this[opt] = options[opt];
+        const val = options[opt];
+        if (val != null) {
+          this[opt] = val === "inherit" ? baseRule[opt] : options[opt];
         }
       });
     }
@@ -1054,8 +1055,8 @@ class BattleRule {
 
     return new BattleRule(obj.name,
                           enterablePokemons,
-                          obj.levelMin ?? obj.level ?? baseRule.levelMin,
-                          obj.levelMax ?? obj.level ?? baseRule.levelMax,
+                          obj.levelMin ?? obj.level ?? baseRule.levelMin ?? 100,
+                          obj.levelMax ?? obj.level ?? baseRule.levelMax ?? 100,
                           baseRule,
                           obj);
   }
@@ -1085,8 +1086,8 @@ class BattleRule {
   const data = [
     {
       "name": "2000!",
-      "fullName": "ニンテンドウカップ",
-      "aliases": ["ニンテンドウカップいちげきあり"],
+      "fullName": "ニンテンドウカップ2000",
+      "aliases": ["ニンテンドウカップ2000いちげきあり"],
       "levelMin": 50,
       "levelMax": 55,
       "forbiddenPokemons": [150, 151, 249, 250, 251],
@@ -1095,10 +1096,10 @@ class BattleRule {
     {
       "baseRule": "2000!",
       "name": "2000",
-      "fullName": "ニンテンドウカップ(一撃なし)",
-      "aliases": ["ニンテンドウカップ"],
+      "fullName": "ニンテンドウカップ2000(一撃なし)",
+      "aliases": ["ニンテンドウカップ2000"],
       "forbiddenPokemons": [150, 151, 249, 250, 251],
-      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148],
+      "extraPopularPokemons": "inherit",
       "forbiddenMoves": [13, 33, 91],
     },
     {
@@ -1126,8 +1127,9 @@ class BattleRule {
     {
       "baseRule": "2000",
       "name": "2006",
-      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148],
+      "extraPopularPokemons": "inherit",
       "extension": {
+        "ranks": ["S", "A", "B"],
         "rank": {
           "S": [143],
           "A": [65, 68, 91, 94, 103, 105, 121, 115, 128, 145, 146, 197, 200, 205, 214, 227, 233, 242, 243, 245, 248],
@@ -1140,6 +1142,8 @@ class BattleRule {
       "name": "gsfancy",
       "fullName": "金銀ファンシー",
       "aliases": ["きんぎんファンシー"],
+      "levelMin": 25,
+      "levelMax": 30,
       "enterablePokemons": [1, 4, 7, 10, 13, 16, 19, 21, 23, 25, 27, 29, 32, 35, 37, 39, 41, 43, 46, 50, 52, 54, 58, 60, 63, 66, 69, 74, 81, 83, 90, 92, 98, 100, 102, 104, 109, 116, 118, 129, 132, 133, 138, 140, 147, 152, 155, 158, 161, 165, 167, 170, 172, 173, 174, 175, 177, 179, 183, 187, 190, 191, 194, 198, 200, 201, 204, 206, 209, 211, 216, 220, 222, 223, 225, 228, 238],
       "forbiddenItems": [119, 164],
     },
@@ -3556,7 +3560,7 @@ function makeCompleteRegAryWithSuffix(base, sufs, flag, len) {
   }
   return regary;
 }
-// /([b-df-hj-np-tv-z])\1*$/
+
 function makeCompleteRegExp(str, keepRaw) {
   let regbase;
   let regary;
@@ -4442,10 +4446,20 @@ function describeRule(ev) {
        rule.enterablePokemons.map(id => PokeData.fromID(id).name).join()],
       ["人気のポケモン",
        rule.getPopularPokemons().map(id => PokeData.fromID(id).name).join()],
+      ["レベル",
+      rule.levelMin === rule.levelMax ?
+       rule.levelMin :
+       `${rule.levelMin} - ${rule.levelMax}`],
       ["禁止技",
        rule.forbiddenMoves.map(id => MoveData.fromID(id).name).join()],
       ["禁止アイテム",
        rule.forbiddenItems.map(id => ItemData.fromID(id).name).join()],
+      ...rule.name === "2006" ?
+        rule.extension.ranks.map(rank =>
+          [`ランク${rank}`,
+           rule.extension.rank[rank].map(id => PokeData.fromID(id).name).join()])
+         :
+        []
     ].filter(
       ([k, v]) => v
     ).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join(""));
