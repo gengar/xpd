@@ -2343,19 +2343,15 @@ function getFontSize() {
 xpd.fontSize = getFontSize();
 
 xpd.pref.modeLineColor = "d0d0d0";
-
 function createModeLine() {
   const height = getFontSize();
-
   const base = $d.createElement("div");
   base.id = "mode-line-background";
   base.setAttribute("style", "position: fixed; z-index: -1; width: 100%; left: 0em; bottom: 1em; white-space: pre");
   base.style.fontFamily = "Monaco, monospace";
   const pref = currentBuffer().pref;
   base.style.backgroundColor = pref.modeLineColor;
-  if (pref.descriptiveMode) {
-    base.title = "有効になっているモードの略称が表示されます";
-  }
+  base.title = "パーティ番号、有効になっているモードの略称が表示されます";
   base.style.lineHeight = height + 2 + "px";
   const div = $d.createElement("span");
   div.id = "mode-line";
@@ -2981,7 +2977,6 @@ function swapPoke() {
 }
 
 // --- GUI ---
-xpd.pref.descriptiveMode = true;
 function getTable() {
   return $d.getElementsByTagName('table')[0];
 }
@@ -3010,9 +3005,7 @@ function setButtonAttr(b, fn, value, title) {
   if (value) {
     b.value = value;
   }
-  if (currentBuffer().pref.descriptiveMode) {
-    b.title = title ?? "undocumented";
-  }
+  b.title = title ?? "undocumented";
 }
 
 function setButtons() {
@@ -3171,9 +3164,7 @@ function createSwapCheckBox() {
       name: "swap" + i,
       onchange: exportUnsafe(swapPoke)
     };
-    if (currentBuffer().pref.descriptiveMode) {
-      attr.title = "2つチェックすると、それらの行を入れ替えます。";
-    }
+    attr.title = "2つチェックすると、それらの行を入れ替えます。";
     row.cells[0].appendChild(createInput(attr));
     table.rows[i + 1].cells[0].bgColor = "snow";
   }
@@ -4344,7 +4335,7 @@ function makeTable(ary, header) {
     header.forEach(function (i) {
       const cell = row.insertCell(-1);
       cell.innerHTML = i[0];
-      if (currentBuffer().pref.descriptiveMode && i[1]) {
+      if (i[1]) {
         cell.title = i[1];
       }
     });
