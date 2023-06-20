@@ -2506,8 +2506,8 @@ function enterCommand(e) {
       callMinibufferContinuation(e);
     }
     else {
-      complete({target});
-      if (finishesCompeletion(target)) {
+      const candidates = complete(e, true);
+      if (candidates == null || candidates.length == 1) {
         callMinibufferContinuation(e);
       }
     }
