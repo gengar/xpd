@@ -4404,7 +4404,7 @@ function describeAllCommand(e) {
 }
 interactive(describeAllCommand, "コマンド一覧を表示");
 
-// Command:Rules
+// --- Command:Rules ---
 
 const ruleCompletion = {exists: s => BattleRule.index.has(s),
                         getIterator: () => BattleRule.index.keys()};
@@ -4440,7 +4440,7 @@ function describeRule(ev) {
 interactive(describeRule);
 
 
-// Command:Utilities:Snapshots
+// --- Command:Utilities:Snapshots ---
 
 const snapshotPrefix = "xpd-snapshot-";
 const snapshotNamesKey = "xpd-snapshots";
@@ -4515,7 +4515,7 @@ async function listSnapshots() {
 }
 interactive(listSnapshots, "スナップショット一覧");
 
-// Command:Utilities:Others
+// --- Command:Utilities:Others ---
 
 const generateId = (
   function () {
