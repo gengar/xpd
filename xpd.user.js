@@ -1074,6 +1074,10 @@ class BattleRule {
 
   static list = [];
   static index = new Map();
+
+  static fromName(name) {
+    return BattleRule.index.get(String(name));
+  }
 }
 
 {
@@ -4110,7 +4114,7 @@ interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
 // --- Command:Utilities ---
 // --- Command:Utilities:SpeedTable ---
 function eachPokeInRule(f) {
-  const poke = BattleRule.index.get("2000").getPopularPokemons();
+  const poke = BattleRule.fromName("2000").getPopularPokemons();
   poke.forEach(p => f(PokeData.fromID(p)));
 }
 
@@ -4395,12 +4399,11 @@ function describeAllCommand(e) {
 interactive(describeAllCommand, "コマンド一覧を表示");
 
 // --- Command:Rules ---
-
 const ruleCompletion = {exists: s => BattleRule.index.has(s),
                         getIterator: () => BattleRule.index.keys()};
 function describeRule(ev) {
   readMinibuffer(name => {
-    const rule = BattleRule.index.get(name);
+    const rule = BattleRule.fromName(name);
     messageHTML([
       ["ルール名",
        rule.fullName],
