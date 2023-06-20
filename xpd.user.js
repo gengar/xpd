@@ -2762,8 +2762,9 @@ function pokeCanLearnMovesCompatibly(poke, lv, moves) {
 }
 
 function checkPoke(poke) {
-  const st = pokeCanLearnMovesCompatibly(PokeData.fromID(poke.no), parseInt(poke.lv), poke.mv.map(mv => parseInt(mv)));
-  return st;
+  return pokeCanLearnMovesCompatibly(PokeData.fromID(poke.no),
+                                     poke.lv,
+                                     poke.mv.filter(mv => mv));
 }
 
 function checkParty(ev) {
