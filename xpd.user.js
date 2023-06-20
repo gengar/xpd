@@ -1032,7 +1032,7 @@ class BattleRule {
     });
   }
   static allPokemons = PokeData.raw.map(poke => poke.id);
-  static fromObject(obj) {
+  static makeFromObject(obj) {
     const baseRule = obj.baseRule && BattleRule.index.get(obj.baseRule);
     const basePokemons = baseRule ?
           baseRule.enterablePokemons :
@@ -1152,7 +1152,7 @@ class BattleRule {
     }
   ];
   for (const obj of data) {
-    const rule = BattleRule.fromObject(obj);
+    const rule = BattleRule.makeFromObject(obj);
     BattleRule.list.push(rule);
     BattleRule.index.set(rule.name, rule);
     obj.aliases?.forEach(alias => {
