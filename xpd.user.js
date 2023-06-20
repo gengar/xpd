@@ -4411,7 +4411,6 @@ const ruleCompletion = {exists: s => BattleRule.index.has(s),
 function describeRule(ev) {
   readMinibuffer(name => {
     const rule = BattleRule.index.get(name);
-    console.log(rule);
     messageHTML([
       ["ルール名",
        rule.fullName],
