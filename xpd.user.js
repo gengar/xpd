@@ -1374,7 +1374,6 @@ class DoubleLinkedHashMap {
 }
 
 // --- Error ---
-
 class XPDError extends Error {
   constructor(message) {
     super(message);
@@ -2981,11 +2980,11 @@ function getTable() {
   return $d.getElementsByTagName('table')[0];
 }
 
-xpd.pref.formPokeWidth = (xpd.fontSize - 1) * 5;
+const formPokeWidth = (xpd.fontSize - 1) * 5;
 function createPokeInput(text, no){
   const input = $d.createElement('input');
   input.value = text;
-  input.style.width = currentBuffer().pref.formPokeWidth;
+  input.style.width = formPokeWidth;
   input.setAttribute("name", "POKE" + no);
   return input;
 }
@@ -3092,7 +3091,7 @@ function setOnChange() {
   }
 }
 
-xpd.pref.formEffortWidth = xpd.fontSize * 2;
+const formEffortWidth = xpd.fontSize * 2;
 function createEffortColumn() {
   const table = getTable();
   table.rows[0].insertCell(-1);
@@ -3108,7 +3107,7 @@ function createEffortColumn() {
           maxLength: 2
         },
         {
-          width: xpd.pref.formEffortWidth
+          width: formEffortWidth
         }));
     }
   }
@@ -3178,44 +3177,32 @@ function stripTableHeader() {
   }
 }
 
-xpd.pref.formLvWidth = (xpd.fontSize * 3 / 4) * 3;
+const formLvWidth = (xpd.fontSize * 3 / 4) * 3;
 function fixLvSize() {
-  const pref = currentBuffer().pref;
-  if (pref.formLvSize != $f.LV0.size) {
-    for (let i = 0; i < 6; i++) {
-      $f["LV" + i].style.width = pref.formLvWidth;
-    }
+  for (let i = 0; i < 6; i++) {
+    $f["LV" + i].style.width = formLvWidth;
   }
 }
 
-xpd.pref.formKoWidth = (xpd.fontSize * 3 / 4) * 4;
+const formKoWidth = (xpd.fontSize * 3 / 4) * 4;
 function fixKoSize() {
-  const pref = currentBuffer().pref;
-  if (pref.formKoSize != $f.KO0.size) {
-    for (let i = 0; i < 6; i++) {
-      $f["KO" + i].style.width = pref.formKoWidth;
-    }
+  for (let i = 0; i < 6; i++) {
+    $f["KO" + i].style.width = formKoWidth;
   }
 }
 
-xpd.pref.formItemWidth = (xpd.fontSize - 1) * 8;
+const formItemWidth = (xpd.fontSize - 1) * 8;
 function fixItemSize() {
-  const pref = currentBuffer().pref;
-  if (pref.formItemSize != $f.ITEM0.size) {
-    for (let i = 0; i < 6; i++) {
-      $f["ITEM" + i].style.width = pref.formItemWidth;
-    }
+  for (let i = 0; i < 6; i++) {
+    $f["ITEM" + i].style.width = formItemWidth;
   }
 }
 
-xpd.pref.formMoveWidth = (xpd.fontSize - 1) * 7;
+const formMoveWidth = (xpd.fontSize - 1) * 7;
 function fixMoveSize() {
-  const pref = currentBuffer().pref;
-  if (pref.formMoveSize != $f.WAZA0_0.size) {
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 4; j++) {
-        $f["WAZA" + i + "_" + j].style.width = pref.formMoveWidth;
-      }
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 4; j++) {
+      $f["WAZA" + i + "_" + j].style.width = formMoveWidth;
     }
   }
 }
@@ -3976,7 +3963,6 @@ function autoMessageCandidates(e) {
   }
 }
 
-xpd.pref.autoCompleteMode = true;
 function initializeAutoCompleteMode() {
   addEventListenerUnsafe($f, "input", autoMessageCandidates);
 }
@@ -3996,8 +3982,9 @@ function transposeMoves(e) {
 }
 interactive(transposeMoves, "技の並び替え", "form");
 
-xpd.pref.defaultLevel = 50;
-xpd.pref.killLineKillPP = true;
+// TODO: ルールを参照すべき
+const defaultLevel = 50;
+const killLineKillPP = true;
 function killLineN(n) {
   const pref = currentBuffer().pref;
   $f["LV" + n].value = pref.defaultLevel;
@@ -4035,7 +4022,7 @@ function clearAll() {
 interactive(clearAll, "全て削除");
 
 // --- Command:Edit:Level ---
-xpd.pref.setLevels = [50, 51, 52, 53, 54, 55, 5, 100, 50, 50];
+const setLevels = [50, 51, 52, 53, 54, 55, 5, 100, 50, 50];
 
 function setLevelN(n, lv) {
   $f["LV" + n].value = lv;
@@ -4043,7 +4030,7 @@ function setLevelN(n, lv) {
 
 function getLevelFromEvent(ev) {
   const ch = ev.key && Key.stringifyEvent(ev);
-  return ch && /^[0-9]$/.test(ch) && xpd.pref.setLevels[ch];
+  return ch && /^[0-9]$/.test(ch) && setLevels[ch];
 }
 
 function setLevelFromPrompt(ev) {
@@ -4125,9 +4112,8 @@ interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
 var ruleTable = {};
 ruleTable[2000] = [3, 6, 9, 12, 15, 18, 20, 22, 24, 25, 26, 28, 31, 34, 36, 38, 40, 45, 47, 49, 51, 53, 55, 57, 59, 62, 65, 68, 71, 73, 76, 78, 80, 82, 83, 85, 87, 89, 91, 93, 94, 97, 99, 101, 103, 105, 106, 107, 108, 110, 112, 113, 114, 115, 119, 121, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 134, 135, 136, 139, 141, 142, 143, 144, 145, 146, 148, 149, 154, 157, 160, 162, 164, 166, 168, 169, 171, 176, 178, 181, 182, 184, 185, 186, 189, 190, 192, 193, 195, 196, 197, 198, 199, 200, 201, 202, 203, 205, 206, 207, 208, 210, 211, 212, 213, 214, 215, 217, 219, 221, 222, 224, 225, 226, 227, 229, 230, 232, 233, 234, 235, 237, 241, 242, 243, 244, 245, 248];
 
-xpd.pref.rule = 2000;
 function eachPokeInRule(f) {
-  const rule = currentBuffer().pref.rule;
+  const rule = 2000;
   if (rule) {
     for (let i = 0; i < ruleTable[rule].length; i++) {
       f(PokeData.fromID(ruleTable[rule][i]));
@@ -4384,7 +4370,7 @@ function keybindToCommand(i) {
   return keybind2command[i];
 }
 
-xpd.pref.describeFormats = {
+const describeFormats = {
   commandName: [["コマンド名"], function (name, _) { return name; }],
   document: [["説明", "詳細は xpd wiki を参照してください"], function (_, command) { return command.document ?? "<small style=\"color: gray\">(undocumented)</small>"; }],
   keybind: [["キーバインド", "キーバインドがあるコマンドは、キーでコマンドを実行することができます"], function (_, command) {
@@ -4397,10 +4383,9 @@ xpd.pref.describeFormats = {
 function describeCommand0(format_ary, pred) {
   const format = [];
   const header = [];
-  const t = currentBuffer().pref.describeFormats;
   updateKeybindCache();
   format_ary.forEach(function (i) {
-    const s = t[i];
+    const s = describeFormats[i];
     format.push(s[1]);
     header.push(s[0]);
   });
@@ -4415,7 +4400,7 @@ function describeCommand0(format_ary, pred) {
 }
 
 function describeAllCommand(e) {
-  describeCommand0(keys(currentBuffer().pref.describeFormats));
+  describeCommand0(keys(describeFormats));
 }
 interactive(describeAllCommand, "コマンド一覧を表示");
 
@@ -4542,10 +4527,10 @@ const generateId = (
     };
   })();
 
-xpd.pref.partyBoxURL = "http://www.q9con.net/pokemon/PartyBox/convert.php";
+const partyBoxURL = "http://www.q9con.net/pokemon/PartyBox/convert.php";
 function openInPartyBox() {
   setPoke();
-  $w.open(currentBuffer().pref.partyBoxURL + "?pd=1_x_" + getPD(), "partybox_" + generateId());
+  $w.open(partyBoxURL + "?pd=1_x_" + getPD(), "partybox_" + generateId());
 }
 interactive(openInPartyBox, "パーティをParty Boxで開く");
 
@@ -4587,10 +4572,10 @@ interactive(help);
 
 // --- Utilities ---
 // --- Utilities:Version
-xpd.pref.versionFormat = /^(\d+)\.(\d+)\.(\d+)(?:-([A-Za-z].*))?/;
+
+const versionFormat = /^(\d+)\.(\d+)\.(\d+)(?:-([A-Za-z].*))?/;
 function versionLessThan(v1, v2) {
-  const re = currentBuffer().pref.versionFormat;
-  const [ma1, ma2] = [v1, v2].map(v => re.exec(v));
+  const [ma1, ma2] = [v1, v2].map(v => versionFormat.exec(v));
 
   for (let i = 1; i < 4; i++) {
     if (ma1[i] < ma2[i]) {
@@ -4613,16 +4598,15 @@ function versionLessThan(v1, v2) {
   }
 }
 
-xpd.pref.latestVersionURL = "http://o-s.sub.jp/xpd/index.php?plugin=attach&pcmd=open&file=latest-version.txt&refer=misc";
+const latestVersionURL = "http://o-s.sub.jp/xpd/index.php?plugin=attach&pcmd=open&file=latest-version.txt&refer=misc";
 function checkLatestVersion() {
-  const pref = currentBuffer().pref;
   message("最新バージョン情報を取得しています...");
   GM.xmlHttpRequest(
     {
       method: "GET",
-      url: pref.latestVersionURL,
+      url: latestVersionURL,
       onload: function (response) {
-        const ma = pref.versionFormat.exec(response.responseText);
+        const ma = versionFormat.exec(response.responseText);
         if (ma && response.status == 200) {
           if (versionLessThan(xpd.version, ma[0])) {
             message(
@@ -4716,7 +4700,6 @@ function initializeKeymap() {
 }
 
 // --- Initialize ---
-xpd.pref.formSizeEconomyMode = true;
 
 function initialize() {
   try {
@@ -4730,7 +4713,7 @@ function initialize() {
     initialBuffer(getNumber(), initLoadParty());
 
     stripTableHeader();
-    currentBuffer().pref.formSizeEconomyMode && fixFormSizes();
+    fixFormSizes();
     setTableStyleNowrap();
 
     documentKeymapObserver = documentKeymap.observe("keydown", $d);
@@ -4755,7 +4738,7 @@ function initialize() {
 
     createSpeedTable();
     initializeKeymap();
-    currentBuffer().pref.autoCompleteMode && initializeAutoCompleteMode();
+    initializeAutoCompleteMode();
 
     initializeBackButton();
 
