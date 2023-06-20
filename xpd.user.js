@@ -4109,19 +4109,9 @@ interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
 
 // --- Command:Utilities ---
 // --- Command:Utilities:SpeedTable ---
-var ruleTable = {};
-ruleTable[2000] = [3, 6, 9, 12, 15, 18, 20, 22, 24, 25, 26, 28, 31, 34, 36, 38, 40, 45, 47, 49, 51, 53, 55, 57, 59, 62, 65, 68, 71, 73, 76, 78, 80, 82, 83, 85, 87, 89, 91, 93, 94, 97, 99, 101, 103, 105, 106, 107, 108, 110, 112, 113, 114, 115, 119, 121, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 134, 135, 136, 139, 141, 142, 143, 144, 145, 146, 148, 149, 154, 157, 160, 162, 164, 166, 168, 169, 171, 176, 178, 181, 182, 184, 185, 186, 189, 190, 192, 193, 195, 196, 197, 198, 199, 200, 201, 202, 203, 205, 206, 207, 208, 210, 211, 212, 213, 214, 215, 217, 219, 221, 222, 224, 225, 226, 227, 229, 230, 232, 233, 234, 235, 237, 241, 242, 243, 244, 245, 248];
-
 function eachPokeInRule(f) {
-  const rule = 2000;
-  if (rule) {
-    for (let i = 0; i < ruleTable[rule].length; i++) {
-      f(PokeData.fromID(ruleTable[rule][i]));
-    }
-  }
-  else {
-    PokeData.raw.forEach(p => f(p));
-  }
+  const poke = BattleRule.index.get("2000").getPopularPokemons();
+  poke.forEach(p => f(PokeData.fromID(p)));
 }
 
 function makeSpeedTableBases() {
