@@ -1820,6 +1820,13 @@ function createInput(attr, style) {
   return input;
 }
 
+// --- StyleSheet ---
+xpd.styleSheet = (() => {
+  const element = $d.createElement('style');
+  $d.querySelector('head').appendChild(element);
+  return element.sheet;
+})();
+
 // --- Echo Area ---
 function createEchoArea() {
   const buf = $d.createElement("div");
@@ -2405,13 +2412,6 @@ function drawModeLine() {
     $d.getElementById("mode-line").textContent = "No." + getNumber() + "    (" + ary.reverse().join(" ") + ")";
   }
 }
-
-// --- StyleSheet ---
-xpd.styleSheet = (() => {
-  const element = $d.createElement('style');
-  $d.querySelector('head').appendChild(element);
-  return element.sheet;
-})();
 
 // --- Command Input Command ---
 var isMinibuffer;
