@@ -4199,12 +4199,12 @@ function calcSpeed(lv, spd, ko, ef) {
   return Math.floor(((spd + (ko == undefined ? 15 : ko)) * 2 + (ef == undefined ? 63 : ef)) * lv / 100) + 5;
 }
 
-var speedTable;
+const speedTableCache = new Map();
 defcustom("speedTableBorder", "", 1);
 defcustom("speedTableDetailed", "", true);
 function createSpeedTable() {
   const [speedList, speed2pokes] = makeSpeedTableBases();
-  speedTable = $d.createElement("table");
+  const speedTable = $d.createElement("table");
   speedTable.border = xpd.custom.speedTableBorder;
   speedTable.setAttribute("style", "empty-cells: show; float: left; background-color: inherit");
   for (let i = 0; i < speedList.length; i++) {
@@ -4245,6 +4245,18 @@ function createSpeedTable() {
     let th = $d.createElement("th");
     hrow.appendChild(th);
   }
+  return speedTable;
+}
+
+function setupSpeedTable(ruleName) {
+  const table = createSpeedTable();
+  speedTableCache.set(ruleName, table);
+  return table;
+}
+
+function getSpeedTable() {
+  const ruleName = currentRule().name;
+  return speedTableCache.get(ruleName) ?? setupSpeedTable(ruleName);
 }
 
 const speedTableSheet =
@@ -4264,7 +4276,7 @@ function displaySpeedTable0(speed) {
     div.setAttribute("style", "float: left; width: 2.5em");
     echo.appendChild(div);
   }
-  echo.appendChild(speedTable);
+  echo.appendChild(getSpeedTable());
 }
 
 defcustom("sameSpeedCellStyle", "", "color: orangered; font-weight: bold");
@@ -4295,7 +4307,7 @@ function displaySpeedTable(e) {
   const speed = calcSpeed(lv, poke.s, ko, ef);
   const speedMax = calcSpeed(55, poke.s, ko, ef);
   const speedMin = calcSpeed(50, poke.s, ko, ef);
-  const rows = speedTable.rows;
+  const rows = getSpeedTable().rows;
   const partialFlag = previousCommand === xpd.commandFromFunction.get(displaySpeedTable) && displaySpeedTable.partial && displaySpeedTable.previousNumber == number;
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
@@ -4328,7 +4340,7 @@ displaySpeedTable.csslen = speedTableSheet.cssRules.length;
 interactive(displaySpeedTable, "素早さ表を表示", "form");
 
 function globalDisplaySpeedTable(ev) {
-  const rows = speedTable.rows;
+  const rows = getSpeedTable().rows;
   for (let i = 1; i < rows.length; i++) {
     rows[i].style.display = "";
   }
@@ -4792,7 +4804,6 @@ function initialize() {
     setStatus();
     setHiddenpower();
 
-    createSpeedTable();
     initializeKeymap();
     initializeAutoCompleteMode();
 
