@@ -1847,6 +1847,12 @@ function setPD() {
   $f.PD.value = getPD();
 }
 
+// --- Rule ---
+defcustom("rule", "ルール", "2000", true);
+function currentRule() {
+  return BattleRule.fromName(xpd.custom.rule);
+}
+
 // --- DOM ---
 function makeElement(tag, attr = undefined, ...args) {
   const node = $d.createElement(tag);
@@ -2455,7 +2461,7 @@ function drawModeLine() {
         ary.push(lighter);
       }
     }
-    $d.getElementById("mode-line").textContent = "No." + getNumber() + "    (" + ary.reverse().join(" ") + ")";
+    $d.getElementById("mode-line").textContent = `No.${getNumber()}    ${currentRule().lighter}  (${ary.reverse().join(" ")})`;
   }
 }
 
@@ -4155,7 +4161,7 @@ interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
 // --- Command:Utilities ---
 // --- Command:Utilities:SpeedTable ---
 function eachPokeInRule(f) {
-  const poke = BattleRule.fromName("2000").getPopularPokemons();
+  const poke = currentRule().getPopularPokemons();
   poke.forEach(p => f(PokeData.fromID(p)));
 }
 
