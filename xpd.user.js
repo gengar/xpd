@@ -1586,62 +1586,63 @@ function partyReflectForm(poke) {
 }
 
 var bufferMap = new DoubleLinkedHashMap;
-function Buffer(name, party) {
-  this.name = name;     /* 特殊 */
+class Buffer {
+  constructor(name, party) {
+    this.name = name;     /* 特殊 */
 
-  this.party = party;                  /* バッファローカル */
-  this.pref = Object.create(xpd.pref); /* バッファローカル */
+    this.party = party;                  /* バッファローカル */
+    this.pref = Object.create(xpd.pref); /* バッファローカル */
 
-  this.pd = "";       /* 退避 */
-  this.form = null;   /* 退避 */
-}
-Buffer.getTexts = function () {
-  return Array.prototype.filter.call($d.getElementsByTagName("input"),
-                                     function (t) { return t.type == "text"; });
-};
-Buffer.prototype.saveForm = function () {
-  const texts = Buffer.getTexts();
-  this.form = texts.map(function (t) { return t.value; });
-  this.pd = $f.PD.value;
-};
-Buffer.prototype.restoreForm = function () {
-  setNumber(this.name);
-  $f.PD.value = this.pd;
-
-  const form = this.form;
-  if (form) {
+    this.pd = "";       /* 退避 */
+    this.form = null;   /* 退避 */
+  }
+  static getTexts() {
+    return Array.prototype.filter.call($d.getElementsByTagName("input"),
+                                       t => t.type == "text");
+  }
+  saveForm() {
     const texts = Buffer.getTexts();
-    texts.forEach(function (t, i) { t.value = form[i]; });
+    this.form = texts.map(t => t.value);
+    this.pd = $f.PD.value;
   }
-  else {
-    partyReflectForm(this.party);
-  }
-  drawModeLine();
-  formRefresh();
-};
-Buffer.prototype.changes = function() {
-  if (this == currentBuffer()) {
-    this.saveForm();
-  }
-  const n = Number(this.name);
+  restoreForm() {
+    setNumber(this.name);
+    $f.PD.value = this.pd;
 
-  const texts = Buffer.getTexts();
-  const form = {};
-  const thisform = this.form;
-  texts.forEach(function (t, i) {
-    form[t.name] = { value: thisform[i] };
-  });
-  try {
-    setPoke(form, this);
-    const pd = getPD(this.party);
-    return getCookie(n).join("_x_") != pd;
-  }
-  catch (e) {
-    if (e instanceof InvalidValueOfTextbox) {
-      return true;
+    const form = this.form;
+    if (form) {
+      const texts = Buffer.getTexts();
+      texts.forEach((t, i) => { t.value = form[i]; });
     }
     else {
-      throw e;
+      partyReflectForm(this.party);
+    }
+    drawModeLine();
+    formRefresh();
+  }
+  changes() {
+    if (this == currentBuffer()) {
+      this.saveForm();
+    }
+    const n = Number(this.name);
+
+    const texts = Buffer.getTexts();
+    const pseudoForm = {};
+    texts.forEach((t, i) => {
+      pseudoForm[t.name] = { value: this.form[i] };
+    });
+    try {
+      setPoke(pseudoForm, this);
+      const pd = getPD(this.party);
+      return getCookie(n).join("_x_") != pd;
+    }
+    catch (e) {
+      if (e instanceof InvalidValueOfTextbox) {
+        return true;
+      }
+      else {
+        throw e;
+      }
     }
   }
 };
