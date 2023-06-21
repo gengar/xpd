@@ -4765,6 +4765,7 @@ function initializeKeymap() {
   systemCommandMap.define("C-r", revert);
   systemCommandMap.define("i", importPD);
   systemCommandMap.define("e", exportPD);
+  systemCommandMap.define("r", setRule);
 }
 
 // --- Initialize ---
