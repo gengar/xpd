@@ -4034,11 +4034,9 @@ function transposeMoves(e) {
 }
 interactive(transposeMoves, "技の並び替え", "form");
 
-// TODO: ルールを参照すべき
-const defaultLevel = 50;
-const killLineKillPP = true;
+defcustom("killLineKillPP", "kill-lineでポイントアップの使用回数を3にリセット", true, true);
 function killLineN(n) {
-  $f["LV" + n].value = xpd.custom.defaultLevel;
+  $f["LV" + n].value = currentRule().levelMin;
   $f["POKE" + n].value = "";
   for (let i = 0; i < 4; i++) {
     $f["WAZA" + n + "_" + i].value = "";
