@@ -4021,6 +4021,18 @@ function initializeAutoCompleteMode() {
 }
 
 // --- Command:Edit ---
+const ruleCompletion = {
+  exists: s => BattleRule.index.has(s),
+  getIterator: () => BattleRule.index.keys()
+};
+function setRule(ev) {
+  readMinibuffer(value => {
+    xpd.custom.rule = value;
+    drawModeLine();
+  }, ruleCompletion, "ルール:");
+}
+interactive(setRule, "ルールを設定");
+
 function transposeMoves(e) {
   const src = e.target;
   let ma;
@@ -4452,8 +4464,6 @@ function describeAllCustomizableVariable(e) {
 }
 interactive(describeAllCustomizableVariable, "カスタム変数一覧を表示");
 
-const ruleCompletion = {exists: s => BattleRule.index.has(s),
-                        getIterator: () => BattleRule.index.keys()};
 function describeRule(ev) {
   readMinibuffer(name => {
     const rule = BattleRule.fromName(name);
