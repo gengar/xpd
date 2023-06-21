@@ -1101,6 +1101,19 @@ class BattleRule {
       "forbiddenMoves": [13, 33, 91],
     },
     {
+      "name": "ultra!",
+      "fullName": "ウルトラカップ",
+      "aliases": ["ウルトラカップいちげきあり"],
+      "level": 100
+    },
+    {
+      "baseRule": "ultra!",
+      "name": "ultra",
+      "fullName": "ウルトラカップ(一撃なし)",
+      "aliases": ["ウルトラカップ"],
+      "forbiddenMoves": [13, 33, 91]
+    },
+    {
       "baseRule": "2000",
       "name": "minor",
       "fullName": "マイナーカップ",
@@ -4203,6 +4216,7 @@ const speedTableCache = new Map();
 defcustom("speedTableBorder", "", 1);
 defcustom("speedTableDetailed", "", true);
 function createSpeedTable() {
+  const {levelMin, levelMax} = currentRule();
   const [speedList, speed2pokes] = makeSpeedTableBases();
   const speedTable = $d.createElement("table");
   speedTable.border = xpd.custom.speedTableBorder;
@@ -4213,7 +4227,7 @@ function createSpeedTable() {
     const cell0 = row.insertCell(0);
     cell0.className = "number-cell";
     cell0.innerHTML = speedList[i];
-    for (let lv = 50; lv <= 55; lv++) {
+    for (let lv = levelMin; lv <= levelMax; lv++) {
       const cell = row.insertCell(-1);
       const speed = calcSpeed(lv, speedList[i]);
       cell.className = "number-cell speed-table" + speed;
@@ -4236,7 +4250,7 @@ function createSpeedTable() {
   }
   const hrow = speedTable.insertRow(0);
   hrow.appendChild($d.createElement("th"));
-  for (let i = 50; i <= 55; i++) {
+  for (let i = levelMin; i <= levelMax; i++) {
     let th = $d.createElement("th");
     th.innerHTML = i;
     hrow.appendChild(th);
@@ -4304,15 +4318,16 @@ function displaySpeedTable(e) {
   if (isNaN(ef) || ef < 0 || ef > 63) {
     throw new InvalidValueOfTextbox("努力値が不正です", ef_box);
   }
+  const {levelMin, levelMax} = currentRule();
   const speed = calcSpeed(lv, poke.s, ko, ef);
-  const speedMax = calcSpeed(55, poke.s, ko, ef);
-  const speedMin = calcSpeed(50, poke.s, ko, ef);
+  const speedMax = calcSpeed(levelMax, poke.s, ko, ef);
+  const speedMin = calcSpeed(levelMin, poke.s, ko, ef);
   const rows = getSpeedTable().rows;
   const partialFlag = previousCommand === xpd.commandFromFunction.get(displaySpeedTable) && displaySpeedTable.partial && displaySpeedTable.previousNumber == number;
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
     const spd = Number(row.cells[0].innerHTML);
-    if (partialFlag || calcSpeed(50, spd) <= speedMax && calcSpeed(55, spd) >= speedMin) {
+    if (partialFlag || calcSpeed(levelMin, spd) <= speedMax && calcSpeed(levelMax, spd) >= speedMin) {
       row.style.display = "";
     }
     else {
