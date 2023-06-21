@@ -4587,7 +4587,7 @@ async function restoreSnapshot() {
 
 interactive(restoreSnapshot, "スナップショットを復元");
 
-async function removeSnapshot() {
+async function deleteSnapshot() {
   const name = prompt("delete-snapshot: snapshot name");
   if (!name) {
     return;
@@ -4606,7 +4606,7 @@ async function removeSnapshot() {
   }
 }
 
-interactive(removeSnapshot, "スナップショットを削除");
+interactive(deleteSnapshot, "スナップショットを削除");
 
 async function listSnapshots() {
   const names = await GM.getValue(snapshotNamesKey);
