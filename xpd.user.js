@@ -4185,16 +4185,12 @@ interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
 
 // --- Command:Utilities ---
 // --- Command:Utilities:SpeedTable ---
-function eachPokeInRule(f) {
-  const poke = currentRule().getPopularPokemons();
-  poke.forEach(p => f(PokeData.fromID(p)));
-}
-
 function makeSpeedTableBases() {
   const speedList = [];
   const speed2pokes = {}; /* spd -> array of pokedata */
 
-  eachPokeInRule(function (poke) {
+  currentRule().getPopularPokemons().forEach(id => {
+    const poke = PokeData.fromID(id);
     const spd = poke.s;
     if (speed2pokes[spd]) {
       speed2pokes[spd].push(poke);
@@ -4204,7 +4200,7 @@ function makeSpeedTableBases() {
       speedList.push(spd);
     }
   });
-  speedList.sort(function (x, y) {return x - y;});
+  speedList.sort((x, y) => x - y);
   return [speedList, speed2pokes];
 }
 
