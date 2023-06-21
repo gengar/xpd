@@ -1118,6 +1118,16 @@ class BattleRule {
     },
     {
       "baseRule": "2000",
+      "name": "castle",
+      "fullName": "CASTLE CUP 2002",
+      "aliases": ["2002", "しろはい"],
+      "lighter": "城杯",
+      "forbiddenPokemons": [59, 65, 68, 94, 103, 105, 112, 115, 121, 125, 128, 134, 135, 143, 145, 146, 149, 150, 151, 154, 157, 196, 197, 200, 201, 212, 214, 227, 229, 230, 232, 233, 242, 243, 244, 245, 248, 249, 250, 251],
+      "forbiddenMoves": [215, 238],
+      "forbiddenItems": [147]
+    },
+    {
+      "baseRule": "2000",
       "name": "minor",
       "fullName": "マイナーカップ",
       "aliases": ["マイナーカップ"],
