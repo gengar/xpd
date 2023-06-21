@@ -1744,7 +1744,8 @@ xpd.custom = new Proxy(xpd.pref, {
     return fetchPref(name)[name];
   },
   set(_pref, name, value, _proxy) {
-    return fetchPref(name)[name] = value;
+    fetchPref(name)[name] = value;
+    return true;
   }
 });
 
