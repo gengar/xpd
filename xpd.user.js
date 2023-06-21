@@ -1089,7 +1089,8 @@ class BattleRule {
       "levelMin": 50,
       "levelMax": 55,
       "forbiddenPokemons": [150, 151, 249, 250, 251],
-      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148]
+      "extraPopularPokemons": [25, 61, 93, 95, 113, 123, 148],
+      "description": "第4回ポケモンリーグ 任天堂公式トーナメント全国大会 ニンテンドウカップ2000 で採用された公式ルールです。"
     },
     {
       "baseRule": "2000!",
@@ -1099,6 +1100,7 @@ class BattleRule {
       "forbiddenPokemons": [150, 151, 249, 250, 251],
       "extraPopularPokemons": "inherit",
       "forbiddenMoves": [13, 33, 91],
+      "description": "ジムリーダーの城で最も親しまれ、長年愛されているルールです。"
     },
     {
       "name": "ultra!",
@@ -1124,7 +1126,8 @@ class BattleRule {
       "additionalEntrablePokemons": [12, 15, 18, 20, 22, 40, 47, 83, 108, 114, 119, 132, 162, 164, 166, 168, 176, 184, 185, 190, 192, 193, 198, 201, 202, 206, 219, 222, 225],
       "forbiddenPokemons": [64, 67, 93, 113, 117, 123, 148],
       "forbiddenMoves": [188],
-      "forbiddenItems": [119, 153, 164]
+      "forbiddenItems": [119, 153, 164],
+      "description": "2000や城杯ではなかなか見かけない顔ぶれで対戦しようと考案されたオリジナルルールです。"
     },
     {
       "baseRule": "minor",
@@ -1134,7 +1137,8 @@ class BattleRule {
       "lighter": "ミドル",
       "additionalEntrablePokemons": [24, 26, 38, 45, 49, 53, 55, 67, 78, 82, 85, 87, 93, 97, 99, 101, 107, 110, 113, 117, 122, 127, 136, 141, 148, 178, 182, 186, 189, 195, 203, 208, 210, 211, 213, 215, 224, 226],
       "extraPopularPokemons": [61, 95],
-      "forbiddenMoves": [238]
+      "forbiddenMoves": [238],
+      "description": "2000や城杯ではあまり見かけないが、マイナーカップにも出場できなかったポケモンで対戦しようと考案されたオリジナルルールです。"
     },
     {
       "baseRule": "2000",
@@ -1147,7 +1151,8 @@ class BattleRule {
           "A": [65, 68, 91, 94, 103, 105, 121, 115, 128, 145, 146, 197, 200, 205, 214, 227, 233, 242, 243, 245, 248],
           "B": [3, 6, 9, 25, 26, 31, 34, 36, 57, 59, 62, 64, 71, 73, 76, 80, 82, 89, 93, 101, 110, 112, 113, 123, 124, 125, 126, 130, 131, 134, 135, 139, 142, 144, 149, 154, 157, 160, 169, 171, 181, 186, 189, 195, 196, 199, 208, 212, 213, 217, 221, 229, 230, 232, 235, 241, 244]
         }
-      }
+      },
+      "description": "編成制限: Aから2体まで、AとBから4体まで。但し、SはA2体換算。"
     },
     {
       "baseRule": "2000",
@@ -1159,6 +1164,7 @@ class BattleRule {
       "levelMax": 30,
       "enterablePokemons": [1, 4, 7, 10, 13, 16, 19, 21, 23, 25, 27, 29, 32, 35, 37, 39, 41, 43, 46, 50, 52, 54, 58, 60, 63, 66, 69, 74, 81, 83, 90, 92, 98, 100, 102, 104, 109, 116, 118, 129, 132, 133, 138, 140, 147, 152, 155, 158, 161, 165, 167, 170, 172, 173, 174, 175, 177, 179, 183, 187, 190, 191, 194, 198, 200, 201, 204, 206, 209, 211, 216, 220, 222, 223, 225, 228, 238],
       "forbiddenItems": [119, 164],
+      "description": "ポケモンスタジアム2のファンシーカップを金銀にアレンジしたオリジナルルールです。"
     },
     {
       "baseRule": "2000",
@@ -1167,7 +1173,8 @@ class BattleRule {
       "forbiddenItems": [119, 164],
       "extension": {
         "cost": poke => poke.id === 235 ? 500 : poke.sum()
-      }
+      },
+      "description": "種族値合計縛りルールを考えたくて考案されたオリジナルルールです。\n選出制限: 3体の種族値合計1000以下。但し、ドーブルは500換算。"
     }
   ];
   for (const obj of data) {
@@ -4508,6 +4515,8 @@ function describeRule(ev) {
        rule.forbiddenMoves.map(id => MoveData.fromID(id).name).join()],
       ["禁止アイテム",
        rule.forbiddenItems.map(id => ItemData.fromID(id).name).join()],
+      ["説明",
+       rule.description?.split("\n")?.map(s => `<p>${s}</p>`)?.join("")],
       ...rule.name === "2006" ?
         rule.extension.ranks.map(rank =>
           [`ランク${rank}`,
