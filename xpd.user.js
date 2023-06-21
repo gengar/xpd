@@ -2556,6 +2556,7 @@ function enterCommand(e) {
     else {
       const candidates = complete(e, true);
       if (candidates == null || candidates.length == 1) {
+        message();
         callMinibufferContinuation(e);
       }
     }
