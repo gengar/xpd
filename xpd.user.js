@@ -2353,15 +2353,13 @@ function getFontSize() {
 }
 xpd.fontSize = getFontSize();
 
-xpd.pref.modeLineColor = "d0d0d0";
 function createModeLine() {
   const height = getFontSize();
   const base = $d.createElement("div");
   base.id = "mode-line-background";
   base.setAttribute("style", "position: fixed; z-index: -1; width: 100%; left: 0em; bottom: 1em; white-space: pre");
   base.style.fontFamily = "Monaco, monospace";
-  const pref = currentBuffer().pref;
-  base.style.backgroundColor = pref.modeLineColor;
+  base.style.backgroundColor = "#d0d0d0";
   base.title = "パーティ番号、有効になっているモードの略称が表示されます";
   base.style.lineHeight = height + 2 + "px";
   const div = $d.createElement("span");
