@@ -4552,14 +4552,17 @@ async function snapshot() {
     return;
   }
   const fullName = snapshotPrefix + name;
-  if (await GM.getValue(fullName)) {
+  const oldValue = await GM.getValue(fullName);
+  if (oldValue) {
     if (!confirm("上書きしますか？")) {
       return;
     }
   }
-  const a = (await GM.getValue(snapshotNamesKey, "")).split("\n");
-  a.push(name);
-  await GM.setValue(snapshotNamesKey, a.sort().join("\n"));
+  else {
+    const a = (await GM.getValue(snapshotNamesKey, "")).split("\n");
+    a.push(name);
+    await GM.setValue(snapshotNamesKey, a.sort().join("\n"));
+  }
   await GM.setValue(fullName, $d.cookie);
   message("snapshot `" + name + "'");
 }
