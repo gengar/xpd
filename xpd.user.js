@@ -1692,6 +1692,62 @@ function killBuffer0(buf) {
   }
 }
 
+function camelCaseToKebabCase(name) {
+  const re_str = "([A-Z]+(?:(?=[A-Z][a-z])|$)|[A-Z][a-z]*)";
+  const re0 = RegExp("^" + re_str, "y");
+  const re1 = RegExp(re_str, "g");
+  const ma = re0.exec(name);
+  const sub = s => s.replace(re1, "-$1");
+  return (ma ?
+          ma[1] + sub(name.substring(re0.lastIndex)) :
+          sub(name)
+         ).toLowerCase();
+}
+
+const customMap = new Map();
+const customNameMap = new Map();
+
+class CustomizableVariableDescriptor {
+  constructor(name, document = "", defaultValue = null, bufferLocal = false) {
+    this.propName = name;
+    this.name = camelCaseToKebabCase(name);
+    this.document = document;
+    this.default = defaultValue;
+    this.bufferLocal = bufferLocal;
+
+    customMap.set(name, this);
+    customNameMap.set(this.name, this);
+  }
+}
+
+function defcustom(name, document = "", defaultValue = null, bufferLocal = false) {
+  if (typeof name !== "string") {
+    throw new ImplementationError(`string required, but got ${name}`);
+  }
+  if (customMap.has(name)) {
+    throw new ImplementationError(`configuration \`${name}' already exists`);
+  }
+  const cvd = new CustomizableVariableDescriptor(name, document, defaultValue, bufferLocal);
+  xpd.pref[name] = defaultValue;
+}
+
+function fetchPref(name) {
+  const cvd = customMap.get(name);
+  if (!cvd) {
+    throw new ImplementationError(`undefined customizable variable \`${name}'`);
+  }
+  return cvd.bufferLocal ? currentBuffer().pref : xpd.pref;
+}
+
+xpd.custom = new Proxy(xpd.pref, {
+  get(_pref, name, _proxy) {
+    return fetchPref(name)[name];
+  },
+  set(_pref, name, value, _proxy) {
+    return fetchPref(name)[name] = value;
+  }
+});
+
 function getPokeNum() {
   return $d.getElementsByTagName('table')[0].rows.length - 1;
 }
@@ -2194,17 +2250,6 @@ class Keymap extends KeymapValue {
 }
 
 class KeymapEventListener extends KeymapValue {
-  static camelCaseToKebabCase(name) {
-    const re_str = "([A-Z]+(?:(?=[A-Z][a-z])|$)|[A-Z][a-z]*)";
-    const re0 = RegExp("^" + re_str, "y");
-    const re1 = RegExp(re_str, "g");
-    const ma = re0.exec(name);
-    const sub = s => s.replace(re1, "-$1");
-    return (ma ?
-            ma[1] + sub(name.substring(re0.lastIndex)) :
-            sub(name)
-           ).toLowerCase();
-  }
   // option
   //   document: String
   //   argument: 'event-sequence' |'last-event'
@@ -2220,7 +2265,7 @@ class KeymapEventListener extends KeymapValue {
 
     this.options = Object.freeze(options);
     this.name = (options.name != null) ? options.name :
-      origFunc.name ? KeymapEventListener.camelCaseToKebabCase(origFunc.name) :
+      origFunc.name ? camelCaseToKebabCase(origFunc.name) :
       (() => { throw new Error("anonymous function is invalid"); })();
     this.origFunc = origFunc;
 
@@ -2373,42 +2418,38 @@ const modeTable = {};
 function defineMode(f, lighter, doc) {
   const isFunc = typeof(f) === "function";
   const name = isFunc ? f.name.slice(1) : f;
-  const commandName = KeymapEventListener.camelCaseToKebabCase(name);
+  const commandName = camelCaseToKebabCase(name);
   modeTable[name] = lighter;
   const init = function () {
-    const pref = currentBuffer().pref;
-    isFunc && f(pref[name]);
+    isFunc && f(xpd.custom[name]);
   };
   const modeFunc = function (on) {
-    const pref = currentBuffer().pref;
-    pref[name] = on == null ? !pref[name] : Boolean(on);
+    xpd.custom[name] = on == null ? !xpd.custom[name] : Boolean(on);
     init();
     drawModeLine();
   };
   const commandFunc = function () {
-    const pref = currentBuffer().pref;
     modeFunc();
-    message(commandName + " " + (pref[name] ? "enabled" : "disabled"));
+    message(commandName + " " + (xpd.custom[name] ? "enabled" : "disabled"));
   };
   initializeHooks.push(init);
   interactive(commandFunc, doc, null, {name: commandName});
   return modeFunc;
 }
 
+defcustom("modeLineMode", "モード行を表示するモード", true);
 
-xpd.pref.modeLineMode = true;
 function _modeLineMode(on) {
   $d.getElementById("mode-line").style.display = on ? "" : "none";
 }
 const modeLineMode = defineMode(_modeLineMode, null, "モード行を表示するモード");
 
 function drawModeLine() {
-  if (currentBuffer().pref.modeLineMode) {
+  if (xpd.custom.modeLineMode) {
     const ary = [];
-    const pref = currentBuffer().pref;
     for (const name in modeTable) {
       const lighter = modeTable[name];
-      if (lighter && pref[name]) {
+      if (lighter && xpd.custom[name]) {
         ary.push(lighter);
       }
     }
@@ -2798,7 +2839,7 @@ function setHP() {
       }
       else {
         hp = calcHP(spec.h, lv, calcHPId(getId(i)), ef);
-        if (currentBuffer().pref.highlightFormMode &&
+        if (xpd.custom.highlightFormMode &&
             hp % 4 === 0 &&
             getMoves(i).some(s => s == "みがわり")) {
           hp = '<span style="color: orangered; font-weight: bold">' + hp + '</span>';
@@ -2847,11 +2888,10 @@ function getMoves(i) {
   return ary;
 }
 
-xpd.pref.hiddenpowerColorfulMode = true;
-xpd.pref.hiddenpowerNames = ["格","飛","毒","地","岩","虫","霊","鋼","炎","水","草","電","エ","氷","竜","悪"];
-xpd.pref.hiddenpowerColors = ["#d0a0a0", "#d0ffd0", "#c080ff", "#f0a060", "#d0d0a0", "#80d080", "#b0a0e0", "#e0e0e0", "#ffa0a0", "#a0a0ff", "#a0ffa0", "#ffffa0", "#ffa0ff", "#c0c0ff", "#ffa060", "#909090"];
+defcustom("hiddenpowerColorfulMode", "めざパのタイプ表示に色を付けるモード", true);
+defcustom("hiddenpowerNames", "めざパのタイプ表示に使う文字列の配列", ["格","飛","毒","地","岩","虫","霊","鋼","炎","水","草","電","エ","氷","竜","悪"]);
+defcustom("hiddenpowerColors", "めざパのタイプ表示に使う色の配列", ["#d0a0a0", "#d0ffd0", "#c080ff", "#f0a060", "#d0d0a0", "#80d080", "#b0a0e0", "#e0e0e0", "#ffa0a0", "#a0a0ff", "#a0ffa0", "#ffffa0", "#ffa0ff", "#c0c0ff", "#ffa060", "#909090"]);
 function setHiddenpower() {
-  const pref = currentBuffer().pref;
   for (let i = 0; i < 6; i++) {
     let str = "　";
     let color = "e0e0e0";
@@ -2859,9 +2899,9 @@ function setHiddenpower() {
       if (getMoves(i).map(MoveData.fromName).some(function (move) { return move?.id === 238; })) {
         /* 個体値から計算 */
         const ary = getId(i);
-        str = pref.hiddenpowerNames[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
-        if (pref.hiddenpowerColorfulMode) {
-          color = pref.hiddenpowerColors[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
+        str = xpd.custom.hiddenpowerNames[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
+        if (xpd.custom.hiddenpowerColorfulMode) {
+          color = xpd.custom.hiddenpowerColors[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
         }
       }
     }
@@ -3026,22 +3066,7 @@ function addEventListenerUnsafe(dom, evname, listener) {
   return getWrappedJSObject(dom).addEventListener(evname, exportUnsafe(listener), false);
 }
 
-xpd.pref.formLowStatusStyle = "#C0FFC0";
-xpd.pref.formVeryLowStatusStyle = "#A0FFFF";
-function setStatusBackgroundColor(ev) {
-  const target = ev.target ?? ev;
-  const value = target.value;
-  const name = target.name;
-  const max = /^KO/.test(name) ? "FFFF" : (/^EF/.test(name)) ? "63" : null;
-  if (currentBuffer().pref.highlightFormMode && max && value != max) {
-    target.style.backgroundColor = (value.length == 4 ? /[0-7]/ : /^0$/).test(value) ? xpd.pref.formVeryLowStatusStyle : xpd.pref.formLowStatusStyle;
-  }
-  else {
-    target.style.backgroundColor = "";
-  }
-}
-
-xpd.pref.highlightFormMode = true;
+defcustom("highlightFormMode", "テキストボックスを強調表示するモード", true);
 const setStatusBGUnsafe = exportUnsafe(setStatusBackgroundColor);
 function _highlightFormMode(on) {
   const m = on ? "addEventListener" : "removeEventListener";
@@ -3059,6 +3084,21 @@ function _highlightFormMode(on) {
   setHP();
 };
 const highlightFormMode = defineMode(_highlightFormMode, "HF", "テキストボックスを強調表示するモード");
+
+defcustom("highlightFormLowStatusStyle", "低いステータスの背景色", "#C0FFC0");
+defcustom("highlightFormVeryLowStatusStyle", "とても低いステータスの背景色", "#A0FFFF");
+function setStatusBackgroundColor(ev) {
+  const target = ev.target ?? ev;
+  const value = target.value;
+  const name = target.name;
+  const max = /^KO/.test(name) ? "FFFF" : (/^EF/.test(name)) ? "63" : null;
+  if (xpd.custom.highlightFormMode && max && value != max) {
+    target.style.backgroundColor = (value.length == 4 ? /[0-7]/ : /^0$/).test(value) ? xpd.custom.highlightFormVeryLowStatusStyle : xpd.custom.highlightFormLowStatusStyle;
+  }
+  else {
+    target.style.backgroundColor = "";
+  }
+}
 
 function wheelListener(ev) {
   let target = ev.target;
@@ -3508,7 +3548,7 @@ function min(x, y) {
   return x < y ? x : y;
 }
 
-xpd.pref.smartCompletionMode = true;
+defcustom("smartCompletionMode", "効果のないアイテムを補完しないモード", true, true);
 const smartCompletionMode = defineMode("smartCompletionMode", "SC", "効果のないアイテムを補完しないモード");
 
 function commonPrefix(s, t) {
@@ -3611,7 +3651,7 @@ function completeFromMove(node) {
 
 const effectiveItems = ItemData.raw.filter(item => item.effective);
 function completeFromItem(node) {
-  return completeFromDataArray(currentBuffer().pref.smartCompletionMode ? effectiveItems : ItemData.raw, node);
+  return completeFromDataArray(xpd.custom.smartCompletionMode ? effectiveItems : ItemData.raw, node);
 }
 
 function makeRegexp(str) {
@@ -3706,10 +3746,10 @@ function completeGetCandidates(node, modestly, completer) {
   }
 }
 
-xpd.pref.completeListingMax = 100;
+defcustom("completeListingMax", "補完候補の表示上限", 100);
 function createCandidatesMessage(target, cand) {
   const completeByMessage = exportUnsafe(ev => void(target.value = ev.target.textContent));
-  if (cand.length <= currentBuffer().pref.completeListingMax) {
+  if (cand.length <= xpd.custom.completeListingMax) {
     let p = $d.createElement("p");
     p.style.columnCount = "auto";
     p.style.width = document.getElementsByTagName("table")[0].clientWidth;
@@ -3832,7 +3872,7 @@ function backwardTextbox(e) {
 interactive(backwardTextbox, "後方のテキストボックスへ移動", "form");
 
 const lineWidth = 13;
-xpd.pref.blockStartIndexes = [1, 2, 7];
+defcustom("blockStartIndexes", "", [1, 2, 7]);
 
 function findIndexN(ary, f) {
   let i;
@@ -3845,7 +3885,7 @@ function findIndexN(ary, f) {
 }
 
 function currentBlockIndex(name) {
-  const indexes = currentBuffer().pref.blockStartIndexes;
+  const indexes = xpd.custom.blockStartIndexes;
   const k = textboxIndexes[name] % lineWidth;
   return findIndexN(indexes, function(i) {
     return k < i;
@@ -3861,7 +3901,7 @@ function switchBlock(e) {
   }
   const index = textboxIndexes[name];
   const blockIndex = currentBlockIndex(name);
-  const blockIndexes = currentBuffer().pref.blockStartIndexes;
+  const blockIndexes = xpd.custom.blockStartIndexes;
   const len = blockIndexes.length;
 
   const base = index - index % lineWidth;
@@ -3990,8 +4030,7 @@ interactive(transposeMoves, "技の並び替え", "form");
 const defaultLevel = 50;
 const killLineKillPP = true;
 function killLineN(n) {
-  const pref = currentBuffer().pref;
-  $f["LV" + n].value = pref.defaultLevel;
+  $f["LV" + n].value = xpd.custom.defaultLevel;
   $f["POKE" + n].value = "";
   for (let i = 0; i < 4; i++) {
     $f["WAZA" + n + "_" + i].value = "";
@@ -4001,7 +4040,7 @@ function killLineN(n) {
   for (let i = 0; i < 5; i++) {
     $f["EF" + n + "_" + i].value = "63";
   }
-  if (pref.killLineKillPP) {
+  if (xpd.custom.killLineKillPP) {
     currentBuffer().party[n].p_up = [3, 3, 3, 3];
   }
 }
@@ -4094,7 +4133,7 @@ function setLevelAll(e) {
 }
 interactive(setLevelAll, "レベル一括入力");
 
-xpd.pref.toggleLevelTable = {
+const toggleLevelTable = {
   50: 51,
   51: 50,
   53: 55,
@@ -4102,7 +4141,7 @@ xpd.pref.toggleLevelTable = {
 };
 function toggleLevelAll(e) {
   const form = $f;
-  const table = currentBuffer().pref.toggleLevelTable;
+  const table = toggleLevelTable;
   for (let i = 0; i < 6; i++) {
     const box = form["LV" + i];
     box.value = table[box.value];
@@ -4141,13 +4180,12 @@ function calcSpeed(lv, spd, ko, ef) {
 }
 
 var speedTable;
-xpd.pref.speedTableBorder = 1;
-xpd.pref.speedTableDetailed = true;
+defcustom("speedTableBorder", "", 1);
+defcustom("speedTableDetailed", "", true);
 function createSpeedTable() {
-  const pref = currentBuffer().pref;
   const [speedList, speed2pokes] = makeSpeedTableBases();
   speedTable = $d.createElement("table");
-  speedTable.border = pref.speedTableBorder;
+  speedTable.border = xpd.custom.speedTableBorder;
   speedTable.setAttribute("style", "empty-cells: show; float: left; background-color: inherit");
   for (let i = 0; i < speedList.length; i++) {
     const row = speedTable.insertRow(0);
@@ -4161,14 +4199,11 @@ function createSpeedTable() {
       cell.className = "number-cell speed-table" + speed;
       cell.innerHTML = speed;
     }
-    if (pref.speedTableDetailed) {
+    if (xpd.custom.speedTableDetailed) {
       const last_cell = row.insertCell(-1);
       const ary = speed2pokes[speedList[i]].map(function (x) { return x.name; });
       if (ary.length > 10) {
         last_cell.style.fontSize = "xx-small";
-      }
-      else if (ary.length > 10) {
-        last_cell.style.fontSize = "x-small";
       }
       else if (ary.length > 8) {
         last_cell.style.fontSize = "small";
@@ -4186,7 +4221,7 @@ function createSpeedTable() {
     th.innerHTML = i;
     hrow.appendChild(th);
   }
-  if (pref.speedTableDetailed) {
+  if (xpd.custom.speedTableDetailed) {
     let th = $d.createElement("th");
     hrow.appendChild(th);
   }
@@ -4212,8 +4247,8 @@ function displaySpeedTable0(speed) {
   echo.appendChild(speedTable);
 }
 
-xpd.pref.sameSpeedCellStyle = "color: orangered; font-weight: bold";
-xpd.pref.sameSpeedRowStyle = "background-color: #ffe4e4";
+defcustom("sameSpeedCellStyle", "", "color: orangered; font-weight: bold");
+defcustom("sameSpeedRowStyle", "", "background-color: #ffe4e4");
 function displaySpeedTable(e) {
   if (isMinibuffer(e.target)) {
     return;
@@ -4258,12 +4293,11 @@ function displaySpeedTable(e) {
   while (speedTableSheet.cssRules[displaySpeedTable.csslen]) {
     speedTableSheet.deleteRule(displaySpeedTable.csslen);
   }
-  const pref = currentBuffer().pref;
-  if (pref.sameSpeedCellStyle) {
-    speedTableSheet.insertRule(`.speed-table${speed}{${pref.sameSpeedCellStyle}}`, displaySpeedTable.csslen);
+  if (xpd.custom.sameSpeedCellStyle) {
+    speedTableSheet.insertRule(`.speed-table${speed}{${xpd.custom.sameSpeedCellStyle}}`, displaySpeedTable.csslen);
   }
-  if (pref.sameSpeedRowStyle) {
-    speedTableSheet.insertRule(`.speed-table-row${poke.s}{${pref.sameSpeedRowStyle}}`, displaySpeedTable.csslen);
+  if (xpd.custom.sameSpeedRowStyle) {
+    speedTableSheet.insertRule(`.speed-table-row${poke.s}{${xpd.custom.sameSpeedRowStyle}}`, displaySpeedTable.csslen);
   }
 
   displaySpeedTable0(speed);
@@ -4398,7 +4432,19 @@ function describeAllCommand(e) {
 }
 interactive(describeAllCommand, "コマンド一覧を表示");
 
-// --- Command:Rules ---
+function describeAllCustomizableVariable(e) {
+  const ary = [];
+  customMap.forEach(cvd => {
+    ary.push([cvd.name,
+              cvd.document || "<small style=\"color: gray\">(undocumented)</small>",
+              JSON.stringify(xpd.custom[cvd.propName]),
+              cvd.bufferLocal ? "yes" : "no",
+              JSON.stringify(cvd.default)]);
+  });
+  message(makeTable(ary, [["名前"], ["説明"], ["現在の値"], ["バッファローカル"], ["デフォルト値"]]));
+}
+interactive(describeAllCustomizableVariable, "カスタム変数一覧を表示");
+
 const ruleCompletion = {exists: s => BattleRule.index.has(s),
                         getIterator: () => BattleRule.index.keys()};
 function describeRule(ev) {
@@ -4624,7 +4670,7 @@ function checkLatestVersion() {
 
 // --- Aggressive Keybind Mode ---
 var systemCommandMap = new Keymap("C-x");
-xpd.pref.aggressiveKeybindMode = true;
+defcustom("aggressiveKeybindMode", "", true);
 function _aggressiveKeybindMode(on) {
   const k = systemCommandMap.name;
   on ? documentKeymap.define(k, systemCommandMap) : documentKeymap.remove(k);
