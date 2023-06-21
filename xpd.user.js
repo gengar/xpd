@@ -1951,7 +1951,9 @@ function handleInteractiveError(er) {
     }
   }
   else {
-    maybeBug(er);
+    maybeBug("その他のエラー");
+    console.error(er);
+    throw er;
   }
 }
 
