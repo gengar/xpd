@@ -67,8 +67,6 @@ xpd.platform = xpd.platforms.find(s => navigator.userAgent.indexOf(s) >= 0);
 xpd.browsers = ["Firefox", "Chrome"];
 xpd.browser = xpd.browsers.find(s => navigator.userAgent.indexOf(s) >= 0);
 
-xpd.pref = {};
-
 // --- Data ---
 class Data {
   static normalizeName(str) {
@@ -1489,6 +1487,7 @@ class BadHTTPResponse extends HTTPError {
 }
 
 // --- System ---
+xpd.pref = {};
 const initializeHooks = [];
 
 function getNumber() {
@@ -1617,6 +1616,7 @@ function partyReflectForm(poke) {
   formRefresh();
 }
 
+// --- System:Buffer
 var bufferMap = new DoubleLinkedHashMap;
 class Buffer {
   constructor(name, party) {
@@ -1724,6 +1724,7 @@ function killBuffer0(buf) {
   }
 }
 
+// --- System:CustomizableVariable ---
 function camelCaseToKebabCase(name) {
   const re_str = "([A-Z]+(?:(?=[A-Z][a-z])|$)|[A-Z][a-z]*)";
   const re0 = RegExp("^" + re_str, "y");
@@ -1781,6 +1782,7 @@ xpd.custom = new Proxy(xpd.pref, {
   }
 });
 
+/// --- System:Others ---
 function getPokeNum() {
   return $d.getElementsByTagName('table')[0].rows.length - 1;
 }
@@ -1796,6 +1798,7 @@ function calcHPId(id) {
   }
   return result;
 }
+
 function getId(n, form) {
   form = form ?? $f;
   const box = form["KO" + n];
@@ -1940,7 +1943,9 @@ function message(...objs) {
   const echoArea = $d.getElementById("echo-area");
   echoArea.innerHTML = "";
   objs.forEach(obj => {
-    echoArea.appendChild(obj instanceof getWrappedJSObject(Node) ? obj : $d.createTextNode(obj));
+    echoArea.appendChild(obj instanceof getWrappedJSObject(Node) ?
+                         obj :
+                         $d.createTextNode(obj));
   });
 }
 
@@ -2225,7 +2230,7 @@ class KeymapObserver {
 class KeymapValue {}
 
 class Keymap extends KeymapValue {
-  constructor(name, parent) {
+  constructor(name, parent = undefined) {
     super();
     this.name = name;
     this.parent = parent;
@@ -2235,7 +2240,7 @@ class Keymap extends KeymapValue {
     return this.table[Symbol.iterator]();
   }
   get(key) {
-    return this.table.get(key) ?? (this.parent ? this.parent.get(key) : undefined);
+    return this.table.get(key) ?? this.parent?.get(key);
   }
   add(key, value) {
     this.table.set(key, value);
@@ -2615,7 +2620,9 @@ function takeWhile(ary, f) {
 }
 
 class SearchState {
-  constructor(pokemon, level, description, request, learned = [], timeTraveling = false, timeTraveled = timeTraveling, prev = null) {
+  constructor(pokemon, level, description, request,
+              learned = [], timeTraveling = false,
+              timeTraveled = timeTraveling, prev = null) {
     this.pokemon = pokemon; // PokeData
     this.level = level;
     this.description = description;
@@ -2938,12 +2945,12 @@ function setHiddenpower() {
     let str = "　";
     let color = "e0e0e0";
     try {
-      if (getMoves(i).map(MoveData.fromName).some(function (move) { return move?.id === 238; })) {
-        /* 個体値から計算 */
+      if (getMoves(i).map(MoveData.fromName).some(move => move?.id === 238 )) {
         const ary = getId(i);
-        str = xpd.custom.hiddenpowerNames[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
+        const h = parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4;
+        str = xpd.custom.hiddenpowerNames[h];
         if (xpd.custom.hiddenpowerColorfulMode) {
-          color = xpd.custom.hiddenpowerColors[parseInt(ary[0], 16) % 4 * 4 + parseInt(ary[1], 16) % 4];
+          color = xpd.custom.hiddenpowerColors[h];
         }
       }
     }
@@ -3135,7 +3142,10 @@ function setStatusBackgroundColor(ev) {
   const name = target.name;
   const max = /^KO/.test(name) ? "FFFF" : (/^EF/.test(name)) ? "63" : null;
   if (xpd.custom.highlightFormMode && max && value != max) {
-    target.style.backgroundColor = (value.length == 4 ? /[0-7]/ : /^0$/).test(value) ? xpd.custom.highlightFormVeryLowStatusStyle : xpd.custom.highlightFormLowStatusStyle;
+    target.style.backgroundColor =
+      (value.length == 4 ? /[0-7]/ : /^0$/).test(value) ?
+      xpd.custom.highlightFormVeryLowStatusStyle :
+      xpd.custom.highlightFormLowStatusStyle;
   }
   else {
     target.style.backgroundColor = "";
@@ -3553,7 +3563,7 @@ interactive(switchToBuffer, "バッファを切り替える");
 
 function listBuffers() {
   const obj = {};
-  obj.map = function (f) { return bufferMap.map(function (buf, no) { return f(buf.party, no - 1); }); };
+  obj.map = f => bufferMap.map((buf, no) => f(buf.party, no - 1));
   messageHTML(partiesToTable(obj));
 }
 interactive(listBuffers, "バッファ一覧を表示");
