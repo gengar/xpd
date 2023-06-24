@@ -7,6 +7,8 @@
 // @grant          GM.xmlHttpRequest
 // @grant          GM.getValue
 // @grant          GM.setValue
+// @grant          GM.listValues
+// @grant          GM.deleteValue
 // ==/UserScript==
 
 /*
@@ -1487,7 +1489,8 @@ class BadHTTPResponse extends HTTPError {
 }
 
 // --- System ---
-xpd.pref = {};
+xpd.prefDefault = {};
+xpd.pref = Object.create(xpd.prefDefault);
 const initializeHooks = [];
 
 function getNumber() {
@@ -1616,17 +1619,52 @@ function partyReflectForm(poke) {
   formRefresh();
 }
 
+function prefStorageName(name) {
+  return `xpd-pref-${name}`;
+}
+
+function localPrefStorageName(name) {
+  return prefStorageName(name);
+}
+
+function globalPrefStorageName() {
+  return prefStorageName("global");
+}
+
+async function storePref(pref, name) {
+  const json = JSON.stringify(pref);
+
+  (json === "{}" ?
+   GM.deleteValue(name) :
+   GM.setValue(name, json)).catch(er => {
+    console.error(er);
+  });
+}
+
+async function loadPref(name, parent) {
+  const pref = Object.create(parent);
+  const values = JSON.parse(await GM.getValue(name, null));
+  Object.assign(pref, values);
+  return pref;
+}
+
 // --- System:Buffer
 var bufferMap = new DoubleLinkedHashMap;
 class Buffer {
   constructor(name, party) {
-    this.name = name;     /* 特殊 */
+    this.name = name;
 
-    this.party = party;                  /* バッファローカル */
-    this.pref = Object.create(xpd.pref); /* バッファローカル */
+    this.party = party;
+    this.pref = null;
 
     this.pd = "";       /* 退避 */
     this.form = null;   /* 退避 */
+
+    this.initialize = loadPref(localPrefStorageName(name), xpd.pref).then(pref => {
+      this.pref = pref;
+    }).catch(er => {
+      console.error(er);
+    });
   }
   static getTexts() {
     return Array.prototype.filter.call($d.getElementsByTagName("input"),
@@ -1751,6 +1789,10 @@ class CustomizableVariableDescriptor {
     customMap.set(name, this);
     customNameMap.set(this.name, this);
   }
+
+  getPref() {
+    return this.bufferLocal ? currentBuffer().pref : xpd.pref;
+  }
 }
 
 function defcustom(name, document = "", defaultValue = null, bufferLocal = false) {
@@ -1761,15 +1803,25 @@ function defcustom(name, document = "", defaultValue = null, bufferLocal = false
     throw new ImplementationError(`configuration \`${name}' already exists`);
   }
   const cvd = new CustomizableVariableDescriptor(name, document, defaultValue, bufferLocal);
-  xpd.pref[name] = defaultValue;
+  xpd.prefDefault[name] = defaultValue;
 }
 
-function fetchPref(name) {
+function fetchCVD(name) {
   const cvd = customMap.get(name);
   if (!cvd) {
     throw new ImplementationError(`undefined customizable variable \`${name}'`);
   }
-  return cvd.bufferLocal ? currentBuffer().pref : xpd.pref;
+  return cvd;
+}
+
+function fetchPref(name) {
+  return fetchCVD(name).getPref();
+}
+
+function prefStorageNameViaCVD(cvd) {
+  return cvd.bufferLocal ?
+    localPrefStorageName(currentBuffer().name) :
+    globalPrefStorageName();
 }
 
 xpd.custom = new Proxy(xpd.pref, {
@@ -1777,7 +1829,17 @@ xpd.custom = new Proxy(xpd.pref, {
     return fetchPref(name)[name];
   },
   set(_pref, name, value, _proxy) {
-    fetchPref(name)[name] = value;
+    const cvd = fetchCVD(name);
+    const pref = cvd.getPref();
+    pref[name] = value;
+    storePref(pref, prefStorageNameViaCVD(cvd));
+    return true;
+  },
+  deleteProperty(_pref, name) {
+    const cvd = fetchCVD(name);
+    const pref = cvd.getPref();
+    delete fetchPref(name)[name];
+    storePref(pref, prefStorageNameViaCVD(cvd));
     return true;
   }
 });
@@ -3595,6 +3657,18 @@ function previousBuffer() {
 }
 interactive(previousBuffer, "前のバッファへ移動");
 
+// --- Command:CustomizableVariable ---
+async function debugPref() {
+  const list = await GM.listValues();
+  for (const name of list) {
+    if (/^xpd-pref-/.test(name)) {
+      const value = await GM.getValue(name);
+      console.log(`${name}: ${value}`);
+    }
+  }
+}
+interactive(debugPref);
+
 // --- Command:Completion ---
 function min(x, y) {
   return x < y ? x : y;
@@ -4075,6 +4149,12 @@ function setRule(ev) {
   }, ruleCompletion, "ルール:");
 }
 interactive(setRule, "ルールを設定");
+
+function resetRule(ev) {
+  delete xpd.custom.rule;
+  drawModeLine();
+}
+interactive(resetRule, "ルールをリセット");
 
 function transposeMoves(e) {
   const src = e.target;
@@ -4608,7 +4688,7 @@ async function deleteSnapshot() {
   if (index >= 0) {
     snapshotNames.splice(index, 1);
     await GM.setValue(snapshotNamesKey, snapshotNames.join("\n"));
-    await GM.setValue(snapshotPrefix + name, "");
+    await GM.deleteValue(snapshotPrefix + name);
     message("delete snapshot `" + name + "'");
   }
   else {
@@ -4815,56 +4895,75 @@ function initializeKeymap() {
 
 // --- Initialize ---
 
+function initialize1() {
+  createEchoArea();
+}
+
+function handleInitializationError(er) {
+  alert("初期化中にエラーが発生しました");
+  console.error(er);
+  handleInteractiveError(er);
+}
+
+async function initialize2() {
+  xpd.pref = await loadPref(globalPrefStorageName(), xpd.prefDefault);
+}
+
+function initialize3() {
+  initialBuffer(getNumber(), initLoadParty());
+
+  stripTableHeader();
+  fixFormSizes();
+  setTableStyleNowrap();
+
+  documentKeymapObserver = documentKeymap.observe("keydown", $d);
+  formKeymapObserver = formKeymap.observe("keydown", $f);
+
+  setInputs();
+  setButtons();
+
+  createEffortColumn();
+  createHiddenpowerColumn();
+  createHPColumn();
+  createSexColumn();
+  createSwapCheckBox();
+  initializeTextboxIndexes();
+
+  createMiniBuffer();
+  createModeLine();
+
+  setOnChange();
+  setStatus();
+  setHiddenpower();
+
+  initializeKeymap();
+  initializeAutoCompleteMode();
+
+  initializeBackButton();
+
+  extendCookiesDeadline();
+
+  for (const f of initializeHooks) {
+    f();
+  }
+  currentBuffer().initialize.then(() => drawModeLine());
+  checkLatestVersion();
+}
+
 function initialize() {
   try {
-    createEchoArea();
+    initialize1();
   }
-  catch (e) {
-    alert("初期化中にエラーが発生しました\n" + e);
+  catch (er) {
+    alert("初期化中にエラーが発生しました\n" + er);
+    console.error(er);
     return;
   }
   try {
-    initialBuffer(getNumber(), initLoadParty());
-
-    stripTableHeader();
-    fixFormSizes();
-    setTableStyleNowrap();
-
-    documentKeymapObserver = documentKeymap.observe("keydown", $d);
-    formKeymapObserver = formKeymap.observe("keydown", $f);
-
-    setInputs();
-    setButtons();
-
-    createEffortColumn();
-    createHiddenpowerColumn();
-    createHPColumn();
-    createSexColumn();
-    createSwapCheckBox();
-    initializeTextboxIndexes();
-
-    createMiniBuffer();
-    createModeLine();
-
-    setOnChange();
-    setStatus();
-    setHiddenpower();
-
-    initializeKeymap();
-    initializeAutoCompleteMode();
-
-    initializeBackButton();
-
-    extendCookiesDeadline();
-
-    for (const f of initializeHooks) {
-      f();
-    }
-    drawModeLine();
-    checkLatestVersion();
-  } catch (e) {
-    alert("初期化中にエラーが発生しました");
-    handleInteractiveError(e);
+    initialize2().then(initialize3).catch(handleInitializationError);
+  }
+  catch (er) {
+    handleInitializationError(er);
   }
 }
 
