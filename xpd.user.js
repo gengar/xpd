@@ -4719,17 +4719,17 @@ function openInPartyBox() {
 }
 interactive(openInPartyBox, "パーティをParty Boxで開く");
 
-function showRebuildForm() {
+function displayRebuildForm() {
   setPoke();
   messageWithTextbox('<form action="http://psense.lib.net/_/PDINPUT.cgi" method="post"><input type="hidden" name="ACTION" value="RECEPT"><input type="hidden" name="C" value="1_x_' + getPD() + '"><input type="submit" value="再現"></form>');
 }
-interactive(showRebuildForm, "HTMLの再現フォームを表示");
+interactive(displayRebuildForm, "HTMLの再現フォームを表示");
 
-function showRebuildJSCode() {
+function displayRebuildJSCode() {
   setPoke();
   messageWithTextbox('javascript:void(document.forms[0].PD.value="' + getPD() + '");');
 }
-interactive(showRebuildJSCode);
+interactive(displayRebuildJSCode);
 
 function markSwapingCheckbox(e) {
   if (isMinibuffer(e.target)) {
