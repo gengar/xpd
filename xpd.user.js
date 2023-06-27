@@ -45,7 +45,7 @@ if (!document.forms[0]?.S2) {
 }
 
 const xpd = {
-  version: "2.1.0"
+  version: "2.1.1-alpha"
 };
 
 function exportUnsafe(f) {
@@ -4472,14 +4472,6 @@ function globalDisplaySpeedTable(ev) {
 interactive(globalDisplaySpeedTable, "素早さ表を表示");
 
 // --- Command:Utilities:Describe ---
-function keys(obj) {
-  const ary = [];
-  for (const i in obj) {
-    ary.push(i);
-  }
-  return ary;
-}
-
 function commands(pred) {
   const ary = Array.from(xpd.command.keys());
   if (pred) {
@@ -4580,7 +4572,7 @@ function describeCommand0(format_ary, pred) {
 }
 
 function describeAllCommand(e) {
-  describeCommand0(keys(describeFormats));
+  describeCommand0(Object.keys(describeFormats));
 }
 interactive(describeAllCommand, "コマンド一覧を表示");
 
