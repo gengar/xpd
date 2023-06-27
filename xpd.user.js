@@ -1985,6 +1985,30 @@ function createInput(attr, style) {
   return input;
 }
 
+function makeTable(ary, header) {
+  const table = $d.createElement("table");
+  const th = table.createTHead();
+  table.border = 1;
+  table.setAttribute("style", "empty-cells: show; float: left; background-color: inherit");
+  if (header) {
+    const row = th.insertRow(0);
+    header.forEach(function (i) {
+      const cell = row.insertCell(-1);
+      cell.innerHTML = i[0];
+      if (i[1]) {
+        cell.title = i[1];
+      }
+    });
+  }
+  ary.forEach(function (a) {
+    const row = table.insertRow(-1);
+    a.forEach(function (i) {
+      row.insertCell(-1).innerHTML = i;
+    });
+  });
+  return table;
+}
+
 // --- StyleSheet ---
 xpd.styleSheet = (() => {
   const element = $d.createElement('style');
@@ -4481,30 +4505,6 @@ function commands(pred) {
     ary = ary.filter(f);
   }
   return ary.sort();
-}
-
-function makeTable(ary, header) {
-  const table = $d.createElement("table");
-  const th = table.createTHead();
-  table.border = 1;
-  table.setAttribute("style", "empty-cells: show; float: left; background-color: inherit");
-  if (header) {
-    const row = th.insertRow(0);
-    header.forEach(function (i) {
-      const cell = row.insertCell(-1);
-      cell.innerHTML = i[0];
-      if (i[1]) {
-        cell.title = i[1];
-      }
-    });
-  }
-  ary.forEach(function (a) {
-    const row = table.insertRow(-1);
-    a.forEach(function (i) {
-      row.insertCell(-1).innerHTML = i;
-    });
-  });
-  return table;
 }
 
 var command2keybind = null;
