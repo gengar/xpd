@@ -1182,7 +1182,8 @@ class BattleRule {
       "popularAll": true,
       "forbiddenItems": [119, 164],
       "extension": {
-        "cost": poke => poke.id === 235 ? 500 : poke.sum()
+        "pickCostLimit": 1000,
+        "pickCostFunction": poke => poke.id === 235 ? 500 : poke.sum()
       },
       "description": "種族値合計縛りルールを考えたくて考案されたオリジナルルールです。\n選出制限: 3体の種族値合計1000以下。但し、ドーブルは500換算。"
     }
@@ -2058,6 +2059,15 @@ function messageWithTextbox(str) {
   const box = $d.getElementById("message-textbox");
   box.value = str;
   box.select();
+}
+
+// --- Section ---
+xpd.styleSheet.insertRule(".section { background-color: inherit; }");
+
+function createSection() {
+  const sec = makeElement("div", {id: "section", className: "section"});
+  $d.body.appendChild(sec);
+  return sec;
 }
 
 // --- Error Handler ---
@@ -4495,6 +4505,59 @@ function globalDisplaySpeedTable(ev) {
 }
 interactive(globalDisplaySpeedTable, "素早さ表を表示");
 
+// --- Command:Utilities:PickCostTable ---
+const pickCostTableID = "pick-cost-table";
+xpd.styleSheet.insertRule(`#${pickCostTableID} tr ~ tr > td ~ td { text-align: right; }`);
+
+function makePickCostTable() {
+  const rule = currentRule(),
+        limit = rule.extension?.pickCostLimit,
+        cost = rule.extension?.pickCostFunction;
+  if (limit && cost) {
+    const poke = Array.from(Array(6), (_, i) => PokeData.fromName($f["POKE" + i].value)).filter(v => v);
+    poke.sort((p, q) => cost(q) - cost(p));
+    const f = i => poke[i] ?
+            `${poke[i].name}<small>(${poke[i].sum()})</small>` :
+            "";
+
+  const table = makeTable(
+    [["", ...Array.from(Array(6), (_, i) => f(i))],
+     ...Array.from(Array(6), (_, i) =>
+                   [f(i),
+                    ...Array.from(Array(6), (_, j) =>
+                                  i === j ?
+                                  "-" :
+                                  poke[i] && poke[j] ?
+                                  limit - cost(poke[i]) - cost(poke[j]) :
+                                  "")])]);
+
+    return table;
+  }
+  else {
+    return undefined;
+  }
+}
+
+defcustom("showPickCostTableMode", "選出コスト表を表示するモード", true);
+function _showPickCostTableMode(on) {
+  if (on) {
+    const table = makePickCostTable();
+    if (table) {
+      const old = $d.querySelector(`#${pickCostTableID}`);
+      if (old) {
+        old.parentNode.replaceChild(table, old);
+      }
+      else {
+        table.id = pickCostTableID;
+        $d.querySelector("#section").appendChild(table);
+      }
+      return;
+    }
+  }
+  $d.querySelector(`#${pickCostTableID}`)?.remove();
+}
+const showPickCostTableMode = defineMode(_showPickCostTableMode, "PickCost", "選出コスト表を表示");
+
 // --- Command:Utilities:Describe ---
 function commands(pred) {
   const ary = Array.from(xpd.command.keys());
@@ -4902,6 +4965,8 @@ async function initialize2() {
 }
 
 function initialize3() {
+  createSection();
+
   stripTableHeader();
   fixFormSizes();
   setTableStyleNowrap();
