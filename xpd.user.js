@@ -64,9 +64,9 @@ const $f = getWrappedJSObject(document.forms[0]);
 
 $d.title += "/xpd";
 
-xpd.platforms = ["Mac OS X", "Windows"];
+xpd.platforms = ["iPhone", "Mac OS X", "Windows", "Android", "Linux"];
 xpd.platform = xpd.platforms.find(s => navigator.userAgent.indexOf(s) >= 0);
-xpd.browsers = ["Firefox", "Chrome"];
+xpd.browsers = ["Kiwi", "Firefox", "Chrome"];
 xpd.browser = xpd.browsers.find(s => navigator.userAgent.indexOf(s) >= 0);
 
 // --- Data ---
