@@ -2197,7 +2197,11 @@ const Key = {
     const result = [];
     let last;
     for (let ma; ma = re.exec(str);) {
-      result.push(ma[1]);
+      const s = ma[1];
+      if (/S-[^ ]$/.test(s)) {
+        throw new Error(`bad key string: "${str}"`);
+      }
+      result.push(s);
       last = ma[2];
     }
     if (last !== "") {
