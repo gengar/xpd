@@ -4514,6 +4514,7 @@ interactive(globalDisplaySpeedTable, "素早さ表を表示");
 
 // --- Command:Utilities:PickCostTable ---
 const pickCostTableID = "pick-cost-table";
+xpd.styleSheet.insertRule(`#${pickCostTableID} { margin-left: 2em; }`);
 xpd.styleSheet.insertRule(`#${pickCostTableID} tr ~ tr > td ~ td { text-align: right; }`);
 
 function makePickCostTable() {
