@@ -72,7 +72,7 @@ xpd.browser = xpd.browsers.find(s => navigator.userAgent.indexOf(s) >= 0);
 // --- Data ---
 class Data {
   static normalizeName(str) {
-    return str?.replace(/−|－/g, "ー").replace(/10/g, "１０");
+    return str?.replace(/−|－/g, "ー");
   }
   static makeIndex(ary, ref) {
     const index = {};
