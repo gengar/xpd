@@ -1786,6 +1786,7 @@ class CustomizableVariableDescriptor {
     this.document = document;
     this.default = defaultValue;
     this.bufferLocal = bufferLocal;
+    this.changeHooks = [];
 
     customMap.set(name, this);
     customNameMap.set(this.name, this);
@@ -1833,6 +1834,7 @@ xpd.custom = new Proxy(xpd.pref, {
     const cvd = fetchCVD(name);
     const pref = cvd.getPref();
     pref[name] = value;
+    cvd.changeHooks.forEach(f => f(value));
     storePref(pref, prefStorageNameViaCVD(cvd));
     return true;
   },
@@ -1840,10 +1842,15 @@ xpd.custom = new Proxy(xpd.pref, {
     const cvd = fetchCVD(name);
     const pref = cvd.getPref();
     delete fetchPref(name)[name];
+    cvd.changeHooks.forEach(f => f());
     storePref(pref, prefStorageNameViaCVD(cvd));
     return true;
   }
 });
+
+function customAddChangeHook(name, f) {
+  fetchCVD(name).changeHooks.push(f);
+}
 
 /// --- System:Others ---
 function getPokeNum() {
@@ -4557,6 +4564,7 @@ function _showPickCostTableMode(on) {
   $d.querySelector(`#${pickCostTableID}`)?.remove();
 }
 const showPickCostTableMode = defineMode(_showPickCostTableMode, "PickCost", "選出コスト表を表示");
+customAddChangeHook("rule", _ => showPickCostTableMode(xpd.custom.showPickCostTableMode));
 
 // --- Command:Utilities:Describe ---
 function commands(pred) {
