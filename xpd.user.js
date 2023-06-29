@@ -4248,7 +4248,10 @@ function clearAll() {
 interactive(clearAll, "全て削除");
 
 // --- Command:Edit:Level ---
-const setLevels = [50, 51, 52, 53, 54, 55, 5, 100, 50, 50];
+const setLevelTable = {
+  0: 50, 1: 51, 2: 52, 3: 53, 4: 54, 5: 55,
+  u: 100, l: 5
+};
 
 function setLevelN(n, lv) {
   $f["LV" + n].value = lv;
@@ -4256,7 +4259,7 @@ function setLevelN(n, lv) {
 
 function getLevelFromEvent(ev) {
   const ch = ev.key && Key.stringifyEvent(ev);
-  return ch && /^[0-9]$/.test(ch) && setLevels[ch];
+  return ch && setLevelTable[ch];
 }
 
 function setLevelFromPrompt(ev) {
@@ -4933,6 +4936,10 @@ function initializeKeymap() {
     setLevelMap.define(String(i), setLevel);
     setLevelAllMap.define(String(i), setLevelAll);
   }
+  setLevelMap.define("u", setLevel);
+  setLevelMap.define("l", setLevel);
+  setLevelAllMap.define("u", setLevelAll);
+  setLevelAllMap.define("l", setLevelAll);
   setLevelMap.define("-", setLevelFromPrompt);
   setLevelAllMap.define("-", setLevelAllFromPrompt);
 
