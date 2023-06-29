@@ -4886,7 +4886,6 @@ function initializeKeymap() {
 }
 
 // --- Initialize ---
-
 function initialize1() {
   createEchoArea();
 }
@@ -4898,12 +4897,11 @@ function handleInitializationError(er) {
 }
 
 async function initialize2() {
-  xpd.pref = await loadPref(globalPrefStorageName(), xpd.prefDefault);
+  initialBuffer(getNumber(), initLoadParty());
+  await currentBuffer().initialize;
 }
 
 function initialize3() {
-  initialBuffer(getNumber(), initLoadParty());
-
   stripTableHeader();
   fixFormSizes();
   setTableStyleNowrap();
