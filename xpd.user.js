@@ -4365,6 +4365,7 @@ function createSpeedTable() {
   const {levelMin, levelMax} = currentRule();
   const [speedList, speed2pokes] = makeSpeedTableBases();
   const speedTable = $d.createElement("table");
+  speedTable.className = "speed-table";
   speedTable.border = xpd.custom.speedTableBorder;
   speedTable.setAttribute("style", "empty-cells: show; float: left; background-color: inherit");
   for (let i = 0; i < speedList.length; i++) {
@@ -4423,9 +4424,11 @@ const speedTableSheet =
     (function () {
       const element = $d.createElement('style');
       $d.getElementsByTagName('head')[0].appendChild(element);
-      element.sheet.insertRule(".number-cell{text-align: right}", 0);
       return element.sheet;
     })();
+
+xpd.styleSheet.insertRule(".number-cell { text-align: right; }");
+xpd.styleSheet.insertRule(`.speed-table tr:nth-child(2n) { background-color: oklch(95.0% 0.005 17.25); }`);
 
 function displaySpeedTable0(speed) {
   const echo = $d.getElementById("echo-area");
@@ -4487,10 +4490,10 @@ function displaySpeedTable(e) {
     speedTableSheet.deleteRule(displaySpeedTable.csslen);
   }
   if (xpd.custom.sameSpeedCellStyle) {
-    speedTableSheet.insertRule(`.speed-table${speed}{${xpd.custom.sameSpeedCellStyle}}`, displaySpeedTable.csslen);
+    speedTableSheet.insertRule(`:is(#xpd--as-id, .speed-table${speed}) { ${xpd.custom.sameSpeedCellStyle}; }`, displaySpeedTable.csslen);
   }
   if (xpd.custom.sameSpeedRowStyle) {
-    speedTableSheet.insertRule(`.speed-table-row${poke.s}{${xpd.custom.sameSpeedRowStyle}}`, displaySpeedTable.csslen);
+    speedTableSheet.insertRule(`:is(#xpd--as-id, .speed-table-row${poke.s}) {${xpd.custom.sameSpeedRowStyle}; }`, displaySpeedTable.csslen);
   }
 
   displaySpeedTable0(speed);
@@ -4515,6 +4518,7 @@ interactive(globalDisplaySpeedTable, "素早さ表を表示");
 // --- Command:Utilities:PickCostTable ---
 const pickCostTableID = "pick-cost-table";
 xpd.styleSheet.insertRule(`#${pickCostTableID} { margin-left: 2em; }`);
+xpd.styleSheet.insertRule(`#${pickCostTableID} tr:nth-child(2n) { background-color: oklch(95.0% 0.005 17.25); }`);
 xpd.styleSheet.insertRule(`#${pickCostTableID} tr ~ tr > td ~ td { text-align: right; }`);
 
 function makePickCostTable() {
