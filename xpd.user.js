@@ -4266,6 +4266,7 @@ function setLevelFromPrompt(ev) {
   }
   else {
     setLevelN(getLineNumber(ev.target), lv);
+    setHP();
     return false;
   }
 }
@@ -4299,6 +4300,7 @@ function setLevelAllFromPrompt(ev) {
   }
   else {
     setLevelAll0(lv);
+    setHP();
     return false;
   }
 }
