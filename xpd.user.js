@@ -4367,7 +4367,6 @@ function createSpeedTable() {
   const speedTable = $d.createElement("table");
   speedTable.className = "speed-table";
   speedTable.border = xpd.custom.speedTableBorder;
-  speedTable.setAttribute("style", "empty-cells: show; float: left; background-color: inherit");
   for (let i = 0; i < speedList.length; i++) {
     const row = speedTable.insertRow(0);
     row.className = "speed-table-row" + speedList[i];
@@ -4427,6 +4426,7 @@ const speedTableSheet =
       return element.sheet;
     })();
 
+xpd.styleSheet.insertRule(".speed-table { empty-cells: show; float: left; background-color: inherit; }");
 xpd.styleSheet.insertRule(".number-cell { text-align: right; }");
 xpd.styleSheet.insertRule(`.speed-table tr:nth-child(2n) { background-color: oklch(95.0% 0.005 17.25); }`);
 
