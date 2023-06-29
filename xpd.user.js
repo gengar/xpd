@@ -2619,7 +2619,7 @@ function createMiniBuffer() {
   isMinibuffer = function(obj) { return getWrappedJSObject(obj) === mini; };
   mini.style.display = "none";
   $f.appendChild(mini);
-  xpd.styleSheet.insertRule("#mini-buffer{margin-left: 1em}", 0);
+  xpd.styleSheet.insertRule("#mini-buffer { margin-left: 1em; }", 0);
 }
 
 // minibufferCompletion :: "command"
@@ -3417,7 +3417,7 @@ function setTableStyleNowrap() {
   const element = $d.createElement('style');
   element.appendChild($d.createTextNode(''));
   $d.getElementsByTagName('head')[0].appendChild(element);
-  element.sheet.insertRule("td{white-space:nowrap;}", 0);
+  element.sheet.insertRule("td { white-space:nowrap; }", 0);
 }
 
 // --- Command ---
