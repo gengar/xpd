@@ -1669,13 +1669,12 @@ class Buffer {
       console.error(er);
     });
   }
-  static getTexts() {
-    return Array.prototype.filter.call($d.getElementsByTagName("input"),
-                                       t => t.type == "text");
+  static getInputs() {
+    return Array.from($f.querySelectorAll("input[type=text], select"));
   }
   saveForm() {
-    const texts = Buffer.getTexts();
-    this.form = texts.map(t => t.value);
+    const inputs = Buffer.getInputs();
+    this.form = inputs.map(t => t.value);
     this.pd = $f.PD.value;
   }
   restoreForm() {
@@ -1684,8 +1683,8 @@ class Buffer {
 
     const form = this.form;
     if (form) {
-      const texts = Buffer.getTexts();
-      texts.forEach((t, i) => { t.value = form[i]; });
+      const inputs = Buffer.getInputs();
+      inputs.forEach((t, i) => { t.value = form[i]; });
     }
     else {
       partyReflectForm(this.party);
@@ -1699,9 +1698,9 @@ class Buffer {
     }
     const n = Number(this.name);
 
-    const texts = Buffer.getTexts();
+    const inputs = Buffer.getInputs();
     const pseudoForm = {};
-    texts.forEach((t, i) => {
+    inputs.forEach((t, i) => {
       pseudoForm[t.name] = { value: this.form[i] };
     });
     try {
@@ -1745,7 +1744,11 @@ function selectBuffer(buf) {
   if (getBuffer(name)) {
     currentBuffer().saveForm();
     bufferMap.setHead(name);
-    currentBuffer().restoreForm();
+
+    const newbuf = currentBuffer();
+    newbuf.initialize.then(() => {
+      newbuf.restoreForm();
+    });
   }
   else {
     throw new ImplementationError("Buffer `" + buf.toSource() + "' is not in bufferMap");
@@ -3200,6 +3203,7 @@ function getTable() {
 const formPokeWidth = (xpd.fontSize - 1) * 5;
 function createPokeInput(text, no){
   const input = $d.createElement('input');
+  input.type = "text";
   input.value = text;
   input.style.width = formPokeWidth;
   input.setAttribute("name", "POKE" + no);
@@ -4110,8 +4114,6 @@ function switchBlock(e) {
 interactive(switchBlock, "ブロック単位で移動", "form");
 
 function getBeginningOfLine(textbox) {
-  // const index = textboxIndexes[textbox.name];
-  // const base = index - index % lineWidth;
   return $f[`LV${getLineNumber(textbox)}`];
 }
 
@@ -4785,7 +4787,6 @@ interactive(describeRule);
 
 
 // --- Command:Utilities:Snapshots ---
-
 const snapshotPrefix = "xpd-snapshot-";
 const snapshotNamesKey = "xpd-snapshots";
 
@@ -4863,7 +4864,6 @@ async function listSnapshots() {
 interactive(listSnapshots, "スナップショット一覧");
 
 // --- Command:Utilities:Others ---
-
 const generateId = (
   function () {
     const base = "generatedId";
@@ -4918,7 +4918,6 @@ interactive(help);
 
 // --- Utilities ---
 // --- Utilities:Version
-
 const versionFormat = /^(\d+)\.(\d+)\.(\d+)(?:-([A-Za-z].*))?/;
 function versionLessThan(v1, v2) {
   const [ma1, ma2] = [v1, v2].map(v => versionFormat.exec(v));
