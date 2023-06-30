@@ -4115,7 +4115,9 @@ function completeForTabCommand0(e) {
     return true;
   }
   else if (isMinibuffer(e.target)) {
-    complete(e);
+    if (minibufferCompletion) {
+      complete(e);
+    }
     return false;
   }
   else {
@@ -4166,16 +4168,19 @@ interactive(beginningOfNextLine, "次の行の種族へ移動", "form");
 
 // --- Command:AutoCompletion ---
 function autoMessageCandidates(e) {
-  if (e.target.value) {
-    const ary = completeGetCandidates(e.target);
-    if (ary != null) {
-      message(ary.length == 0 ? "[No match]" :
-              ary.length == 1 ? ary[0] :
-              createCandidatesMessage(e.target, ary));
+  const target = e.target;
+  if (!isMinibuffer(target) || minibufferCompletion) {
+    if (target.value) {
+      const ary = completeGetCandidates(target);
+      if (ary != null) {
+        message(ary.length == 0 ? "[No match]" :
+                ary.length == 1 ? ary[0] :
+                createCandidatesMessage(target, ary));
+      }
     }
-  }
-  else {
-    message();
+    else {
+      message();
+    }
   }
 }
 
