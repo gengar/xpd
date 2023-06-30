@@ -3826,13 +3826,13 @@ function completeFromItem(node) {
   return completeFromDataArray(xpd.custom.smartCompletionMode ? effectiveItems : ItemData.raw, node);
 }
 
-function makeRegexp(str) {
+function makeRegExp(str) {
   return RegExp("^" + regexpQuote(str));
 }
 
-function makeMinibufferCompleteRegexp(str) {
+function makeMinibufferCompleteRegExp(str) {
   if (minibufferCompletion === "command") {
-    return makeRegexp(str);
+    return makeRegExp(str);
   }
   else {
     return makeCompleteRegExp(str, true);
@@ -3840,7 +3840,7 @@ function makeMinibufferCompleteRegexp(str) {
 }
 
 function completeFromCommand(node) {
-  const re = makeRegexp(node.value);
+  const re = makeRegExp(node.value);
   const ary = [];
   const insideFormFlag = isTheForm(commandTarget.form) && /\d/.test(commandTarget.name);
   for (const [name, command] of xpd.command) {
@@ -3860,7 +3860,7 @@ function completeMinibuffer(node) {
   else {
     const {getIterator} = minibufferCompletion;
     const result = [];
-    const re = makeMinibufferCompleteRegexp(node.value);
+    const re = makeMinibufferCompleteRegExp(node.value);
     for (const e of getIterator()) {
       if (re.test(e)) {
         result.push(e);
@@ -3962,7 +3962,7 @@ function complete(e, modestly) {
         }
       }
       /* kir で キ にしてしまわないように(キrとはならない) */
-      if ((isMinibuffer(node) ? makeMinibufferCompleteRegexp : makeCompleteRegExp)(node.value).test(r)) {
+      if ((isMinibuffer(node) ? makeMinibufferCompleteRegExp : makeCompleteRegExp)(node.value).test(r)) {
         node.value = r;
       }
     }
