@@ -3421,12 +3421,7 @@ function fixFormSizes() {
   fixMoveSize();
 }
 
-function setTableStyleNowrap() {
-  const element = $d.createElement('style');
-  element.appendChild($d.createTextNode(''));
-  $d.getElementsByTagName('head')[0].appendChild(element);
-  element.sheet.insertRule("td { white-space:nowrap; }", 0);
-}
+xpd.styleSheet.insertRule("td { white-space: nowrap; }", 0);
 
 // --- Command ---
 function getLineNumber(input) {
@@ -4999,7 +4994,6 @@ function initialize3() {
 
   stripTableHeader();
   fixFormSizes();
-  setTableStyleNowrap();
 
   documentKeymapObserver = documentKeymap.observe("keydown", $d);
   formKeymapObserver = formKeymap.observe("keydown", $f);
