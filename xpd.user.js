@@ -4000,7 +4000,8 @@ function nextLine(e) {
     return false;
   }
   const n = Number(/\d/.exec(target.name)[0]);
-  $f[RegExp.leftContext + (n + 1) % 6 + RegExp.rightContext].select();
+  const elem = $f[RegExp.leftContext + (n + 1) % 6 + RegExp.rightContext];
+  elem.select ? elem.select() : elem.focus();
   return false;
 }
 interactive(nextLine, "次の行へ移動", "form");
@@ -4012,7 +4013,8 @@ function previousLine(e) {
     return false;
   }
   const n = Number(/\d/.exec(target.name)[0]);
-  $f[RegExp.leftContext + (n + 5) % 6 + RegExp.rightContext].select();
+  const elem = $f[RegExp.leftContext + (n + 5) % 6 + RegExp.rightContext];
+  elem.select ? elem.select() : elem.focus();
   return false;
 }
 interactive(previousLine, "前の行へ移動", "form");
@@ -4032,24 +4034,36 @@ function initializeTextboxIndexes() {
   textboxes[textboxes.length] = textboxes[0];
 }
 
+function getTextboxIndex(target) {
+  return textboxIndexes[target.name];
+}
+
 function forwardTextbox(e) {
   complete(e, true);
-  const target = e.target;
+  let target = e.target;
   if (isMinibuffer(target)) {
     return false;
   }
-  textboxes[textboxIndexes[target.name] + 1].select();
+  if (target.type === "checkbox") {
+    beginningOfLine(e);
+  }
+  else {
+    textboxes[getTextboxIndex(target) + 1].select();
+  }
   return false;
 }
 interactive(forwardTextbox, "前方のテキストボックスへ移動", "form");
 
 function backwardTextbox(e) {
   complete(e, true);
-  const target = e.target;
+  let target = e.target;
   if (isMinibuffer(target)) {
     return false;
   }
-  textboxes[textboxIndexes[target.name] - 1].select();
+  if (target.type === "checkbox") {
+    target = getBeginningOfLine(target);
+  }
+  textboxes[getTextboxIndex(target) - 1].select();
   return false;
 }
 interactive(backwardTextbox, "後方のテキストボックスへ移動", "form");
@@ -4096,9 +4110,9 @@ function switchBlock(e) {
 interactive(switchBlock, "ブロック単位で移動", "form");
 
 function getBeginningOfLine(textbox) {
-  const index = textboxIndexes[textbox.name];
-  const base = index - index % lineWidth;
-  return textboxes[base];
+  // const index = textboxIndexes[textbox.name];
+  // const base = index - index % lineWidth;
+  return $f[`LV${getLineNumber(textbox)}`];
 }
 
 function beginningOfLine(e) {
@@ -4373,14 +4387,16 @@ function createPPUPSelectbox() {
 
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 4; j++) {
-      const waza = $f[`WAZA${i}_${j}`];
-      const select = makeSelectFromArray(`PPUP${i}_${j}`, a);
+      const wazaName = `WAZA${i}_${j}`;
+      const waza = $f[wazaName];
+      const ppupName = `PPUP${i}_${j}`;
+      const select = makeSelectFromArray(ppupName, a);
       select.className = "ppup";
       select.value = party[i].p_up[j];
+      textboxIndexes[ppupName] = textboxIndexes[wazaName];
 
       waza.parentNode.appendChild(select);
       addEventListenerUnsafe(select, "change", ev => {
-
         currentBuffer().party[i].p_up[j] = ev.target.value;
       });
     }
@@ -4400,6 +4416,9 @@ function toggleFocusPPUP(ev) {
   if (ma) {
     const [, type, i, j] = ma;
     $f[`${type === "WAZA" ? "PPUP" : "WAZA"}${i}_${j}`].focus();
+  }
+  else {
+    throw new UserError("技欄ではありません");
   }
 }
 interactive(toggleFocusPPUP, "ポイントアップの使用回数とフォーカスを切り替え");
@@ -5065,9 +5084,9 @@ function initialize3() {
   createHiddenpowerColumn();
   createHPColumn();
   createSexColumn();
-  createPPUPSelectbox();
   createSwapCheckBox();
   initializeTextboxIndexes();
+  createPPUPSelectbox();
 
   createMiniBuffer();
   createModeLine();
