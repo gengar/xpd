@@ -1615,6 +1615,7 @@ function partyReflectForm(poke) {
     }
     for (let j = 0; j < 4; j++) {
       form["WAZA" + i + "_" + j].value = MoveData.fromID(poke[i].mv[j]).name;
+      form["PPUP" + i + "_" + j].value = poke[i].p_up[j];
     }
     form["ITEM" + i].value = ItemData.fromID(poke[i].item).name;
   }
@@ -2016,6 +2017,18 @@ function makeTable(ary, header) {
     });
   });
   return table;
+}
+
+function makeSelectFromArray(name, ary, none) {
+  const select = document.createElement("select");
+  select.name = name;
+  if (none != null) {
+    select.appendChild(makeElement("option", {"value": ""}, none));
+  }
+  for (const i in ary) {
+    select.appendChild(makeElement("option", {"value": i}, ary[i]));
+  }
+  return select;
 }
 
 function createStyleSheet(id) {
@@ -4233,6 +4246,9 @@ function killLineN(n) {
   }
   if (xpd.custom.killLineKillPP) {
     currentBuffer().party[n].p_up = [3, 3, 3, 3];
+    for (let i = 0; i < 4; i++) {
+      $f["PPUP" + n + "_" + i].value = 3;
+    }
   }
 }
 
@@ -4345,6 +4361,48 @@ function toggleLevelAll(e) {
   return false;
 }
 interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
+
+// --- Command:Edit:PPUP
+const PPUPStyleSheet = createStyleSheet("xpd-stylesheet-ppup");
+PPUPStyleSheet.insertRule(".ppup { border: 0; }");
+PPUPStyleSheet.insertRule(".ppup { display: none; }");
+
+function createPPUPSelectbox() {
+  const a = Array.from(Array(4), (_, i) => i);
+  const party = currentBuffer().party;
+
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 4; j++) {
+      const waza = $f[`WAZA${i}_${j}`];
+      const select = makeSelectFromArray(`PPUP${i}_${j}`, a);
+      select.className = "ppup";
+      select.value = party[i].p_up[j];
+
+      waza.parentNode.appendChild(select);
+      addEventListenerUnsafe(select, "change", ev => {
+
+        currentBuffer().party[i].p_up[j] = ev.target.value;
+      });
+    }
+  }
+}
+
+defcustom("editPPUPMode", "ポイントアップの使用回数を編集", false, true);
+function _editPPUPMode(on) {
+  PPUPStyleSheet.deleteRule(0);
+  PPUPStyleSheet.insertRule(`.ppup { display: ${on ? "" : "none"}; }`);
+}
+const editPPUPMode = defineMode(_editPPUPMode, "PPUP", "ポイントアップの使用回数を編集");
+
+function toggleFocusPPUP(ev) {
+  const waza = ev.target;
+  const ma = /^(WAZA|PPUP)(.)_(.)$/.exec(waza.name);
+  if (ma) {
+    const [, type, i, j] = ma;
+    $f[`${type === "WAZA" ? "PPUP" : "WAZA"}${i}_${j}`].focus();
+  }
+}
+interactive(toggleFocusPPUP, "ポイントアップの使用回数とフォーカスを切り替え");
 
 // --- Command:Utilities ---
 // --- Command:Utilities:SpeedTable ---
@@ -4971,6 +5029,8 @@ function initializeKeymap() {
   systemCommandMap.define("i", importPD);
   systemCommandMap.define("e", exportPD);
   systemCommandMap.define("r", setRule);
+  systemCommandMap.define("C-p", xpd.command.get("edit-ppup-mode"));
+  systemCommandMap.define("p", toggleFocusPPUP);
 }
 
 // --- Initialize ---
@@ -5005,6 +5065,7 @@ function initialize3() {
   createHiddenpowerColumn();
   createHPColumn();
   createSexColumn();
+  createPPUPSelectbox();
   createSwapCheckBox();
   initializeTextboxIndexes();
 
