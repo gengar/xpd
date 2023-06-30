@@ -2018,12 +2018,15 @@ function makeTable(ary, header) {
   return table;
 }
 
+function createStyleSheet(id) {
+  const style = $d.createElement('style');
+  $d.querySelector('head').appendChild(style);
+  style.id = id;
+  return style.sheet;
+}
+
 // --- StyleSheet ---
-xpd.styleSheet = (() => {
-  const element = $d.createElement('style');
-  $d.querySelector('head').appendChild(element);
-  return element.sheet;
-})();
+xpd.styleSheet = createStyleSheet("xpd-stylesheet");
 
 // --- Echo Area ---
 function createEchoArea() {
@@ -4434,12 +4437,7 @@ function getSpeedTable() {
   return speedTableCache.get(ruleName) ?? setupSpeedTable(ruleName);
 }
 
-const speedTableSheet =
-    (function () {
-      const element = $d.createElement('style');
-      $d.getElementsByTagName('head')[0].appendChild(element);
-      return element.sheet;
-    })();
+const speedTableSheet = createStyleSheet("xpd-stylesheet-speed-table");
 
 xpd.styleSheet.insertRule(".speed-table { empty-cells: show; float: left; background-color: inherit; }");
 xpd.styleSheet.insertRule(".number-cell { text-align: right; }");
