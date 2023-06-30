@@ -4423,7 +4423,28 @@ function toggleFocusPPUP(ev) {
     throw new UserError("技欄ではありません");
   }
 }
-interactive(toggleFocusPPUP, "ポイントアップの使用回数とフォーカスを切り替え");
+interactive(toggleFocusPPUP, "ポイントアップと技のフォーカスをトグル");
+
+function getPPUPFromEvent(ev) {
+  const s = ev.key && Key.stringifyEvent(ev);
+  return s && /^[0123]$/.test(s) && s;
+}
+
+function getPPUPFromPrompt() {
+  const s = prompt("ポイントアップの使用回数:");
+  return s && /^[0123]$/.test(s) && s;
+}
+
+function setPPUPAll(ev) {
+  const value = getPPUPFromEvent(ev) ?? getPPUPFromPrompt();
+  const changeEvent = new Event("change");
+  // NodeList の foreach を使うと何故か Permission Denied
+  Array.prototype.forEach.call($d.querySelectorAll(".ppup"), select => {
+    select.value = value;
+    select.dispatchEvent(changeEvent);
+  });
+}
+interactive(setPPUPAll, "全てのポイントアップをセット");
 
 // --- Command:Utilities ---
 // --- Command:Utilities:SpeedTable ---
@@ -5047,7 +5068,10 @@ function initializeKeymap() {
   systemCommandMap.define("i", importPD);
   systemCommandMap.define("e", exportPD);
   systemCommandMap.define("r", setRule);
-  systemCommandMap.define("C-p", xpd.command.get("edit-ppup-mode"));
+  systemCommandMap.define("C-p e", xpd.command.get("edit-ppup-mode"));
+  for (let i = 0; i < 4; i++) {
+    systemCommandMap.define(`C-p ${i}`, setPPUPAll);
+  }
   systemCommandMap.define("p", toggleFocusPPUP);
 }
 
