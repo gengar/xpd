@@ -786,7 +786,7 @@ class ItemData extends Data {
     new ItemData("こおったきのみ", 81, true),
     new ItemData("どくバリ", 82, true),
     new ItemData("おうじゃのしるし", 83, true),
-    new ItemData("にがいきのみ", 84, true),
+    new ItemData("にがいきのみ", 84, false),
     new ItemData("はっかのみ", 85, true),
     new ItemData("あかぼんぐり", 86, false),
     new ItemData("ちいさなキノコ", 87, false),
