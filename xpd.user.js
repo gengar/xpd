@@ -2374,7 +2374,7 @@ class Keymap extends KeymapValue {
   add(key, value) {
     this.table.set(key, value);
   }
-  define_keyseq(keyseq, value) {
+  defineKeyseq(keyseq, value) {
     const [key, ...rest] = keyseq;
     if (rest.length === 0) {
       this.add(key, value);
@@ -2384,12 +2384,12 @@ class Keymap extends KeymapValue {
       if (!(keymap instanceof Keymap)) {
         this.add(key, keymap = new this.constructor(key));
       }
-      keymap.define_keyseq(rest, value);
+      keymap.defineKeyseq(rest, value);
     }
   }
   define(str, value) {
     if (value instanceof KeymapValue) {
-      this.define_keyseq(Key.parse(str), value);
+      this.defineKeyseq(Key.parse(str), value);
     }
     else if (typeof(value) === "function") {
       this.define(str, xpd.commandFromFunction.get(value) ?? new Command(value));
@@ -2407,8 +2407,8 @@ class Keymap extends KeymapValue {
     }
   }
   makeSubKeymap(key, name, parent) {
-    const sub = new Keymap(name ?? key, parent);
-    this.table.set(key, sub);
+    const sub = new this.constructor(name ?? key, parent);
+    this.define(key, sub);
     return sub;
   }
   observe(type, target) {
@@ -2470,6 +2470,49 @@ class KeymapEventListener extends KeymapValue {
   }
   isAsync() {
     return this.origFunc instanceof AsyncFunction;
+  }
+}
+
+// --- Substitute Keymap ---
+class SubstituteShiftForControlKeymap extends Keymap {
+  static shiftMapping = {
+    ",": "<",
+    ".": ">",
+  };
+  static shiftedKeys = new Set(Object.values(this.shiftMapping));
+  defineKeyseq(keyseq, f) {
+    const re = /(?:(C-)?((?:M-)?(?:A-)?(S-)?)([A-Z][a-z]+|[^ ]))/;
+    super.defineKeyseq(keyseq.map(key => {
+      const [str, ctrl, rest, shift, name] = re.exec(key);
+      console.log("ma: ", [str, ctrl, rest, shift, name]);
+      if (ctrl) {
+        if (!(shift ||
+              SubstituteShiftForControlKeymap.shiftedKeys.has(name) ||
+             /[A-Z]/.test(name))) {
+          const shiftedName = SubstituteShiftForControlKeymap.shiftMapping[name];
+          if (shiftedName) {
+            console.log(`${keyseq} -> ${rest + shiftedName}`);
+            return rest + shiftedName;
+          }
+          else if (/[a-z]/.test(name)) {
+            console.log(`${keyseq} -> ${rest + name.toUpperCase()}`);
+            return rest + name.toUpperCase();
+          }
+          else {
+            console.log(`${keyseq} -> ${key.replace(/C-/, "S-")}`);
+            return key.replace(/C-/, "S-");
+          }
+        }
+        else {
+            console.log(`${keyseq} -> undef`);
+          return undefined;
+        }
+      }
+      else {
+            console.log(`${keyseq} -> ${key}`);
+        return key;
+      }
+    }).filter(x => x), f);
   }
 }
 
@@ -4998,8 +5041,8 @@ function checkLatestVersion() {
   );
 }
 
-// --- Keymap Definition ---
-function initializeKeymaps(klass) {
+// --- Keybind Definition ---
+function initializeKeybinds(klass) {
   const documentKeymap0 = new klass("document");
   const formKeymap0 = new klass("form", documentKeymap0);
 
@@ -5076,11 +5119,27 @@ function initializeKeymaps(klass) {
   documentKeymap = documentKeymap0;
 }
 
-function initializeKeymap() {
-  initializeKeymaps(Keymap);
+function setupKeymap(klass) {
+  if (documentKeymapObserver?.isActive()) {
+    documentKeymapObserver.deactivate();
+  }
+  if (formKeymapObserver?.isActive()) {
+    formKeymapObserver.deactivate();
+  }
+
+  initializeKeybinds(klass);
+
   documentKeymapObserver = documentKeymap.observe("keydown", $d);
   formKeymapObserver = formKeymap.observe("keydown", $f);
 }
+
+defcustom("substituteShiftForControlKeymapMode", "Controlキーの代わりにShiftキーを使うモード", false);
+
+function _substituteShiftForControlKeymapMode(on) {
+  setupKeymap(on ? SubstituteShiftForControlKeymap : Keymap);
+}
+
+const substituteShiftForControlKeymapMode = defineMode(_substituteShiftForControlKeymapMode, "ShiftKeymap", "Controlキーの代わりにShiftキーを使うモード");
 
 // --- Initialize ---
 function initialize1() {
@@ -5124,7 +5183,6 @@ function initialize3() {
   setStatus();
   setHiddenpower();
 
-  initializeKeymap();
   initializeAutoCompleteMode();
 
   initializeBackButton();
