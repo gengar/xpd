@@ -4998,15 +4998,6 @@ function checkLatestVersion() {
   );
 }
 
-// --- Aggressive Keybind Mode ---
-var systemCommandMap = new Keymap("C-x");
-defcustom("aggressiveKeybindMode", "", true);
-function _aggressiveKeybindMode(on) {
-  const k = systemCommandMap.name;
-  on ? documentKeymap.define(k, systemCommandMap) : documentKeymap.remove(k);
-}
-const aggressiveKeybindMode = defineMode(_aggressiveKeybindMode, "AK");
-
 // --- Keymap Definition ---
 function initializeKeymap() {
   formKeymap.define("Tab", completeForTabCommand);
@@ -5053,6 +5044,8 @@ function initializeKeymap() {
 
   formKeymap.define("C-s", displaySpeedTable);
   documentKeymap.define("C-s", globalDisplaySpeedTable);
+
+  let systemCommandMap = documentKeymap.makeSubKeymap("C-x");
 
   systemCommandMap.define("C-s", save);
   systemCommandMap.define("C-c", quit);
