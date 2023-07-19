@@ -2,6 +2,7 @@
 // @name           xpd
 // @namespace      gengar.hatenadiary.org
 // @description    GLCのパーティ構築システムの一括変更を使いやすくするスクリプト
+// @version        2.2.0
 // @include        http://psense.lib.net/_/PDINPUT.cgi*
 // @grant          unsafeWindow
 // @grant          GM.xmlHttpRequest
@@ -45,7 +46,7 @@ if (!document.forms[0]?.S2) {
 }
 
 const xpd = {
-  version: "2.2.0-alpha"
+  version: "2.2.0"
 };
 
 function exportUnsafe(f) {
