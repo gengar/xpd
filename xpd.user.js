@@ -1493,7 +1493,6 @@ class BadHTTPResponse extends HTTPError {
 
 // --- System ---
 xpd.prefDefault = {};
-xpd.pref = Object.create(xpd.prefDefault);
 const initializeHooks = [];
 
 function getNumber() {
@@ -1832,27 +1831,29 @@ function prefStorageNameViaCVD(cvd) {
     globalPrefStorageName();
 }
 
-xpd.custom = new Proxy(xpd.pref, {
-  get(_pref, name, _proxy) {
-    return fetchPref(name)[name];
-  },
-  set(_pref, name, value, _proxy) {
-    const cvd = fetchCVD(name);
-    const pref = cvd.getPref();
-    pref[name] = value;
-    cvd.changeHooks.forEach(f => f(value));
-    storePref(pref, prefStorageNameViaCVD(cvd));
-    return true;
-  },
-  deleteProperty(_pref, name) {
-    const cvd = fetchCVD(name);
-    const pref = cvd.getPref();
-    delete fetchPref(name)[name];
-    cvd.changeHooks.forEach(f => f());
-    storePref(pref, prefStorageNameViaCVD(cvd));
-    return true;
-  }
-});
+function initializeCustom() {
+  xpd.custom = new Proxy(xpd.pref, {
+    get(_pref, name, _proxy) {
+      return fetchPref(name)[name];
+    },
+    set(_pref, name, value, _proxy) {
+      const cvd = fetchCVD(name);
+      const pref = cvd.getPref();
+      pref[name] = value;
+      cvd.changeHooks.forEach(f => f(value));
+      storePref(pref, prefStorageNameViaCVD(cvd));
+      return true;
+    },
+    deleteProperty(_pref, name) {
+      const cvd = fetchCVD(name);
+      const pref = cvd.getPref();
+      delete fetchPref(name)[name];
+      cvd.changeHooks.forEach(f => f());
+      storePref(pref, prefStorageNameViaCVD(cvd));
+      return true;
+    }
+  });
+}
 
 function customAddChangeHook(name, f) {
   fetchCVD(name).changeHooks.push(f);
@@ -5088,6 +5089,8 @@ function handleInitializationError(er) {
 }
 
 async function initialize2() {
+  xpd.pref = await loadPref(globalPrefStorageName(), xpd.prefDefault);
+  initializeCustom();
   initialBuffer(getNumber(), initLoadParty());
   await currentBuffer().initialize;
 }
