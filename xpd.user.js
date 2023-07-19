@@ -2729,8 +2729,8 @@ function enterCommand(e) {
   }
 }
 
-const documentKeymap = new Keymap("document");
-const formKeymap = new Keymap("form", documentKeymap);
+var documentKeymap;
+var formKeymap;
 var documentKeymapObserver;
 var formKeymapObserver;
 
@@ -4999,31 +4999,34 @@ function checkLatestVersion() {
 }
 
 // --- Keymap Definition ---
-function initializeKeymap() {
-  formKeymap.define("Tab", completeForTabCommand);
-  formKeymap.define("S-Tab", completeForTabCommand2);
-  formKeymap.define("Space", completeCommand);
-  formKeymap.define("C-i", completeForTabCommand);
-  formKeymap.define("C-n", nextLine);
-  formKeymap.define("C-p", previousLine);
-  formKeymap.define("A-k", killLine);
-  formKeymap.define("A-f", forwardTextbox);
-  formKeymap.define("A-b", backwardTextbox);
-  formKeymap.define("A-t", transposeMoves);
-  formKeymap.define("C-o", switchBlock);
-  formKeymap.define("A-a", beginningOfLine);
-  formKeymap.define("C-j", beginningOfNextLine);
-  formKeymap.define("C-I", completeForTabCommand2);
-  formKeymap.define("@", markSwapingCheckbox);
+function initializeKeymaps(klass) {
+  const documentKeymap0 = new klass("document");
+  const formKeymap0 = new klass("form", documentKeymap0);
 
-  documentKeymap.define("C-,", previousBuffer);
-  documentKeymap.define("C-.", nextBuffer);
+  formKeymap0.define("Tab", completeForTabCommand);
+  formKeymap0.define("S-Tab", completeForTabCommand2);
+  formKeymap0.define("Space", completeCommand);
+  formKeymap0.define("C-i", completeForTabCommand);
+  formKeymap0.define("C-n", nextLine);
+  formKeymap0.define("C-p", previousLine);
+  formKeymap0.define("A-k", killLine);
+  formKeymap0.define("A-f", forwardTextbox);
+  formKeymap0.define("A-b", backwardTextbox);
+  formKeymap0.define("A-t", transposeMoves);
+  formKeymap0.define("C-o", switchBlock);
+  formKeymap0.define("A-a", beginningOfLine);
+  formKeymap0.define("C-j", beginningOfNextLine);
+  formKeymap0.define("C-I", completeForTabCommand2);
+  formKeymap0.define("@", markSwapingCheckbox);
 
-  const globalSetLevelMap = documentKeymap.makeSubKeymap("C-l", "global-set-level");
+  documentKeymap0.define("C-,", previousBuffer);
+  documentKeymap0.define("C-.", nextBuffer);
+
+  const globalSetLevelMap = documentKeymap0.makeSubKeymap("C-l", "global-set-level");
 
   globalSetLevelMap.define("C-t", toggleLevelAll);
 
-  const setLevelMap = formKeymap.makeSubKeymap("C-l", "local-set-level", globalSetLevelMap);
+  const setLevelMap = formKeymap0.makeSubKeymap("C-l", "local-set-level", globalSetLevelMap);
   const setLevelAllMap = globalSetLevelMap.makeSubKeymap("C-a", "set-level-globally");
   for (let i = 0; i < 10; i++) {
     setLevelMap.define(String(i), setLevel);
@@ -5036,16 +5039,16 @@ function initializeKeymap() {
   setLevelMap.define("-", setLevelFromPrompt);
   setLevelAllMap.define("-", setLevelAllFromPrompt);
 
-  documentKeymap.define("A-x", executeCommand);
-  documentKeymap.define("C-g", quitCommand);
+  documentKeymap0.define("A-x", executeCommand);
+  documentKeymap0.define("C-g", quitCommand);
 
-  formKeymap.define("C-m", enterCommand);
-  formKeymap.define("Enter", enterCommand);
+  formKeymap0.define("C-m", enterCommand);
+  formKeymap0.define("Enter", enterCommand);
 
-  formKeymap.define("C-s", displaySpeedTable);
-  documentKeymap.define("C-s", globalDisplaySpeedTable);
+  formKeymap0.define("C-s", displaySpeedTable);
+  documentKeymap0.define("C-s", globalDisplaySpeedTable);
 
-  let systemCommandMap = documentKeymap.makeSubKeymap("C-x");
+  let systemCommandMap = documentKeymap0.makeSubKeymap("C-x");
 
   systemCommandMap.define("C-s", save);
   systemCommandMap.define("C-c", quit);
@@ -5068,6 +5071,15 @@ function initializeKeymap() {
     systemCommandMap.define(`C-p ${i}`, setPPUPAll);
   }
   systemCommandMap.define("p", toggleFocusPPUP);
+
+  formKeymap = formKeymap0;
+  documentKeymap = documentKeymap0;
+}
+
+function initializeKeymap() {
+  initializeKeymaps(Keymap);
+  documentKeymapObserver = documentKeymap.observe("keydown", $d);
+  formKeymapObserver = formKeymap.observe("keydown", $f);
 }
 
 // --- Initialize ---
@@ -5093,9 +5105,6 @@ function initialize3() {
 
   stripTableHeader();
   fixFormSizes();
-
-  documentKeymapObserver = documentKeymap.observe("keydown", $d);
-  formKeymapObserver = formKeymap.observe("keydown", $f);
 
   setInputs();
   setButtons();
