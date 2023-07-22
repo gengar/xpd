@@ -3493,7 +3493,7 @@ interactive(quit, "パーティ一覧に戻る");
 
 function newParty() {
   const b = $d.getElementsByName("submit")[2];
-  if (b.value != "再現") {
+  if (b.value !== "新規保存") {
     throw new ImplementationError("再現ボタンがみつかりません(value=\"" + b.value + "\")");
   }
   b.click();
