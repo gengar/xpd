@@ -1670,7 +1670,7 @@ class Buffer {
     });
   }
   static getInputs() {
-    return Array.from($f.querySelectorAll("input[type=text], select"));
+    return Array.from($f.querySelectorAll("input[type=text], input:not(*[type]), select"));
   }
   saveForm() {
     const inputs = Buffer.getInputs();
