@@ -1651,7 +1651,7 @@ async function loadPref(name, parent) {
   return pref;
 }
 
-// --- System:Buffer
+// --- System:Buffer ---
 var bufferMap = new DoubleLinkedHashMap;
 class Buffer {
   constructor(name, party) {
@@ -4380,7 +4380,7 @@ function toggleLevelAll(e) {
 }
 interactive(toggleLevelAll, "55-50編成と53-51編成をトグル");
 
-// --- Command:Edit:PPUP
+// --- Command:Edit:PPUP ---
 const PPUPStyleSheet = createStyleSheet("xpd-stylesheet-ppup");
 PPUPStyleSheet.insertRule(".ppup { border: 0; }");
 PPUPStyleSheet.insertRule(".ppup { display: none; }");
@@ -4940,7 +4940,7 @@ help.string = '<p><a href="http://o-s.sub.jp/xpd/" target="_blank">xpd wiki</a><
 interactive(help);
 
 // --- Utilities ---
-// --- Utilities:Version
+// --- Utilities:Version ---
 const versionFormat = /^(\d+)\.(\d+)\.(\d+)(?:-([A-Za-z].*))?/;
 function versionLessThan(v1, v2) {
   const [ma1, ma2] = [v1, v2].map(v => versionFormat.exec(v));
