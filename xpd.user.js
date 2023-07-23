@@ -1531,12 +1531,12 @@ function getCookies() {
 
 function setCookie(name, value) {
   const expires = (new Date).toGMTString().replace(/\d\d\d\d/, function (s) { return parseInt(s) + 5; });
-  const val = name + "=" + value + "; expires=" + expires + "; path=/_/; sameSite=lax";
+  const val = name + "=" + value + "; expires=" + expires + "; path=/_/; sameSite=none";
   $d.cookie = val;
 }
 
 function deleteCookie(name) {
-  $d.cookie = name + "=; expires=" + (new Date((new Date()) - 3600)).toGMTString() + "; path=/_/; sameSite=lax";
+  $d.cookie = name + "=; expires=" + (new Date((new Date()) - 3600)).toGMTString() + "; path=/_/; sameSite=none";
 }
 
 function extendCookiesDeadline(cookie) {
